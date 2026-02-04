@@ -9,4 +9,5 @@ public interface IProductRepository : IRepository<Product, Guid>
     Task<IReadOnlyList<Product>> GetByCategoryIdAsync(Guid categoryId, CancellationToken ct = default);
     Task<bool> ExistsAsync(Guid id, CancellationToken ct = default);
     Task<bool> SkuExistsAsync(string sku, CancellationToken ct = default);
+    Task<IReadOnlyList<Product>> GetAllAsync(CancellationToken ct = default);
 }
