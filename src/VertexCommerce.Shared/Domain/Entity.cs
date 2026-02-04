@@ -15,7 +15,12 @@ public abstract class Entity<TId> : IEquatable<Entity<TId>>
     {
         Id = id;
     }
-
+    
+    public void SetUpdatedAt()
+    {
+        UpdatedAt = DateTime.UtcNow;
+    }
+    
     public bool Equals(Entity<TId>? other)
     {
         if (other is null) return false;
