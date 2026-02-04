@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\VertexCommerce.Modules.Catalog\VertexCommerce.Modules.Catalog.csproj" />
+      <ProjectReference Include="..\VertexCommerce.Modules.Orders\VertexCommerce.Modules.Orders.csproj" />
+      <ProjectReference Include="..\VertexCommerce.Modules.Basket\VertexCommerce.Modules.Basket.csproj" />
+      <ProjectReference Include="..\VertexCommerce.Modules.Customers\VertexCommerce.Modules.Customers.csproj" />
+      <ProjectReference Include="..\VertexCommerce.Modules.Identity\VertexCommerce.Modules.Identity.csproj" />
+    </ItemGroup>
+
+</Project>
