@@ -14,4 +14,9 @@
       <ProjectReference Include="..\VertexCommerce.Modules.Identity\VertexCommerce.Modules.Identity.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+      <PackageReference Include="Serilog.AspNetCore" />
+    </ItemGroup>
+
 </Project>
