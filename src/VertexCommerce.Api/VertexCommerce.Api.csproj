@@ -12,6 +12,10 @@
       <ProjectReference Include="..\VertexCommerce.Modules.Basket\VertexCommerce.Modules.Basket.csproj" />
       <ProjectReference Include="..\VertexCommerce.Modules.Customers\VertexCommerce.Modules.Customers.csproj" />
       <ProjectReference Include="..\VertexCommerce.Modules.Identity\VertexCommerce.Modules.Identity.csproj" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
     </ItemGroup>
 
     <ItemGroup>
