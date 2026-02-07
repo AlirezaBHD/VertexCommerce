@@ -3,6 +3,7 @@ using Serilog;
 using VertexCommerce.Api.Endpoints;
 using VertexCommerce.Api.Middleware;
 using VertexCommerce.Modules.Catalog;
+using VertexCommerce.Modules.Orders;
 using VertexCommerce.Shared.Behaviors;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +22,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 builder.Services.AddCatalogModule(builder.Configuration);
+builder.Services.AddOrdersModule(builder.Configuration);
+
 
 var app = builder.Build();
 
@@ -36,5 +39,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapCatalogEndpoints();
+app.MapOrdersEndpoints();
 
 app.Run();
