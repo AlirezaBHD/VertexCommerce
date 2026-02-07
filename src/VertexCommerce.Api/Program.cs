@@ -1,6 +1,7 @@
 using Scalar.AspNetCore;
 using Serilog;
 using VertexCommerce.Api.Endpoints;
+using VertexCommerce.Api.GraphQL;
 using VertexCommerce.Api.Middleware;
 using VertexCommerce.Modules.Basket;
 using VertexCommerce.Modules.Catalog;
@@ -25,7 +26,7 @@ builder.Services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(Valid
 builder.Services.AddCatalogModule(builder.Configuration);
 builder.Services.AddOrdersModule(builder.Configuration);
 builder.Services.AddBasketModule(builder.Configuration);
-
+builder.Services.AddGraphQLServer().AddQueryType<Query>();
 
 var app = builder.Build();
 
@@ -42,6 +43,8 @@ if (app.Environment.IsDevelopment())
 
 app.MapCatalogEndpoints();
 app.MapOrdersEndpoints();
+app.MapGraphQL();
 app.MapBasketEndpoints();
+app.MapCheckoutEndpoints();
 
 app.Run();

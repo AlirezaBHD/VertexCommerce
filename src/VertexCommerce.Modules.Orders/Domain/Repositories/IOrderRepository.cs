@@ -10,4 +10,5 @@ public interface IOrderRepository : IRepository<Order, Guid>
     Task<IReadOnlyList<Order>> GetByCustomerIdAsync(Guid customerId, CancellationToken ct = default);
     Task<IReadOnlyList<Order>> GetByStatusAsync(OrderStatus status, CancellationToken ct = default);
     Task<bool> ExistsAsync(Guid id, CancellationToken ct = default);
+    Task<IReadOnlyList<Order>> GetAllAsync( CancellationToken ct = default);
 }

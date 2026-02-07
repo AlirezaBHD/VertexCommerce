@@ -7,6 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="HotChocolate.AspNetCore" />
+      <PackageReference Include="HotChocolate.Data" />
+      <PackageReference Include="HotChocolate.Types" />
       <ProjectReference Include="..\VertexCommerce.Modules.Catalog\VertexCommerce.Modules.Catalog.csproj" />
       <ProjectReference Include="..\VertexCommerce.Modules.Orders\VertexCommerce.Modules.Orders.csproj" />
       <ProjectReference Include="..\VertexCommerce.Modules.Basket\VertexCommerce.Modules.Basket.csproj" />
@@ -23,6 +26,10 @@
       <PackageReference Include="Serilog.AspNetCore" />
       <PackageReference Include="Scalar.AspNetCore" />
       <PackageReference Include="Swashbuckle.AspNetCore" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="GraphQL\Common\" />
     </ItemGroup>
 
 </Project>
