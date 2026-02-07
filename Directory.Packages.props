@@ -28,6 +28,8 @@
     <PackageVersion Include="Testcontainers.MongoDb" Version="4.4.0" />
     <!-- Utilities -->
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.12.36" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="10.1.2" />
     <PackageVersion Include="Serilog.AspNetCore" Version="9.0.0" />
   </ItemGroup>
 </Project>

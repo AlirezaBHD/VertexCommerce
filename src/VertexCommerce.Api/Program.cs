@@ -1,3 +1,4 @@
+using Scalar.AspNetCore;
 using Serilog;
 using VertexCommerce.Api.Endpoints;
 using VertexCommerce.Api.Middleware;
@@ -15,6 +16,7 @@ builder.Services.AddProblemDetails();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
+builder.Services.AddSwaggerGen();
 
 builder.Services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
@@ -28,6 +30,9 @@ app.UseSerilogRequestLogging();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    app.MapScalarApiReference();
 }
 
 app.MapCatalogEndpoints();
