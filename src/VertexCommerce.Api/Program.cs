@@ -26,7 +26,13 @@ builder.Services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(Valid
 builder.Services.AddCatalogModule(builder.Configuration);
 builder.Services.AddOrdersModule(builder.Configuration);
 builder.Services.AddBasketModule(builder.Configuration);
-builder.Services.AddGraphQLServer().AddQueryType<Query>();
+builder.Services
+    .AddGraphQLServer()
+    .AddQueryType<Query>()
+    .AddFiltering()
+    .AddSorting()
+    .AddProjections();
+
 
 var app = builder.Build();
 

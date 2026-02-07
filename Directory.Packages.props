@@ -4,6 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- CQRS -->
+    <PackageVersion Include="HotChocolate.Data.EntityFramework" Version="15.1.12" />
     <PackageVersion Include="MediatR" Version="12.4.1" />
     <!-- Validation -->
     <PackageVersion Include="FluentValidation" Version="11.11.0" />
