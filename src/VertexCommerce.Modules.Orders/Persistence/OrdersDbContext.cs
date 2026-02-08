@@ -1,10 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using VertexCommerce.Modules.Orders.Domain.Entities;
-using VertexCommerce.Shared.Persistence;
 
 namespace VertexCommerce.Modules.Orders.Persistence;
 
-public sealed class OrdersDbContext : DbContext, IUnitOfWork
+public sealed class OrdersDbContext : DbContext, IOrdersUnitOfWork
 {
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();

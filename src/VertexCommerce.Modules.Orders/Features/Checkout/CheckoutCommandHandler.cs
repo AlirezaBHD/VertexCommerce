@@ -1,9 +1,9 @@
 using VertexCommerce.Modules.Orders.Domain.Entities;
 using VertexCommerce.Modules.Orders.Domain.Repositories;
 using VertexCommerce.Modules.Orders.Domain.ValueObjects;
+using VertexCommerce.Modules.Orders.Persistence;
 using VertexCommerce.Shared.Contracts;
 using VertexCommerce.Shared.CQRS;
-using VertexCommerce.Shared.Persistence;
 
 namespace VertexCommerce.Modules.Orders.Features.Checkout;
 
@@ -11,12 +11,12 @@ public sealed class CheckoutCommandHandler : ICommandHandler<CheckoutCommand, Ch
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IBasketService _basketService;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IOrdersUnitOfWork _unitOfWork;
 
     public CheckoutCommandHandler(
         IOrderRepository orderRepository,
         IBasketService basketService,
-        IUnitOfWork unitOfWork)
+        IOrdersUnitOfWork unitOfWork)
     {
         _orderRepository = orderRepository;
         _basketService = basketService;

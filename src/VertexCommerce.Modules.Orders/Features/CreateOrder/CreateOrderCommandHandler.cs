@@ -1,19 +1,19 @@
 using VertexCommerce.Modules.Orders.Domain.Entities;
 using VertexCommerce.Modules.Orders.Domain.Repositories;
 using VertexCommerce.Modules.Orders.Domain.ValueObjects;
+using VertexCommerce.Modules.Orders.Persistence;
 using VertexCommerce.Shared.CQRS;
-using VertexCommerce.Shared.Persistence;
 
 namespace VertexCommerce.Modules.Orders.Features.CreateOrder;
 
 public sealed class CreateOrderCommandHandler : ICommandHandler<CreateOrderCommand, Guid>
 {
     private readonly IOrderRepository _orderRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IOrdersUnitOfWork _unitOfWork;
 
     public CreateOrderCommandHandler(
         IOrderRepository orderRepository,
-        IUnitOfWork unitOfWork)
+        IOrdersUnitOfWork unitOfWork)
     {
         _orderRepository = orderRepository;
         _unitOfWork = unitOfWork;

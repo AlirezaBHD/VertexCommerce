@@ -1,17 +1,17 @@
 using VertexCommerce.Modules.Orders.Domain.Repositories;
+using VertexCommerce.Modules.Orders.Persistence;
 using VertexCommerce.Shared.CQRS;
-using VertexCommerce.Shared.Persistence;
 
 namespace VertexCommerce.Modules.Orders.Features.CancelOrder;
 
 public sealed class CancelOrderCommandHandler : ICommandHandler<CancelOrderCommand>
 {
     private readonly IOrderRepository _orderRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IOrdersUnitOfWork _unitOfWork;
 
     public CancelOrderCommandHandler(
         IOrderRepository orderRepository,
-        IUnitOfWork unitOfWork)
+        IOrdersUnitOfWork unitOfWork)
     {
         _orderRepository = orderRepository;
         _unitOfWork = unitOfWork;
