@@ -1,10 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using VertexCommerce.Modules.Catalog.Domain.Entities;
-using VertexCommerce.Shared.Persistence;
 
 namespace VertexCommerce.Modules.Catalog.Persistence;
 
-public sealed class CatalogDbContext : DbContext, IUnitOfWork
+public sealed class CatalogDbContext : DbContext, ICatalogUnitOfWork
 {
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Category> Categories => Set<Category>();

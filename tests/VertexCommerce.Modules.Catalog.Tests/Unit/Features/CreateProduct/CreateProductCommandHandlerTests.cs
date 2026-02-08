@@ -3,8 +3,8 @@ using NSubstitute;
 using VertexCommerce.Modules.Catalog.Domain.Entities;
 using VertexCommerce.Modules.Catalog.Domain.Repositories;
 using VertexCommerce.Modules.Catalog.Features.CreateProduct;
-using VertexCommerce.Modules.Catalog.Tests.Fixtures;
-using VertexCommerce.Shared.Persistence;
+using VertexCommerce.Modules.Catalog.Persistence;
+using VertexCommerce.Modules.Catalog.Tests.Fixtures; 
 
 namespace VertexCommerce.Modules.Catalog.Tests.Unit.Features.CreateProduct;
 
@@ -12,14 +12,14 @@ public class CreateProductCommandHandlerTests
 {
     private readonly IProductRepository _productRepository;
     private readonly ICategoryRepository _categoryRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly ICatalogUnitOfWork _unitOfWork;
     private readonly CreateProductCommandHandler _handler;
 
     public CreateProductCommandHandlerTests()
     {
         _productRepository = Substitute.For<IProductRepository>();
         _categoryRepository = Substitute.For<ICategoryRepository>();
-        _unitOfWork = Substitute.For<IUnitOfWork>();
+        _unitOfWork = Substitute.For<ICatalogUnitOfWork>();
 
         _handler = new CreateProductCommandHandler(
             _productRepository,

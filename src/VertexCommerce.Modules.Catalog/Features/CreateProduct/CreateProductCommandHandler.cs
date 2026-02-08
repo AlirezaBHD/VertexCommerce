@@ -1,8 +1,8 @@
 using VertexCommerce.Modules.Catalog.Domain.Entities;
 using VertexCommerce.Modules.Catalog.Domain.Repositories;
 using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
+using VertexCommerce.Modules.Catalog.Persistence;
 using VertexCommerce.Shared.CQRS;
-using VertexCommerce.Shared.Persistence;
 
 namespace VertexCommerce.Modules.Catalog.Features.CreateProduct;
 
@@ -10,12 +10,12 @@ public sealed class CreateProductCommandHandler : ICommandHandler<CreateProductC
 {
     private readonly IProductRepository _productRepository;
     private readonly ICategoryRepository _categoryRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly ICatalogUnitOfWork _unitOfWork;
 
     public CreateProductCommandHandler(
         IProductRepository productRepository,
         ICategoryRepository categoryRepository,
-        IUnitOfWork unitOfWork)
+        ICatalogUnitOfWork unitOfWork)
     {
         _productRepository = productRepository;
         _categoryRepository = categoryRepository;
