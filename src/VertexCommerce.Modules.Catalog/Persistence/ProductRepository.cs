@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using VertexCommerce.Modules.Catalog.Domain.Entities;
 using VertexCommerce.Modules.Catalog.Domain.Repositories;
+using VertexCommerce.Shared.Specifications;
 
 namespace VertexCommerce.Modules.Catalog.Persistence;
 
@@ -68,5 +69,29 @@ public sealed class ProductRepository : IProductRepository
     public void Delete(Product entity)
     {
         _context.Products.Remove(entity);
+    }
+
+    public async Task<IReadOnlyList<TResult>> ListAsync<TResult>(
+        ISpecification<Product, TResult> spec,
+        CancellationToken ct = default)
+    {
+        var query = _context.Products
+            .Include(p => p.Category)
+            .AsQueryable();
+
+        return await SpecificationEvaluator
+            .ApplySpecification(query, spec)
+            .ToListAsync(ct);
+    }
+
+    public async Task<int> CountAsync(
+        ISpecification<Product> spec,
+        CancellationToken ct = default)
+    {
+        var query = SpecificationEvaluator.ApplySpecification(
+            _context.Products.AsQueryable(),
+            spec);
+
+        return await query.CountAsync(ct);
     }
 }

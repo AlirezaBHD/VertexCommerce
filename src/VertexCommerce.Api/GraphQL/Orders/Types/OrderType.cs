@@ -1,6 +1,6 @@
 using VertexCommerce.Modules.Orders.Domain.Enums;
 
-namespace VertexCommerce.Api.GraphQL.Orders;
+namespace VertexCommerce.Api.GraphQL.Orders.Types;
 
 public sealed class OrderType
 {

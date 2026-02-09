@@ -1,6 +1,6 @@
-namespace VertexCommerce.Api.GraphQL.Catalog;
+namespace VertexCommerce.Api.GraphQL.Catalog.Types;
 
-public sealed class ProductType
+public sealed class ProductDetailType
 {
     public Guid Id { get; init; }
     public string Name { get; init; } = default!;
