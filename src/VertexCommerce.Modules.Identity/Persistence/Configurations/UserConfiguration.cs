@@ -39,5 +39,9 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .WithOne()
             .HasForeignKey(rt => rt.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.Metadata
+            .FindNavigation(nameof(User.RefreshTokens))!
+            .SetPropertyAccessMode(PropertyAccessMode.Field);
     }
 }
