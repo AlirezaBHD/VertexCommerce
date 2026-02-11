@@ -6,6 +6,7 @@ using VertexCommerce.Api.GraphQL;
 using VertexCommerce.Api.Middleware;
 using VertexCommerce.Modules.Basket;
 using VertexCommerce.Modules.Catalog;
+using VertexCommerce.Modules.Customers;
 using VertexCommerce.Modules.Identity;
 using VertexCommerce.Modules.Orders;
 using VertexCommerce.Shared.Behaviors;
@@ -20,12 +21,29 @@ builder.Services.AddProblemDetails();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // ...
+
+    options.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Description = "JWT Authorization header using the Bearer scheme."
+    });
+
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("bearer", document)] = []
+    });
+});
 
 builder.Services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 builder.Services.AddBasketModule(builder.Configuration);
 builder.Services.AddCatalogModule(builder.Configuration);
+builder.Services.AddCustomersModule(builder.Configuration);
 builder.Services.AddIdentityModule(builder.Configuration);
 builder.Services.AddOrdersModule(builder.Configuration);
 
@@ -78,6 +96,7 @@ app.UseAuthorization();
 
 app.MapBasketEndpoints();
 app.MapCatalogEndpoints();
+app.MapCustomerEndpoints();
 app.MapIdentityEndpoints();
 app.MapCheckoutEndpoints();
 app.MapOrdersEndpoints();
