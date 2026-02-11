@@ -63,7 +63,7 @@ public sealed class Product : AggregateRoot<Guid>
         return product;
     }
 
-    public void Update(string name, string? description, Money price)
+    public void Update(string name, string? description, Money price, Guid categoryId)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -73,11 +73,53 @@ public sealed class Product : AggregateRoot<Guid>
         Name = name.Trim();
         Description = description?.Trim();
         Price = price;
+        CategoryId = categoryId;
         SetUpdatedAt();
 
         AddDomainEvent(new ProductUpdatedEvent(Id, Name, Price.Amount));
     }
 
+    public void SetStock(int quantity)
+    {
+        if (quantity < 0)
+            throw new ArgumentException("Stock cannot be negative", nameof(quantity));
+    
+        StockQuantity = quantity;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void AddStock(int quantity)
+    {
+        if (quantity <= 0)
+            throw new ArgumentException("Quantity must be positive", nameof(quantity));
+    
+        StockQuantity += quantity;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void RemoveStock(int quantity)
+    {
+        if (quantity <= 0)
+            throw new ArgumentException("Quantity must be positive", nameof(quantity));
+    
+        if (StockQuantity < quantity)
+            throw new InvalidOperationException("Insufficient stock");
+    
+        StockQuantity -= quantity;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void Activate()
+    {
+        IsActive = true;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void Deactivate()
+    {
+        IsActive = false;
+        UpdatedAt = DateTime.UtcNow;
+    }
     public void UpdateStock(int quantity)
     {
         if (quantity < 0)
@@ -87,41 +129,6 @@ public sealed class Product : AggregateRoot<Guid>
 
         StockQuantity = quantity;
         SetUpdatedAt();
-    }
-
-    public void AddStock(int quantity)
-    {
-        if (quantity <= 0)
-        {
-            throw new ArgumentException("Quantity must be positive.", nameof(quantity));
-        }
-
-        StockQuantity += quantity;
-        SetUpdatedAt();
-    }
-
-    public void RemoveStock(int quantity)
-    {
-        if (quantity <= 0)
-        {
-            throw new ArgumentException("Quantity must be positive.", nameof(quantity));
-        }
-
-        if (StockQuantity - quantity < 0)
-        {
-            throw new InvalidOperationException("Insufficient stock.");
-        }
-
-        StockQuantity -= quantity;
-        SetUpdatedAt();
-    }
-
-    public void Activate() => IsActive = true;
-
-    public void Deactivate()
-    {
-        IsActive = false;
-        AddDomainEvent(new ProductDeletedEvent(Id));
     }
 
     public void ChangeCategory(Guid categoryId)

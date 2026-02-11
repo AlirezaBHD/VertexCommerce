@@ -94,4 +94,9 @@ public sealed class ProductRepository : IProductRepository
 
         return await query.CountAsync(ct);
     }
+    
+    public async Task<bool> HasProductsInCategoryAsync(Guid categoryId, CancellationToken ct = default)
+    {
+        return await _context.Products.AnyAsync(p => p.CategoryId == categoryId, ct);
+    }
 }

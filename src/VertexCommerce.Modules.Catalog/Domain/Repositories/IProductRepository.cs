@@ -18,4 +18,5 @@ public interface IProductRepository
     Task<int> CountAsync(
         ISpecification<Product> spec,
         CancellationToken ct = default);
+    Task<bool> HasProductsInCategoryAsync(Guid categoryId, CancellationToken ct = default);
 }

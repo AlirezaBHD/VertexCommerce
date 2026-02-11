@@ -12,8 +12,9 @@ public interface ICategoryRepository
     Task AddAsync(Category category, CancellationToken ct = default);
     void Update(Category category);
     void Delete(Category category);
-
     Task<IReadOnlyList<TResult>> ListAsync<TResult>(
         ISpecification<Category, TResult> spec,
         CancellationToken ct = default);
+    Task<bool> HasChildrenAsync(Guid categoryId, CancellationToken ct = default);
+
 }

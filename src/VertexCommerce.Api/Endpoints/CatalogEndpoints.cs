@@ -1,128 +1,211 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using VertexCommerce.Api.Extensions;
 using VertexCommerce.Modules.Catalog.Features.CreateCategory;
 using VertexCommerce.Modules.Catalog.Features.CreateProduct;
-using VertexCommerce.Modules.Catalog.Features.GetProductById;
-using VertexCommerce.Modules.Catalog.Features.GetProducts;
+using VertexCommerce.Modules.Catalog.Features.DeleteCategory;
+using VertexCommerce.Modules.Catalog.Features.DeleteProduct;
+using VertexCommerce.Modules.Catalog.Features.ToggleProductStatus;
+using VertexCommerce.Modules.Catalog.Features.UpdateCategory;
+using VertexCommerce.Modules.Catalog.Features.UpdateProduct;
+using VertexCommerce.Modules.Catalog.Features.UpdateStock;
 
 namespace VertexCommerce.Api.Endpoints;
 
 public static class CatalogEndpoints
 {
-    public static void MapCatalogEndpoints(this IEndpointRouteBuilder app)
+    public static IEndpointRouteBuilder MapCatalogEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/catalog")
-            .WithTags("Catalog");
+            .WithTags("Catalog")
+            .RequireAuthorization("Admin");
 
         // Products
-        group.MapPost("/products", CreateProduct)
-            .WithName("CreateProduct")
-            .Produces<Guid>(StatusCodes.Status201Created)
-            .ProducesValidationProblem()
-            .ProducesProblem(StatusCodes.Status409Conflict);
-
-        group.MapGet("/products", GetProducts)
-            .WithName("GetProducts")
-            .Produces<PagedResult<ProductListItem>>();
-
-        group.MapGet("/products/{id:guid}", GetProductById)
-            .WithName("GetProductById")
-            .Produces<ProductResponse>()
-            .ProducesProblem(StatusCodes.Status404NotFound);
+        group.MapPost("/products", CreateProduct);
+        group.MapPut("/products/{id:guid}", UpdateProduct);
+        group.MapDelete("/products/{id:guid}", DeleteProduct);
+        group.MapPatch("/products/{id:guid}/stock", UpdateStock);
+        group.MapPatch("/products/{id:guid}/stock/add", AddStock);
+        group.MapPatch("/products/{id:guid}/stock/remove", RemoveStock);
+        group.MapPost("/products/{id:guid}/activate", ActivateProduct);
+        group.MapPost("/products/{id:guid}/deactivate", DeactivateProduct);
 
         // Categories
-        group.MapPost("/categories", CreateCategory)
-            .WithName("CreateCategory")
-            .Produces<Guid>(StatusCodes.Status201Created)
-            .ProducesValidationProblem()
-            .ProducesProblem(StatusCodes.Status409Conflict);
+        group.MapPost("/categories", CreateCategory);
+        group.MapPut("/categories/{id:guid}", UpdateCategory);
+        group.MapDelete("/categories/{id:guid}", DeleteCategory);
+
+        return app;
     }
 
     private static async Task<IResult> CreateProduct(
-        [FromBody] CreateProductCommand command,
-        ISender sender,
+        [FromBody] CreateProductRequest request,
+        [FromServices] ISender sender,
         CancellationToken ct)
     {
+        var command = new CreateProductCommand(
+            request.Name,
+            request.Description,
+            request.Sku,
+            request.Price,
+            request.Currency,
+            request.StockQuantity,
+            request.CategoryId
+        );
+
         var result = await sender.Send(command, ct);
 
         return result.IsSuccess
-            ? Results.Created($"/api/catalog/products/{result.Value}", result.Value)
-            : Results.Problem(
-                title: result.Error.Code,
-                detail: result.Error.Message,
-                statusCode: GetStatusCode(result.Error.Code));
+            ? Results.Created($"/api/catalog/products/{result.Value}", new { Id = result.Value })
+            : result.Error.ToHttpResult();
     }
 
-    private static async Task<IResult> GetProducts(
-        [AsParameters] GetProductsRequest request,
-        ISender sender,
+    private static async Task<IResult> UpdateProduct(
+        Guid id,
+        [FromBody] UpdateProductRequest request,
+        [FromServices] ISender sender,
         CancellationToken ct)
     {
-        var query = new GetProductsQuery(
-            request.SearchTerm,
-            request.CategoryId,
-            request.MinPrice,
-            request.MaxPrice,
-            request.IsActive,
-            request.Page ?? 1,
-            request.PageSize ?? 20
+        var command = new UpdateProductCommand(
+            id,
+            request.Name,
+            request.Description,
+            request.Price,
+            request.Currency,
+            request.CategoryId
         );
 
-        var result = await sender.Send(query, ct);
+        var result = await sender.Send(command, ct);
 
         return result.IsSuccess
-            ? Results.Ok(result.Value)
-            : Results.Problem(
-                title: result.Error.Code,
-                detail: result.Error.Message,
-                statusCode: GetStatusCode(result.Error.Code));
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
     }
 
-    private static async Task<IResult> GetProductById(
+    private static async Task<IResult> DeleteProduct(
         Guid id,
-        ISender sender,
+        [FromServices] ISender sender,
         CancellationToken ct)
     {
-        var result = await sender.Send(new GetProductByIdQuery(id), ct);
+        var result = await sender.Send(new DeleteProductCommand(id), ct);
 
         return result.IsSuccess
-            ? Results.Ok(result.Value)
-            : Results.Problem(
-                title: result.Error.Code,
-                detail: result.Error.Message,
-                statusCode: StatusCodes.Status404NotFound);
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> UpdateStock(
+        Guid id,
+        [FromBody] UpdateStockRequest request,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var result = await sender.Send(new UpdateStockCommand(id, request.Quantity), ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> AddStock(
+        Guid id,
+        [FromBody] StockQuantityRequest request,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var result = await sender.Send(new AddStockCommand(id, request.Quantity), ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> RemoveStock(
+        Guid id,
+        [FromBody] StockQuantityRequest request,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var result = await sender.Send(new RemoveStockCommand(id, request.Quantity), ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> ActivateProduct(
+        Guid id,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var result = await sender.Send(new ActivateProductCommand(id), ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> DeactivateProduct(
+        Guid id,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var result = await sender.Send(new DeactivateProductCommand(id), ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
     }
 
     private static async Task<IResult> CreateCategory(
-        [FromBody] CreateCategoryCommand command,
-        ISender sender,
+        [FromBody] CreateCategoryRequest request,
+        [FromServices] ISender sender,
         CancellationToken ct)
     {
+        var command = new CreateCategoryCommand(
+            request.Name,
+            request.Description,
+            request.ParentId,
+            request.SortOrder
+        );
+
         var result = await sender.Send(command, ct);
 
         return result.IsSuccess
-            ? Results.Created($"/api/catalog/categories/{result.Value}", result.Value)
-            : Results.Problem(
-                title: result.Error.Code,
-                detail: result.Error.Message,
-                statusCode: GetStatusCode(result.Error.Code));
+            ? Results.Created($"/api/catalog/categories/{result.Value}", new { Id = result.Value })
+            : result.Error.ToHttpResult();
     }
 
-    private static int GetStatusCode(string errorCode) => errorCode switch
+    private static async Task<IResult> UpdateCategory(
+        Guid id,
+        [FromBody] UpdateCategoryRequest request,
+        [FromServices] ISender sender,
+        CancellationToken ct)
     {
-        _ when errorCode.Contains("NotFound") => StatusCodes.Status404NotFound,
-        _ when errorCode.Contains("Conflict") => StatusCodes.Status409Conflict,
-        _ when errorCode.Contains("Validation") => StatusCodes.Status400BadRequest,
-        _ => StatusCodes.Status500InternalServerError
-    };
-}
+        var command = new UpdateCategoryCommand(
+            id,
+            request.Name,
+            request.Description,
+            request.ParentId,
+            request.SortOrder
+        );
 
-public record GetProductsRequest(
-    string? SearchTerm = null,
-    Guid? CategoryId = null,
-    decimal? MinPrice = null,
-    decimal? MaxPrice = null,
-    bool? IsActive = null,
-    int? Page = null,
-    int? PageSize = null
-);
+        var result = await sender.Send(command, ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> DeleteCategory(
+        Guid id,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var result = await sender.Send(new DeleteCategoryCommand(id), ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+}

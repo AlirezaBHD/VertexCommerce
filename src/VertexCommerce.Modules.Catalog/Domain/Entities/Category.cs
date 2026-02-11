@@ -44,21 +44,31 @@ public sealed class Category : AggregateRoot<Guid>
         return category;
     }
 
-    public void Update(string name, string? description, int sortOrder)
+    public void Update(string name, string? description, Guid? parentId, int sortOrder)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
             throw new ArgumentException("Category name cannot be empty.", nameof(name));
         }
 
-        Name = name.Trim();
-        Description = description?.Trim();
+        Name = name;
+        Description = description;
+        ParentId = parentId;
         SortOrder = sortOrder;
         SetUpdatedAt();
     }
 
-    public void Activate() => IsActive = true;
-    public void Deactivate() => IsActive = false;
+    public void Activate()
+    {
+        IsActive = true;
+        SetUpdatedAt();
+    }
+
+    public void Deactivate()
+    {
+        IsActive = false;
+        SetUpdatedAt();
+    }
 
     public void SetParent(Guid? parentId)
     {

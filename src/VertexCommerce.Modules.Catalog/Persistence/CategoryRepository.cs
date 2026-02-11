@@ -85,4 +85,9 @@ public sealed class CategoryRepository : ICategoryRepository
             .ApplySpecification(_context.Categories.AsQueryable(), spec)
             .ToListAsync(ct);
     }
+    
+    public async Task<bool> HasChildrenAsync(Guid categoryId, CancellationToken ct = default)
+    {
+        return await _context.Categories.AnyAsync(c => c.ParentId == categoryId, ct);
+    }
 }
