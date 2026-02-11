@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using VertexCommerce.Api.Extensions;
 using VertexCommerce.Modules.Orders.Features.Checkout;
 
 namespace VertexCommerce.Api.Endpoints;
@@ -27,16 +28,6 @@ public static class CheckoutEndpoints
 
         return result.IsSuccess
             ? Results.Created($"/api/orders/{result.Value.OrderId}", result.Value)
-            : Results.Problem(
-                title: result.Error.Code,
-                detail: result.Error.Message,
-                statusCode: GetStatusCode(result.Error.Code));
+            : result.Error.ToHttpResult();
     }
-
-    private static int GetStatusCode(string errorCode) => errorCode switch
-    {
-        _ when errorCode.Contains("NotFound") => StatusCodes.Status404NotFound,
-        _ when errorCode.Contains("Validation") => StatusCodes.Status400BadRequest,
-        _ => StatusCodes.Status500InternalServerError
-    };
 }

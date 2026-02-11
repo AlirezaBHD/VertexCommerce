@@ -13,4 +13,7 @@ public sealed record Error(string Code, string Message)
     
     public static Error Conflict(string message) => 
         new("Conflict.Error", message);
+    
+    public static Error Unauthorized(string message) => 
+        new("Authentication.Error", message);
 }
