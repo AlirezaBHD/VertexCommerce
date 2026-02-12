@@ -41,17 +41,13 @@ public sealed class CheckoutCommandHandler : ICommandHandler<CheckoutCommand, Ch
             command.ShippingAddress.ZipCode
         );
 
-        Address? billingAddress = null;
-        if (command.BillingAddress is not null)
-        {
-            billingAddress = Address.Create(
+        var billingAddress = Address.Create(
                 command.BillingAddress.Street,
                 command.BillingAddress.City,
                 command.BillingAddress.State,
                 command.BillingAddress.Country,
                 command.BillingAddress.ZipCode
             );
-        }
 
         var order = Order.Create(
             command.CustomerId,

@@ -4,9 +4,9 @@ namespace VertexCommerce.Modules.Orders.Features.CreateOrder;
 
 public sealed record CreateOrderCommand(
     Guid CustomerId,
-    string? CustomerEmail,
+    string CustomerEmail,
     AddressDto ShippingAddress,
-    AddressDto? BillingAddress,
+    AddressDto BillingAddress,
     List<OrderItemDto> Items,
     string Currency,
     string? Notes
@@ -23,7 +23,7 @@ public sealed record AddressDto(
 public sealed record OrderItemDto(
     Guid ProductId,
     string ProductName,
-    string? ProductSku,
+    string ProductSku,
     decimal UnitPrice,
     int Quantity
 );

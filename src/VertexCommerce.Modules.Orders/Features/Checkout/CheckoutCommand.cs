@@ -4,9 +4,9 @@ namespace VertexCommerce.Modules.Orders.Features.Checkout;
 
 public sealed record CheckoutCommand(
     Guid CustomerId,
-    string? CustomerEmail,
+    string CustomerEmail,
     CheckoutAddressDto ShippingAddress,
-    CheckoutAddressDto? BillingAddress,
+    CheckoutAddressDto BillingAddress,
     string? Notes
 ) : ICommand<CheckoutResponse>;
 

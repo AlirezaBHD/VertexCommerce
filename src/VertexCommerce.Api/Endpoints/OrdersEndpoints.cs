@@ -1,87 +1,121 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using VertexCommerce.Api.Extensions;
 using VertexCommerce.Modules.Orders.Features.CancelOrder;
-using VertexCommerce.Modules.Orders.Features.CreateOrder;
-using VertexCommerce.Modules.Orders.Features.GetOrderById;
+using VertexCommerce.Modules.Orders.Features.ConfirmOrder;
+using VertexCommerce.Modules.Orders.Features.DeliverOrder;
+using VertexCommerce.Modules.Orders.Features.ProcessOrder;
+using VertexCommerce.Modules.Orders.Features.ShipOrder;
 
 namespace VertexCommerce.Api.Endpoints;
 
-public static class OrdersEndpoints
+public static class OrderEndpoints
 {
-    public static void MapOrdersEndpoints(this IEndpointRouteBuilder app)
+    public static IEndpointRouteBuilder MapOrdersEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/orders")
             .WithTags("Orders");
 
-        group.MapPost("/", CreateOrder)
-            .WithName("CreateOrder")
-            .Produces<Guid>(StatusCodes.Status201Created)
-            .ProducesValidationProblem();
+        var customerGroup = group.MapGroup("/")
+            .RequireAuthorization();
 
-        group.MapGet("/{id:guid}", GetOrderById)
-            .WithName("GetOrderById")
-            .Produces<OrderResponse>()
-            .ProducesProblem(StatusCodes.Status404NotFound);
+        customerGroup.MapGet("/my", GetMyOrders);
+        customerGroup.MapGet("/{id:guid}", GetOrder);
+        customerGroup.MapPost("/{id:guid}/cancel", CancelOrder);
 
-        group.MapPost("/{id:guid}/cancel", CancelOrder)
-            .WithName("CancelOrder")
-            .Produces(StatusCodes.Status200OK)
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesValidationProblem();
+        var adminGroup = group.MapGroup("/")
+            .RequireAuthorization("Admin");
+
+        adminGroup.MapPost("/{id:guid}/confirm", ConfirmOrder);
+        adminGroup.MapPost("/{id:guid}/process", ProcessOrder);
+        adminGroup.MapPost("/{id:guid}/ship", ShipOrder);
+        adminGroup.MapPost("/{id:guid}/deliver", DeliverOrder);
+
+        return app;
     }
 
-    private static async Task<IResult> CreateOrder(
-        [FromBody] CreateOrderCommand command,
-        ISender sender,
+    private static Task<IResult> GetMyOrders(
+        HttpContext context,
+        [FromServices] ISender sender,
         CancellationToken ct)
     {
-        var result = await sender.Send(command, ct);
-
-        return result.IsSuccess
-            ? Results.Created($"/api/orders/{result.Value}", result.Value)
-            : Results.Problem(
-                title: result.Error.Code,
-                detail: result.Error.Message,
-                statusCode: StatusCodes.Status400BadRequest);
+        var userId = context.User.GetUserId();
+        // TODO: Implement GetOrdersByCustomerQuery
+        return Task.FromResult(Results.Ok(new { Message = "Not implemented yet", UserId = userId }));
     }
 
-    private static async Task<IResult> GetOrderById(
+    private static Task<IResult> GetOrder(
         Guid id,
-        ISender sender,
+        HttpContext context,
+        [FromServices] ISender sender,
         CancellationToken ct)
     {
-        var result = await sender.Send(new GetOrderByIdQuery(id), ct);
-
-        return result.IsSuccess
-            ? Results.Ok(result.Value)
-            : Results.Problem(
-                title: result.Error.Code,
-                detail: result.Error.Message,
-                statusCode: StatusCodes.Status404NotFound);
+        // TODO: Implement GetOrderByIdQuery with authorization check
+        return Task.FromResult(Results.Ok(new { Message = "Not implemented yet", OrderId = id }));
     }
 
     private static async Task<IResult> CancelOrder(
         Guid id,
         [FromBody] CancelOrderRequest request,
-        ISender sender,
+        HttpContext context,
+        [FromServices] ISender sender,
         CancellationToken ct)
     {
-        var result = await sender.Send(new CancelOrderCommand(id, request.Reason), ct);
+        var command = new CancelOrderCommand(id, request.Reason);
+        var result = await sender.Send(command, ct);
 
         return result.IsSuccess
-            ? Results.Ok()
-            : Results.Problem(
-                title: result.Error.Code,
-                detail: result.Error.Message,
-                statusCode: GetStatusCode(result.Error.Code));
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
     }
 
-    private static int GetStatusCode(string errorCode) => errorCode switch
+    private static async Task<IResult> ConfirmOrder(
+        Guid id,
+        [FromServices] ISender sender,
+        CancellationToken ct)
     {
-        _ when errorCode.Contains("NotFound") => StatusCodes.Status404NotFound,
-        _ when errorCode.Contains("Validation") => StatusCodes.Status400BadRequest,
-        _ => StatusCodes.Status500InternalServerError
-    };
+        var result = await sender.Send(new ConfirmOrderCommand(id), ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> ProcessOrder(
+        Guid id,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var result = await sender.Send(new ProcessOrderCommand(id), ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> ShipOrder(
+        Guid id,
+        [FromBody] ShipOrderRequest request,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var result = await sender.Send(new ShipOrderCommand(id, request.TrackingNumber), ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> DeliverOrder(
+        Guid id,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var result = await sender.Send(new DeliverOrderCommand(id), ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
 }
 
-public sealed record CancelOrderRequest(string Reason);
