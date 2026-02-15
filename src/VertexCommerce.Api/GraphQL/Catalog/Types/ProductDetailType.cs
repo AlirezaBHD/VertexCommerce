@@ -12,6 +12,7 @@ public sealed class ProductDetailType
     public bool IsActive { get; init; }
     public Guid CategoryId { get; init; }
     public string? CategoryName { get; init; }
+    public string? CategoryPath { get; init; } // NEW
     public DateTime CreatedAt { get; init; }
     public DateTime? UpdatedAt { get; init; }
 }

@@ -1,6 +1,7 @@
 using VertexCommerce.Modules.Catalog.Domain.Repositories;
 using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
 using VertexCommerce.Modules.Catalog.Persistence;
+using VertexCommerce.Modules.Catalog.Sync;
 using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Catalog.Features.UpdateProduct;
@@ -10,15 +11,19 @@ internal sealed class UpdateProductCommandHandler : ICommandHandler<UpdateProduc
     private readonly IProductRepository _productRepository;
     private readonly ICategoryRepository _categoryRepository;
     private readonly ICatalogUnitOfWork _unitOfWork;
+    private readonly IProductSyncService _syncService;
 
     public UpdateProductCommandHandler(
         IProductRepository productRepository,
         ICategoryRepository categoryRepository,
-        ICatalogUnitOfWork unitOfWork)
+        ICatalogUnitOfWork unitOfWork,
+        IProductSyncService syncService)
     {
         _productRepository = productRepository;
         _categoryRepository = categoryRepository;
         _unitOfWork = unitOfWork;
+        _syncService = syncService;
+
     }
 
     public async Task<Result> Handle(UpdateProductCommand command, CancellationToken ct)
@@ -36,6 +41,7 @@ internal sealed class UpdateProductCommandHandler : ICommandHandler<UpdateProduc
         product.Update(command.Name, command.Description, price, command.CategoryId);
 
         await _unitOfWork.SaveChangesAsync(ct);
+        await _syncService.SyncProductAsync(command.Id, ct);
 
         return Result.Success();
     }

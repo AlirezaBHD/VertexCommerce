@@ -9,6 +9,7 @@ using VertexCommerce.Modules.Catalog.Features.ToggleProductStatus;
 using VertexCommerce.Modules.Catalog.Features.UpdateCategory;
 using VertexCommerce.Modules.Catalog.Features.UpdateProduct;
 using VertexCommerce.Modules.Catalog.Features.UpdateStock;
+using VertexCommerce.Modules.Catalog.Sync;
 
 namespace VertexCommerce.Api.Endpoints;
 
@@ -35,8 +36,14 @@ public static class CatalogEndpoints
         group.MapPut("/categories/{id:guid}", UpdateCategory);
         group.MapDelete("/categories/{id:guid}", DeleteCategory);
 
+        // Sync (MongoDB)
+        group.MapPost("/sync", SyncAllProducts);
+        group.MapPost("/sync/category/{categoryId:guid}", SyncCategoryProducts);
+
         return app;
     }
+
+    #region Products
 
     private static async Task<IResult> CreateProduct(
         [FromBody] CreateProductRequest request,
@@ -157,6 +164,10 @@ public static class CatalogEndpoints
             : result.Error.ToHttpResult();
     }
 
+    #endregion
+
+    #region Categories
+
     private static async Task<IResult> CreateCategory(
         [FromBody] CreateCategoryRequest request,
         [FromServices] ISender sender,
@@ -208,4 +219,27 @@ public static class CatalogEndpoints
             ? Results.NoContent()
             : result.Error.ToHttpResult();
     }
+
+    #endregion
+
+    #region Sync
+
+    private static async Task<IResult> SyncAllProducts(
+        [FromServices] IProductSyncService syncService,
+        CancellationToken ct)
+    {
+        await syncService.SyncAllProductsAsync(ct);
+        return Results.Ok(new { Message = "All products synced to MongoDB" });
+    }
+
+    private static async Task<IResult> SyncCategoryProducts(
+        Guid categoryId,
+        [FromServices] IProductSyncService syncService,
+        CancellationToken ct)
+    {
+        await syncService.SyncCategoryProductsAsync(categoryId, ct);
+        return Results.Ok(new { Message = $"Category {categoryId} products synced" });
+    }
+
+    #endregion
 }

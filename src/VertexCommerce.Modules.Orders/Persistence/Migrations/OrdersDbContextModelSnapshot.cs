@@ -26,74 +26,73 @@ namespace VertexCommerce.Modules.Orders.Persistence.Migrations
             modelBuilder.Entity("VertexCommerce.Modules.Orders.Domain.Entities.Order", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<string>("CancellationReason")
                         .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("cancellation_reason");
+                        .HasColumnType("character varying(500)");
 
                     b.Property<DateTime?>("CancelledAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("cancelled_at");
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("ConfirmedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CustomerEmail")
+                        .IsRequired()
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("customer_email");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<Guid>("CustomerId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("customer_id");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("DeliveredAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("delivered_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("notes");
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("OrderNumber")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("order_number");
+                        .HasColumnType("character varying(50)");
 
-                    b.Property<int>("PaymentStatus")
-                        .HasColumnType("integer")
-                        .HasColumnName("payment_status");
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime?>("ProcessingAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("ShippedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("shipped_at");
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer")
-                        .HasColumnName("status");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("TrackingNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatedAt");
 
                     b.HasIndex("CustomerId");
 
                     b.HasIndex("OrderNumber")
                         .IsUnique();
 
-                    b.HasIndex("Status");
-
-                    b.ToTable("orders", "orders");
+                    b.ToTable("Orders", "orders");
                 });
 
             modelBuilder.Entity("VertexCommerce.Modules.Orders.Domain.Entities.OrderItem", b =>
@@ -153,35 +152,35 @@ namespace VertexCommerce.Modules.Orders.Persistence.Migrations
                                 .IsRequired()
                                 .HasMaxLength(100)
                                 .HasColumnType("character varying(100)")
-                                .HasColumnName("billing_city");
+                                .HasColumnName("BillingCity");
 
                             b1.Property<string>("Country")
                                 .IsRequired()
                                 .HasMaxLength(100)
                                 .HasColumnType("character varying(100)")
-                                .HasColumnName("billing_country");
+                                .HasColumnName("BillingCountry");
 
                             b1.Property<string>("State")
                                 .IsRequired()
                                 .HasMaxLength(100)
                                 .HasColumnType("character varying(100)")
-                                .HasColumnName("billing_state");
+                                .HasColumnName("BillingState");
 
                             b1.Property<string>("Street")
                                 .IsRequired()
                                 .HasMaxLength(200)
                                 .HasColumnType("character varying(200)")
-                                .HasColumnName("billing_street");
+                                .HasColumnName("BillingStreet");
 
                             b1.Property<string>("ZipCode")
                                 .IsRequired()
                                 .HasMaxLength(20)
                                 .HasColumnType("character varying(20)")
-                                .HasColumnName("billing_zip_code");
+                                .HasColumnName("BillingZipCode");
 
                             b1.HasKey("OrderId");
 
-                            b1.ToTable("orders", "orders");
+                            b1.ToTable("Orders", "orders");
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderId");
@@ -196,35 +195,35 @@ namespace VertexCommerce.Modules.Orders.Persistence.Migrations
                                 .IsRequired()
                                 .HasMaxLength(100)
                                 .HasColumnType("character varying(100)")
-                                .HasColumnName("shipping_city");
+                                .HasColumnName("ShippingCity");
 
                             b1.Property<string>("Country")
                                 .IsRequired()
                                 .HasMaxLength(100)
                                 .HasColumnType("character varying(100)")
-                                .HasColumnName("shipping_country");
+                                .HasColumnName("ShippingCountry");
 
                             b1.Property<string>("State")
                                 .IsRequired()
                                 .HasMaxLength(100)
                                 .HasColumnType("character varying(100)")
-                                .HasColumnName("shipping_state");
+                                .HasColumnName("ShippingState");
 
                             b1.Property<string>("Street")
                                 .IsRequired()
                                 .HasMaxLength(200)
                                 .HasColumnType("character varying(200)")
-                                .HasColumnName("shipping_street");
+                                .HasColumnName("ShippingStreet");
 
                             b1.Property<string>("ZipCode")
                                 .IsRequired()
                                 .HasMaxLength(20)
                                 .HasColumnType("character varying(20)")
-                                .HasColumnName("shipping_zip_code");
+                                .HasColumnName("ShippingZipCode");
 
                             b1.HasKey("OrderId");
 
-                            b1.ToTable("orders", "orders");
+                            b1.ToTable("Orders", "orders");
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderId");
@@ -238,17 +237,17 @@ namespace VertexCommerce.Modules.Orders.Persistence.Migrations
                             b1.Property<decimal>("Amount")
                                 .HasPrecision(18, 2)
                                 .HasColumnType("numeric(18,2)")
-                                .HasColumnName("shipping_cost_amount");
+                                .HasColumnName("ShippingCost");
 
                             b1.Property<string>("Currency")
                                 .IsRequired()
                                 .HasMaxLength(3)
                                 .HasColumnType("character varying(3)")
-                                .HasColumnName("shipping_cost_currency");
+                                .HasColumnName("ShippingCostCurrency");
 
                             b1.HasKey("OrderId");
 
-                            b1.ToTable("orders", "orders");
+                            b1.ToTable("Orders", "orders");
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderId");
@@ -262,17 +261,17 @@ namespace VertexCommerce.Modules.Orders.Persistence.Migrations
                             b1.Property<decimal>("Amount")
                                 .HasPrecision(18, 2)
                                 .HasColumnType("numeric(18,2)")
-                                .HasColumnName("sub_total_amount");
+                                .HasColumnName("SubTotal");
 
                             b1.Property<string>("Currency")
                                 .IsRequired()
                                 .HasMaxLength(3)
                                 .HasColumnType("character varying(3)")
-                                .HasColumnName("sub_total_currency");
+                                .HasColumnName("SubTotalCurrency");
 
                             b1.HasKey("OrderId");
 
-                            b1.ToTable("orders", "orders");
+                            b1.ToTable("Orders", "orders");
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderId");
@@ -286,17 +285,17 @@ namespace VertexCommerce.Modules.Orders.Persistence.Migrations
                             b1.Property<decimal>("Amount")
                                 .HasPrecision(18, 2)
                                 .HasColumnType("numeric(18,2)")
-                                .HasColumnName("tax_amount");
+                                .HasColumnName("Tax");
 
                             b1.Property<string>("Currency")
                                 .IsRequired()
                                 .HasMaxLength(3)
                                 .HasColumnType("character varying(3)")
-                                .HasColumnName("tax_currency");
+                                .HasColumnName("TaxCurrency");
 
                             b1.HasKey("OrderId");
 
-                            b1.ToTable("orders", "orders");
+                            b1.ToTable("Orders", "orders");
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderId");
@@ -310,23 +309,24 @@ namespace VertexCommerce.Modules.Orders.Persistence.Migrations
                             b1.Property<decimal>("Amount")
                                 .HasPrecision(18, 2)
                                 .HasColumnType("numeric(18,2)")
-                                .HasColumnName("total_amount");
+                                .HasColumnName("TotalAmount");
 
                             b1.Property<string>("Currency")
                                 .IsRequired()
                                 .HasMaxLength(3)
                                 .HasColumnType("character varying(3)")
-                                .HasColumnName("total_currency");
+                                .HasColumnName("TotalAmountCurrency");
 
                             b1.HasKey("OrderId");
 
-                            b1.ToTable("orders", "orders");
+                            b1.ToTable("Orders", "orders");
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderId");
                         });
 
-                    b.Navigation("BillingAddress");
+                    b.Navigation("BillingAddress")
+                        .IsRequired();
 
                     b.Navigation("ShippingAddress")
                         .IsRequired();

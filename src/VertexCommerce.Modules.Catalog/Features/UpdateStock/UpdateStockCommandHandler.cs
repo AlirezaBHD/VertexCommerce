@@ -1,30 +1,25 @@
 using VertexCommerce.Modules.Catalog.Domain.Repositories;
 using VertexCommerce.Modules.Catalog.Persistence;
+using VertexCommerce.Modules.Catalog.Sync;
 using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Catalog.Features.UpdateStock;
 
-internal sealed class UpdateStockCommandHandler : ICommandHandler<UpdateStockCommand>
+internal sealed class UpdateStockCommandHandler(
+    IProductRepository productRepository,
+    ICatalogUnitOfWork unitOfWork,
+    IProductSyncService syncService)
+    : ICommandHandler<UpdateStockCommand>
 {
-    private readonly IProductRepository _productRepository;
-    private readonly ICatalogUnitOfWork _unitOfWork;
-
-    public UpdateStockCommandHandler(
-        IProductRepository productRepository,
-        ICatalogUnitOfWork unitOfWork)
-    {
-        _productRepository = productRepository;
-        _unitOfWork = unitOfWork;
-    }
-
     public async Task<Result> Handle(UpdateStockCommand command, CancellationToken ct)
     {
-        var product = await _productRepository.GetByIdAsync(command.ProductId, ct);
+        var product = await productRepository.GetByIdAsync(command.ProductId, ct);
         if (product is null)
             return Result.Failure(Error.NotFound("Product", command.ProductId));
 
         product.SetStock(command.Quantity);
-        await _unitOfWork.SaveChangesAsync(ct);
+        await unitOfWork.SaveChangesAsync(ct);
+        await syncService.SyncProductAsync(command.ProductId, ct);
 
         return Result.Success();
     }

@@ -3,6 +3,10 @@
     <ItemGroup>
       <ProjectReference Include="..\VertexCommerce.Shared\VertexCommerce.Shared.csproj" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <PackageReference Include="MongoDB.Driver" />
+    </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Persistence\ReadModels\" />

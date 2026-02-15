@@ -63,7 +63,7 @@ public sealed class Order : AggregateRoot<Guid>
         };
     }
 
-    public void AddItem(Guid productId, string productName, string productSku, Money unitPrice, int quantity)
+    public void AddItem(Guid productId, string productName, string? productSku, Money unitPrice, int quantity)
     {
         var existingItem = _items.FirstOrDefault(i => i.ProductId == productId);
 

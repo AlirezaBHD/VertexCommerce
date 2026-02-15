@@ -2,13 +2,18 @@ using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using Serilog;
 using VertexCommerce.Api.Endpoints;
+using VertexCommerce.Api.Extensions;
 using VertexCommerce.Api.GraphQL;
 using VertexCommerce.Api.Middleware;
 using VertexCommerce.Modules.Basket;
 using VertexCommerce.Modules.Catalog;
+using VertexCommerce.Modules.Catalog.Persistence;
 using VertexCommerce.Modules.Customers;
+using VertexCommerce.Modules.Customers.Persistence;
 using VertexCommerce.Modules.Identity;
+using VertexCommerce.Modules.Identity.Persistence;
 using VertexCommerce.Modules.Orders;
+using VertexCommerce.Modules.Orders.Persistence;
 using VertexCommerce.Shared.Behaviors;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -100,6 +105,16 @@ app.MapCustomerEndpoints();
 app.MapIdentityEndpoints();
 app.MapCheckoutEndpoints();
 app.MapOrdersEndpoints();
+
+if (app.Environment.IsDevelopment())
+{
+    app.ApplyMigrations<CustomersDbContext>();
+    app.ApplyMigrations<CatalogDbContext>();
+    app.ApplyMigrations<IdentityDbContext>();
+    app.ApplyMigrations<OrdersDbContext>();
+}
+
+
 
 app.MapGraphQL();
 

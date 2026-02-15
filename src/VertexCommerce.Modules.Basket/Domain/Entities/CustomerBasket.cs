@@ -110,8 +110,8 @@ public sealed class CustomerBasket
 
     public BasketItem? GetItem(Guid productId) => Items.FirstOrDefault(i => i.ProductId == productId);
 
-    private void ExtendExpiration(int days = 30)
+    private void ExtendExpiration(int hours = 3)
     {
-        ExpiresAt = DateTime.UtcNow.AddDays(days);
+        ExpiresAt = DateTime.UtcNow.AddHours(hours);
     }
 }
