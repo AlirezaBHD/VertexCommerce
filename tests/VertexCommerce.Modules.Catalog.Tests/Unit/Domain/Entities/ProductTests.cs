@@ -1,7 +1,7 @@
 using FluentAssertions;
-using VertexCommerce.Modules.Catalog.Domain.Entities;
-using VertexCommerce.Modules.Catalog.Domain.Events;
-using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
+using VertexCommerce.Modules.Catalog.Domain.Products;
+using VertexCommerce.Modules.Catalog.Domain.Products.Events;
+using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
 
 namespace VertexCommerce.Modules.Catalog.Tests.Unit.Domain.Entities;
 

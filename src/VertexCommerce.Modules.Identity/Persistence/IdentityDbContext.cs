@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using VertexCommerce.Modules.Identity.Domain.Entities;
-using VertexCommerce.Shared.Persistence;
 
 namespace VertexCommerce.Modules.Identity.Persistence;
 

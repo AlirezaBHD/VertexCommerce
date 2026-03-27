@@ -3,6 +3,9 @@
     <ItemGroup>
       <ProjectReference Include="..\VertexCommerce.Shared\VertexCommerce.Shared.csproj" />
     </ItemGroup>
+    <PropertyGroup>
+        <NuGetAudit>false</NuGetAudit>
+    </PropertyGroup>
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>

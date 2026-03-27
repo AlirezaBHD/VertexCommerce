@@ -1,8 +1,9 @@
 using Bogus;
-using VertexCommerce.Modules.Catalog.Domain.Entities;
-using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
-using VertexCommerce.Modules.Catalog.Features.CreateCategory;
-using VertexCommerce.Modules.Catalog.Features.CreateProduct;
+using VertexCommerce.Modules.Catalog.Domain.Categories;
+using VertexCommerce.Modules.Catalog.Domain.Products;
+using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
+using VertexCommerce.Modules.Catalog.Features.Categories.Commands.CreateCategory;
+using VertexCommerce.Modules.Catalog.Features.Products.Commands.CreateProduct;
 
 namespace VertexCommerce.Modules.Catalog.Tests.Fixtures;
 

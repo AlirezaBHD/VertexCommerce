@@ -1,5 +1,5 @@
 using FluentAssertions;
-using VertexCommerce.Modules.Catalog.Features.CreateProduct;
+using VertexCommerce.Modules.Catalog.Features.Products.Commands.CreateProduct;
 
 namespace VertexCommerce.Modules.Catalog.Tests.Unit.Features.CreateProduct;
 

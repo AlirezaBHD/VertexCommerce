@@ -1,7 +1,4 @@
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Conventions;
-using MongoDB.Bson.Serialization.Serializers;
 using VertexCommerce.Modules.Basket.Domain.Entities;
 
 namespace VertexCommerce.Modules.Basket.Persistence;
@@ -17,20 +14,10 @@ public static class MongoDbConfiguration
         {
             if (_configured) return;
 
-            // Convention pack
-            var conventionPack = new ConventionPack
-            {
-                new CamelCaseElementNameConvention(),
-                new IgnoreExtraElementsConvention(true),
-                new EnumRepresentationConvention(BsonType.String)
-            };
+            // ❌ حذف شد - Convention و GuidSerializer
+            // اینا دیگه اینجا نیستن!
 
-            ConventionRegistry.Register("VertexCommerceConventions", conventionPack, _ => true);
-
-            // Guid serialization
-            BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
-
-            // CustomerBasket mapping
+            // ✅ فقط ClassMap های مربوط به Basket Module
             if (!BsonClassMap.IsClassMapRegistered(typeof(CustomerBasket)))
             {
                 BsonClassMap.RegisterClassMap<CustomerBasket>(cm =>
@@ -41,7 +28,6 @@ public static class MongoDbConfiguration
                 });
             }
 
-            // BasketItem mapping
             if (!BsonClassMap.IsClassMapRegistered(typeof(BasketItem)))
             {
                 BsonClassMap.RegisterClassMap<BasketItem>(cm =>

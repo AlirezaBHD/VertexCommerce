@@ -3,8 +3,8 @@ using VertexCommerce.Modules.Basket.Domain.Repositories;
 
 namespace VertexCommerce.Api.GraphQL.Basket;
 
-public sealed partial class Query
-{
+[ExtendObjectType(typeof(Query))]
+public sealed class BasketQueries{
     public async Task<BasketType?> GetBasket(
         [Service] IBasketRepository basketRepository,
         Guid customerId,

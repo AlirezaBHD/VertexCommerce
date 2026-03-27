@@ -1,5 +1,5 @@
 using FluentAssertions;
-using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
+using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
 
 namespace VertexCommerce.Modules.Catalog.Tests.Unit.Domain.ValueObjects;
 

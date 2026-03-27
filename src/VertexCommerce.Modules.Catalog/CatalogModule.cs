@@ -2,13 +2,15 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Driver;
-using VertexCommerce.Modules.Catalog.Domain.Repositories;
-using VertexCommerce.Modules.Catalog.Persistence;
-using VertexCommerce.Modules.Catalog.ReadModels;
-using VertexCommerce.Modules.Catalog.Services;
+using VertexCommerce.Modules.Catalog.Domain.Categories;
+using VertexCommerce.Modules.Catalog.Domain.Products;
+using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories;
+using VertexCommerce.Modules.Catalog.Persistence.Mongo.Products;
+using VertexCommerce.Modules.Catalog.Persistence.Postgres;
+using VertexCommerce.Modules.Catalog.Persistence.Postgres.Repositories;
 using VertexCommerce.Modules.Catalog.Sync;
-using VertexCommerce.Shared.Services;
+using VertexCommerce.Modules.Catalog.Sync.Categories;
+using VertexCommerce.Shared.Persistence;
 
 namespace VertexCommerce.Modules.Catalog;
 
@@ -18,36 +20,49 @@ public static class CatalogModule
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddDbContext<CatalogDbContext>(options =>
+        services.AddScoped<DomainEventInterceptor>();
+
+        services.AddDbContext<CatalogDbContext>((sp, options) =>
+        {
             options.UseNpgsql(
                 configuration.GetConnectionString("CatalogDb"),
-                npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "catalog")));
+                npgsql => npgsql.MigrationsHistoryTable(
+                    "__EFMigrationsHistory", "catalog"));
 
-        services.AddSingleton<IMongoClient>(sp =>
-            new MongoClient(configuration.GetConnectionString("MongoDb")));
-
-        services.AddSingleton(sp =>
-        {
-            var client = sp.GetRequiredService<IMongoClient>();
-            var databaseName = configuration["MongoDb:CatalogDatabaseName"] ?? "vertex_catalog";
-            return client.GetDatabase(databaseName);
+            options.AddInterceptors(
+                sp.GetRequiredService<DomainEventInterceptor>());
         });
         
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
-        services.AddScoped<IProductService, ProductService>();
-
         services.AddScoped<ICatalogUnitOfWork>(sp => sp.GetRequiredService<CatalogDbContext>());
 
-        services.AddSingleton<IProductReadModelRepository, ProductReadModelRepository>();
-
+        services.AddSingleton<ProductIndexManager>();
+        services.AddScoped<IProductReadModelRepository, ProductReadModelRepository>();
+        
         services.AddScoped<IProductSyncService, ProductSyncService>();
-
+        services.AddScoped<CategoryPathBuilder>();
+        
+        services.AddSingleton<CategoryIndexManager>();
+        services.AddScoped<ICategoryReadModelRepository, CategoryReadModelRepository>();
+        services.AddScoped<CategorySyncService>();
+        
         services.AddMediatR(cfg =>
             cfg.RegisterServicesFromAssembly(typeof(CatalogModule).Assembly));
 
         services.AddValidatorsFromAssembly(typeof(CatalogModule).Assembly);
 
         return services;
+    }
+
+    public static async Task InitializeCatalogIndexesAsync(
+        this IServiceProvider serviceProvider,
+        CancellationToken ct = default)
+    {
+        var productRepo = serviceProvider.GetRequiredService<ProductIndexManager>();
+        await productRepo.EnsureIndexesAsync(ct);
+        
+        var categoryRepo = serviceProvider.GetRequiredService<CategoryIndexManager>();
+        await categoryRepo.EnsureIndexesAsync(ct);
     }
 }

@@ -3,7 +3,6 @@ using VertexCommerce.Modules.Identity.Domain.Repositories;
 using VertexCommerce.Modules.Identity.Persistence;
 using VertexCommerce.Modules.Identity.Services;
 using VertexCommerce.Shared.CQRS;
-using VertexCommerce.Shared.Persistence;
 
 namespace VertexCommerce.Modules.Identity.Features.Register;
 

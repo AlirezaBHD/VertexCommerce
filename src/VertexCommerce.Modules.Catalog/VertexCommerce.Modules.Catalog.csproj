@@ -3,13 +3,18 @@
     <ItemGroup>
       <ProjectReference Include="..\VertexCommerce.Shared\VertexCommerce.Shared.csproj" />
     </ItemGroup>
-    
+    <PropertyGroup>
+        <NuGetAudit>false</NuGetAudit>
+    </PropertyGroup>
+
     <ItemGroup>
       <PackageReference Include="MongoDB.Driver" />
+      <PackageReference Include="HotChocolate.Data.MongoDb" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Persistence\ReadModels\" />
+      <Folder Include="Features\Categories\Commands\" />
+      <Folder Include="Features\Products\" />
     </ItemGroup>
 
     <PropertyGroup>

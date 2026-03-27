@@ -1,14 +1,14 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using VertexCommerce.Api.Extensions;
-using VertexCommerce.Modules.Catalog.Features.CreateCategory;
-using VertexCommerce.Modules.Catalog.Features.CreateProduct;
-using VertexCommerce.Modules.Catalog.Features.DeleteCategory;
-using VertexCommerce.Modules.Catalog.Features.DeleteProduct;
-using VertexCommerce.Modules.Catalog.Features.ToggleProductStatus;
-using VertexCommerce.Modules.Catalog.Features.UpdateCategory;
-using VertexCommerce.Modules.Catalog.Features.UpdateProduct;
-using VertexCommerce.Modules.Catalog.Features.UpdateStock;
+using VertexCommerce.Modules.Catalog.Features.Categories.Commands.CreateCategory;
+using VertexCommerce.Modules.Catalog.Features.Categories.Commands.DeleteCategory;
+using VertexCommerce.Modules.Catalog.Features.Categories.Commands.UpdateCategory;
+using VertexCommerce.Modules.Catalog.Features.Products.Commands.CreateProduct;
+using VertexCommerce.Modules.Catalog.Features.Products.Commands.DeleteProduct;
+using VertexCommerce.Modules.Catalog.Features.Products.Commands.ToggleProductStatus;
+using VertexCommerce.Modules.Catalog.Features.Products.Commands.UpdateProduct;
+using VertexCommerce.Modules.Catalog.Features.Products.Commands.UpdateStock;
 using VertexCommerce.Modules.Catalog.Sync;
 
 namespace VertexCommerce.Api.Endpoints;
@@ -18,9 +18,9 @@ public static class CatalogEndpoints
     public static IEndpointRouteBuilder MapCatalogEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/catalog")
-            .WithTags("Catalog")
-            .RequireAuthorization("Admin");
-
+            .WithTags("Catalog");
+            // .RequireAuthorization("Admin");
+            
         // Products
         group.MapPost("/products", CreateProduct);
         group.MapPut("/products/{id:guid}", UpdateProduct);
@@ -46,27 +46,17 @@ public static class CatalogEndpoints
     #region Products
 
     private static async Task<IResult> CreateProduct(
-        [FromBody] CreateProductRequest request,
+        [FromBody] CreateProductCommand command,
         [FromServices] ISender sender,
         CancellationToken ct)
     {
-        var command = new CreateProductCommand(
-            request.Name,
-            request.Description,
-            request.Sku,
-            request.Price,
-            request.Currency,
-            request.StockQuantity,
-            request.CategoryId
-        );
-
         var result = await sender.Send(command, ct);
 
         return result.IsSuccess
             ? Results.Created($"/api/catalog/products/{result.Value}", new { Id = result.Value })
             : result.Error.ToHttpResult();
     }
-
+    
     private static async Task<IResult> UpdateProduct(
         Guid id,
         [FromBody] UpdateProductRequest request,

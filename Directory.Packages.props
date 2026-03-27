@@ -4,6 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- CQRS -->
+    <PackageVersion Include="HotChocolate.AspNetCore.Playground" Version="15.1.12" />
     <PackageVersion Include="HotChocolate.Data.EntityFramework" Version="15.1.12" />
     <PackageVersion Include="MediatR" Version="12.4.1" />
     <!-- Validation -->
@@ -32,7 +33,6 @@
     <PackageVersion Include="Testcontainers.MongoDb" Version="4.4.0" />
     <!-- Utilities -->
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2" />
-    <PackageVersion Include="Microsoft.OpenApi" Version="3.3.1" />
     <PackageVersion Include="Scalar.AspNetCore" Version="2.12.36" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="10.1.2" />
     <PackageVersion Include="Serilog.AspNetCore" Version="9.0.0" />

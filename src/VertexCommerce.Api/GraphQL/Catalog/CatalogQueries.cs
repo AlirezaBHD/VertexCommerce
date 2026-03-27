@@ -1,141 +1,108 @@
 using VertexCommerce.Api.GraphQL.Catalog.Types;
-using VertexCommerce.Modules.Catalog.ReadModels;
+using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories;
+using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories.Documents;
+using VertexCommerce.Modules.Catalog.Persistence.Mongo.Products;
+using VertexCommerce.Modules.Catalog.Persistence.Mongo.Products.Documents;
 
 namespace VertexCommerce.Api.GraphQL.Catalog;
 
-public sealed partial class Query
+[ExtendObjectType(typeof(Query))]
+public sealed class CatalogQueries
 {
-    public async Task<IEnumerable<ProductSummaryType>> GetFeaturedProducts(
-        [Service] IProductReadModelRepository repository,
-        int take = 8,
-        CancellationToken ct = default)
+    [UseProjection]
+    [UseSorting]
+    public IExecutable<ProductReadModel> GetProducts(
+        [Service] IProductReadModelRepository repository)
     {
-        var products = await repository.GetFeaturedAsync(take, ct);
-        return products.Select(MapToSummary);
+        return repository.GetProducts();
+    }
+    
+    [UseProjection]
+    [UseFirstOrDefault]
+    public IExecutable<ProductReadModel> GetProductById(
+        Guid id,
+        [Service] IProductReadModelRepository repository)
+    {
+        return repository.GetByIdAsync(id);
+    }
+    [UseOffsetPaging(IncludeTotalCount = true, MaxPageSize = 50)]
+    [UseProjection]
+    [UseSorting]
+    public IExecutable<ProductReadModel> GetPaginatedProducts(
+        [Service] IProductReadModelRepository repository,
+        string? searchTerm,
+        Guid? categoryId,
+        decimal? minPrice,
+        decimal? maxPrice,
+        bool? isActive)
+    {
+        return repository.GetFilteredProducts(
+            searchTerm, categoryId, minPrice, maxPrice, isActive);
     }
 
-    public async Task<IEnumerable<ProductSummaryType>> GetNewProducts(
-        [Service] IProductReadModelRepository repository,
-        int take = 8,
-        CancellationToken ct = default)
-    {
-        var products = await repository.GetNewAsync(take, ct);
-        return products.Select(MapToSummary);
-    }
-
-    public async Task<ProductListResponseType> GetProductsByCategory(
-        [Service] IProductReadModelRepository repository,
+    [UseProjection]
+    [UseSorting]
+    public IExecutable<ProductReadModel> GetProductsByCategory(
         Guid categoryId,
-        int page = 1,
-        int pageSize = 20,
-        decimal? minPrice = null,
-        decimal? maxPrice = null,
-        bool? inStock = null,
-        string? sortBy = null,
-        bool descending = false,
-        CancellationToken ct = default)
+        bool? inStock,
+        decimal? minPrice,
+        decimal? maxPrice,
+        [Service] IProductReadModelRepository repository)
     {
-        var skip = (page - 1) * pageSize;
-
-        var products = await repository.GetByCategoryAsync(
-            categoryId, skip, pageSize,
-            minPrice, maxPrice, inStock,
-            sortBy, descending, ct);
-
-        var totalCount = await repository.CountByCategoryAsync(categoryId, ct);
-
-        return new ProductListResponseType
-        {
-            Products = products.Select(MapToSummary),
-            TotalCount = (int)totalCount,
-            Page = page,
-            PageSize = pageSize,
-            TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
-        };
+        return repository.GetProductsByCategory(categoryId, inStock, minPrice, maxPrice);
     }
-
+    
     public async Task<ProductListResponseType> SearchProducts(
-        [Service] IProductReadModelRepository repository,
         string searchTerm,
-        int page = 1,
-        int pageSize = 20,
+        int skip = 0,
+        int take = 20,
         Guid? categoryId = null,
         decimal? minPrice = null,
         decimal? maxPrice = null,
+        [Service] IProductReadModelRepository repository = default!,
         CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(searchTerm))
-            return ProductListResponseType.Empty(page, pageSize);
-
-        var skip = (page - 1) * pageSize;
-
-        var products = await repository.SearchAsync(
-            searchTerm, skip, pageSize,
+        var (items, totalCount) = await repository.SearchAsync(
+            searchTerm, skip, take,
             categoryId, minPrice, maxPrice, ct);
-
-        var totalCount = await repository.CountSearchAsync(searchTerm, categoryId, ct);
 
         return new ProductListResponseType
         {
-            Products = products.Select(MapToSummary),
-            TotalCount = (int)totalCount,
-            Page = page,
-            PageSize = pageSize,
-            TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            Products = items,
+            TotalCount = totalCount,
+            Page = 0,
+            PageSize = 20,
+            TotalPages = long.Parse((totalCount / take).ToString())
         };
     }
+    //----
+    [UseProjection]
+    [UseFiltering]
+    [UseSorting]
+    public IExecutable<CategoryReadModel> GetCategories(
+        [Service] ICategoryReadModelRepository repository,
+        bool? isActive,
+        CancellationToken ct)
+    {
+        return repository.GetAllAsync(isActive, ct);
+    }
 
-    public async Task<ProductDetailType?> GetProductById(
-        [Service] IProductReadModelRepository repository,
+    [UseProjection]
+    public IExecutable<CategoryReadModel> GetCategoryById(
+        [Service] ICategoryReadModelRepository repository,
         Guid id,
-        CancellationToken ct = default)
+        CancellationToken ct)
     {
-        var product = await repository.GetByIdAsync(id, ct);
-        return product is null ? null : MapToDetail(product);
+        return repository.GetByIdAsync(id, ct);
     }
 
-    public async Task<ProductDetailType?> GetProductBySku(
-        [Service] IProductReadModelRepository repository,
-        string sku,
-        CancellationToken ct = default)
+    /// <summary>
+    /// Returns only root categories (tree entry points)
+    /// </summary>
+    public async Task<List<CategoryReadModel>> GetCategoryTree(
+        [Service] ICategoryReadModelRepository repository,
+        CancellationToken ct)
     {
-        var product = await repository.GetBySkuAsync(sku, ct);
-        return product is null ? null : MapToDetail(product);
+        return await repository.GetRootCategoriesAsync(ct);
     }
-
-    #region Mappers
-
-    private static ProductSummaryType MapToSummary(ProductReadModel p) => new()
-    {
-        Id = p.Id,
-        Name = p.Name,
-        Sku = p.Sku,
-        Price = p.Price,
-        Currency = p.Currency,
-        StockQuantity = p.StockQuantity,
-        IsActive = p.IsActive,
-        ImageUrl = null,
-        CategoryId = p.CategoryId,
-        CategoryName = p.CategoryName,
-        CreatedAt = p.CreatedAt
-    };
-
-    private static ProductDetailType MapToDetail(ProductReadModel p) => new()
-    {
-        Id = p.Id,
-        Name = p.Name,
-        Description = p.Description,
-        Sku = p.Sku,
-        Price = p.Price,
-        Currency = p.Currency,
-        StockQuantity = p.StockQuantity,
-        IsActive = p.IsActive,
-        CategoryId = p.CategoryId,
-        CategoryName = p.CategoryName,
-        CategoryPath = p.CategoryPath,
-        CreatedAt = p.CreatedAt,
-        UpdatedAt = p.UpdatedAt
-    };
-
-    #endregion
 }

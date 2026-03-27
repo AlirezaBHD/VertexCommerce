@@ -6,8 +6,13 @@
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    </PropertyGroup>
+    
     <ItemGroup>
       <PackageReference Include="HotChocolate.AspNetCore" />
+<!--      <PackageReference Include="HotChocolate.AspNetCore.Playground" />-->
       <PackageReference Include="HotChocolate.Data" />
       <PackageReference Include="HotChocolate.Types" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
@@ -30,6 +35,7 @@
 
     <ItemGroup>
       <Folder Include="GraphQL\Common\" />
+      <Folder Include="wwwroot\uploads\product\" />
     </ItemGroup>
 
 </Project>

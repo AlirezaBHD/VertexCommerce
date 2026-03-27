@@ -1,9 +1,9 @@
 using FluentAssertions;
 using NSubstitute;
-using VertexCommerce.Modules.Catalog.Domain.Entities;
-using VertexCommerce.Modules.Catalog.Domain.Repositories;
-using VertexCommerce.Modules.Catalog.Features.CreateProduct;
-using VertexCommerce.Modules.Catalog.Persistence;
+using VertexCommerce.Modules.Catalog.Domain.Categories;
+using VertexCommerce.Modules.Catalog.Domain.Products;
+using VertexCommerce.Modules.Catalog.Features.Products.Commands.CreateProduct;
+using VertexCommerce.Modules.Catalog.Persistence.Postgres;
 using VertexCommerce.Modules.Catalog.Tests.Fixtures; 
 
 namespace VertexCommerce.Modules.Catalog.Tests.Unit.Features.CreateProduct;
