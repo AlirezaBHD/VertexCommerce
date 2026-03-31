@@ -13,7 +13,12 @@ public sealed class ProductType : ObjectType<ProductReadModel>
         descriptor.Field(p => p.Name).Type<NonNullType<StringType>>();
         descriptor.Field(p => p.Description).Type<NonNullType<StringType>>();
         descriptor.Field(p => p.TotalStock).Type<NonNullType<IntType>>();
+        descriptor.Field(p => p.Slug).Type<NonNullType<StringType>>();
+        descriptor.Field(p => p.MetaTitle).Type<NonNullType<StringType>>();
+        descriptor.Field(p => p.MetaDescription).Type<NonNullType<StringType>>();
+        descriptor.Field(p => p.Keywords).Type<NonNullType<StringType>>();
 
+        
         descriptor.Field(p => p.IsActive);
         descriptor.Field(p => p.SearchText).Ignore();
         descriptor.Field(p => p.SyncedAt).Ignore();

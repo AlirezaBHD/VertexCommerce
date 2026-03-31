@@ -1,6 +1,7 @@
 using VertexCommerce.Modules.Catalog.Domain.Products;
 using VertexCommerce.Modules.Catalog.Persistence.Postgres;
 using VertexCommerce.Modules.Catalog.Sync;
+using VertexCommerce.Modules.Catalog.Sync.Products;
 using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Catalog.Features.Products.Commands.UpdateStock;

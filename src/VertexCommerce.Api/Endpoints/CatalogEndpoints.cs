@@ -9,7 +9,9 @@ using VertexCommerce.Modules.Catalog.Features.Products.Commands.DeleteProduct;
 using VertexCommerce.Modules.Catalog.Features.Products.Commands.ToggleProductStatus;
 using VertexCommerce.Modules.Catalog.Features.Products.Commands.UpdateProduct;
 using VertexCommerce.Modules.Catalog.Features.Products.Commands.UpdateStock;
+using VertexCommerce.Modules.Catalog.Features.Products.Queries.GetProductById;
 using VertexCommerce.Modules.Catalog.Sync;
+using VertexCommerce.Modules.Catalog.Sync.Products;
 
 namespace VertexCommerce.Api.Endpoints;
 
@@ -24,6 +26,7 @@ public static class CatalogEndpoints
         // Products
         group.MapPost("/products", CreateProduct);
         group.MapPut("/products/{id:guid}", UpdateProduct);
+        group.MapGet("/products/{id:guid}", GetProductById);
         group.MapDelete("/products/{id:guid}", DeleteProduct);
         group.MapPatch("/products/{id:guid}/stock", UpdateStock);
         group.MapPatch("/products/{id:guid}/stock/add", AddStock);
@@ -67,11 +70,11 @@ public static class CatalogEndpoints
             id,
             request.Name,
             request.Description,
-            request.Price,
-            request.Currency,
-            request.CategoryId
-        );
-
+            request.CategoryId,
+            request.Attributes,
+            request.SeoMetadata,
+            request.Variants
+            );
         var result = await sender.Send(command, ct);
 
         return result.IsSuccess
@@ -79,6 +82,20 @@ public static class CatalogEndpoints
             : result.Error.ToHttpResult();
     }
 
+    private static async Task<IResult> GetProductById(
+        Guid id,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var query = new GetProductByIdQuery(id);
+        var result = await sender.Send(query, ct);
+        
+        return result.IsSuccess
+            ? Results.Ok(result.Value)
+            : result.Error.ToHttpResult();
+    }
+    
+    
     private static async Task<IResult> DeleteProduct(
         Guid id,
         [FromServices] ISender sender,

@@ -11,15 +11,16 @@ public sealed class ProductVariantConfiguration : IEntityTypeConfiguration<Produ
         builder.ToTable("product_variants", "catalog");
         builder.HasKey(v => v.Id);
 
-        builder.OwnsOne(v => v.Sku, sb =>
+        
+        builder.ComplexProperty(v => v.Sku, skuBuilder => 
         {
-            sb.Property(s => s.Value).HasColumnName("Sku").IsRequired();
+            skuBuilder.Property(s => s.Value).HasColumnName("Sku").IsRequired();
         });
 
-        builder.OwnsOne(v => v.Price, pb =>
+        builder.ComplexProperty(v => v.Price, priceBuilder => 
         {
-            pb.Property(p => p.Amount).HasColumnName("PriceAmount");
-            pb.Property(p => p.Currency).HasColumnName("PriceCurrency");
+            priceBuilder.Property(p => p.Amount).HasColumnName("PriceAmount");
+            priceBuilder.Property(p => p.Currency).HasColumnName("PriceCurrency");
         });
 
         builder.OwnsMany(v => v.Options, ob =>

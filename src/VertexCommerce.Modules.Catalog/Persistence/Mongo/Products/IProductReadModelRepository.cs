@@ -6,7 +6,6 @@ namespace VertexCommerce.Modules.Catalog.Persistence.Mongo.Products;
 
 public interface IProductReadModelRepository
 {
-    // ── GraphQL (IExecutable for Projection) ──
     IMongoCollection<ProductReadModel> GetCollection();
     IExecutable<ProductReadModel> GetProducts(CancellationToken ct = default);
     IExecutable<ProductReadModel> GetByIdAsync(Guid id, CancellationToken ct = default);

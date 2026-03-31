@@ -5,7 +5,7 @@ using VertexCommerce.Modules.Catalog.Persistence.Mongo.Products;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Products.Documents;
 using VertexCommerce.Modules.Catalog.Persistence.Postgres;
 
-namespace VertexCommerce.Modules.Catalog.Sync;
+namespace VertexCommerce.Modules.Catalog.Sync.Products;
 
 internal sealed class ProductSyncService(
     CatalogDbContext dbContext,

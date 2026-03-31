@@ -1,5 +1,6 @@
 using VertexCommerce.Modules.Catalog.Domain.Categories;
 using VertexCommerce.Modules.Catalog.Domain.Products.Events;
+using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
 using VertexCommerce.Shared.Domain;
 
 namespace VertexCommerce.Modules.Catalog.Domain.Products;
@@ -11,7 +12,7 @@ public sealed class Product : AggregateRoot<Guid>
     public bool IsActive { get; private set; }
     public Guid CategoryId { get; private set; }
     public Category? Category { get; private set; }
-
+    public SeoMetadata Seo { get; private set; } = null!;
     private readonly List<ProductAttribute> _attributes = [];
     public IReadOnlyCollection<ProductAttribute> Attributes => _attributes.AsReadOnly();
 
@@ -27,7 +28,8 @@ public sealed class Product : AggregateRoot<Guid>
     public static Product Create(
         string name,
         string? description,
-        Guid categoryId)
+        Guid categoryId,
+        SeoMetadata seo)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -40,6 +42,7 @@ public sealed class Product : AggregateRoot<Guid>
             Name = name.Trim(),
             Description = description?.Trim(),
             CategoryId = categoryId,
+            Seo = seo,
             IsActive = true
         };
 
@@ -51,7 +54,7 @@ public sealed class Product : AggregateRoot<Guid>
         return product;
     }
 
-    public void Update(string name, string? description, Guid categoryId)
+    public void Update(string name, string? description, Guid categoryId, SeoMetadata seoMetadata)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -61,6 +64,7 @@ public sealed class Product : AggregateRoot<Guid>
         Name = name.Trim();
         Description = description?.Trim();
         CategoryId = categoryId;
+        Seo = seoMetadata;
         SetUpdatedAt();
 
         AddDomainEvent(new ProductUpdatedEvent(Id, Name));
@@ -105,6 +109,17 @@ public sealed class Product : AggregateRoot<Guid>
             SetUpdatedAt();
         }
     }
+    
+    public void UpdateAttributes(Dictionary<string, string> commandAttributes)
+    {
+        var attributes = new List<ProductAttribute>();
+        foreach (var commandAttribute in commandAttributes)
+        {
+            attributes.Add(ProductAttribute.Create(Id, commandAttribute.Key, commandAttribute.Value));
+        }
+        _attributes.Clear();
+        _attributes.AddRange(attributes);
+    }
 
     #endregion
     
@@ -129,4 +144,5 @@ public sealed class Product : AggregateRoot<Guid>
         }
     }
     #endregion
+    
 }

@@ -10,6 +10,7 @@ using VertexCommerce.Modules.Catalog.Persistence.Postgres;
 using VertexCommerce.Modules.Catalog.Persistence.Postgres.Repositories;
 using VertexCommerce.Modules.Catalog.Sync;
 using VertexCommerce.Modules.Catalog.Sync.Categories;
+using VertexCommerce.Modules.Catalog.Sync.Products;
 using VertexCommerce.Shared.Persistence;
 
 namespace VertexCommerce.Modules.Catalog;

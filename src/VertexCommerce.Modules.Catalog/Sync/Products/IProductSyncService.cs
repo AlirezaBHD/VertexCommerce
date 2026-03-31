@@ -1,4 +1,4 @@
-namespace VertexCommerce.Modules.Catalog.Sync;
+namespace VertexCommerce.Modules.Catalog.Sync.Products;
 
 public interface IProductSyncService
 {

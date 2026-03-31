@@ -6,32 +6,35 @@ using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Catalog.Features.Products.Commands.CreateProduct;
 
-internal sealed class CreateProductCommandHandler : ICommandHandler<CreateProductCommand, CreateProductResponse>
+internal sealed class CreateProductCommandHandler(
+    IProductRepository productRepository,
+    ICategoryRepository categoryRepository,
+    ICatalogUnitOfWork unitOfWork)
+    : ICommandHandler<CreateProductCommand, CreateProductResponse>
 {
-    private readonly IProductRepository _productRepository;
-    private readonly ICategoryRepository _categoryRepository;
-    private readonly ICatalogUnitOfWork _unitOfWork;
-
-    public CreateProductCommandHandler(
-        IProductRepository productRepository,
-        ICategoryRepository categoryRepository,
-        ICatalogUnitOfWork unitOfWork)
-    {
-        _productRepository = productRepository;
-        _categoryRepository = categoryRepository;
-        _unitOfWork = unitOfWork;
-    }
-
     public async Task<Result<CreateProductResponse>> Handle(CreateProductCommand command, CancellationToken ct)
     {
-        var categoryExists = await _categoryRepository.ExistsAsync(command.CategoryId, ct);
+        var categoryExists = await categoryRepository.ExistsAsync(command.CategoryId, ct);
         if (!categoryExists)
             return Result.Failure<CreateProductResponse>(Error.NotFound("Category", command.CategoryId));
 
+        if (await productRepository.SlugExistsAsync(command.SeoMetadata.Slug, ct))
+            return Result.Failure<CreateProductResponse>(
+                Error.Conflict($"Product Slug '{command.SeoMetadata.Slug}' already exists."));
+
+        
+        var seoMetadata = SeoMetadata.Create(
+            command.SeoMetadata.Slug,
+            command.SeoMetadata.MetaTitle,
+            command.SeoMetadata.MetaDescription,
+            command.SeoMetadata.Keywords);
+        
+        
         var product = Product.Create(
             command.Name,
             command.Description,
-            command.CategoryId
+            command.CategoryId,
+            seoMetadata
         );
         
         if (command.Attributes is not null)
@@ -76,8 +79,8 @@ internal sealed class CreateProductCommandHandler : ICommandHandler<CreateProduc
         }
         
         
-        await _productRepository.AddAsync(product, ct);
-        await _unitOfWork.SaveChangesAsync(ct);
+        await productRepository.AddAsync(product, ct);
+        await unitOfWork.SaveChangesAsync(ct);
         
         return Result.Success(
             new CreateProductResponse(product.Id, variantInfos));

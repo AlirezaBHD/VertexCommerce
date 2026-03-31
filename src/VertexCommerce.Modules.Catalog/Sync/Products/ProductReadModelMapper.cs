@@ -2,7 +2,7 @@ using VertexCommerce.Modules.Catalog.Domain.Products;
 using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Products.Documents;
 
-namespace VertexCommerce.Modules.Catalog.Sync;
+namespace VertexCommerce.Modules.Catalog.Sync.Products;
 
 internal static class ProductReadModelMapper
 {
@@ -40,7 +40,11 @@ internal static class ProductReadModelMapper
             SearchText = searchText,
             CreatedAt = product.CreatedAt,
             UpdatedAt = product.UpdatedAt,
-            SyncedAt = DateTime.UtcNow
+            SyncedAt = DateTime.UtcNow,
+            Slug = product.Seo.Slug,
+            MetaTitle = product.Seo.MetaTitle,
+            MetaDescription = product.Seo.MetaDescription,
+            Keywords = product.Seo.Keywords
         };
     }
 

@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using VertexCommerce.Modules.Catalog.Domain.Products.Events;
 using VertexCommerce.Modules.Catalog.Sync;
+using VertexCommerce.Modules.Catalog.Sync.Products;
 
 namespace VertexCommerce.Modules.Catalog.Features.Products.EventHandlers;
 

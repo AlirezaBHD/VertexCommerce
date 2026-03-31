@@ -49,6 +49,28 @@ public sealed class ProductVariant : Entity<Guid>
         return variant;
     }
 
+    public void Update(
+        Sku sku,
+        List<VariantOption> options,
+        int stockQuantity,
+        int order,
+        Money price)
+    {
+        if (Sku.Value != sku.Value) Sku = sku;
+        if (Price.Amount != price.Amount || Price.Currency != price.Currency) Price = price;
+    
+        StockQuantity = stockQuantity;
+        Order = order;
+
+        _options.RemoveAll(o => !options.Any(newO => newO.Name == o.Name && newO.Value == o.Value));
+        var newOptions = options.Where(newO => !_options.Any(o => o.Name == newO.Name && o.Value == newO.Value));
+        _options.AddRange(newOptions);
+    
+        SetUpdatedAt();
+    }
+
+
+    
     public void AddMedia(ProductMedia media)
     {
         _media.Add(media);
@@ -60,6 +82,20 @@ public sealed class ProductVariant : Entity<Guid>
         _media.AddRange(mediaList);
         SetUpdatedAt();
     }
+    
+    public void ReplaceMedia(List<ProductMedia> newMedias)
+    {
+        _media.RemoveAll(m => !newMedias.Any(newM => newM.Path == m.Path));
+        var toAdd = newMedias.Where(newM => !_media.Any(m => m.Path == newM.Path));
+        _media.AddRange(toAdd);
+    
+        var sorted = _media.OrderBy(m => m.Order).ToList();
+        _media.Clear();
+        _media.AddRange(sorted);
+
+        SetUpdatedAt();
+    }
+
     public void RemoveMedia(string path)
     {
         var media = _media.FirstOrDefault(m => m.Path == path);

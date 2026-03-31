@@ -14,29 +14,15 @@ public sealed class GetProductByIdQueryHandler : IQueryHandler<GetProductByIdQue
 
     public async Task<Result<ProductResponse>> Handle(GetProductByIdQuery query, CancellationToken ct)
     {
-        var product = await _productRepository.GetByIdAsync(query.Id, ct);
+        var spec = new ProductByIdSpec(query.Id);
+        var product = await _productRepository.GetByIdAsync(query.Id, spec, ct);
 
         if (product is null)
         {
             return Result.Failure<ProductResponse>(Error.NotFound("Product", query.Id));
         }
 
-        var response = new ProductResponse(
-            product.Id,
-            product.Name,
-            product.Description,
-            product.IsActive,
-            product.CategoryId,
-            product.Category?.Name,
-            product.CreatedAt,
-            product.UpdatedAt,
-            product.Attributes.Select(a => new ProductAttributeResponse(
-                a.Key,
-                a.Value,
-                a.Type
-            )).ToList()
-        );
 
-        return Result.Success(response);
+        return Result.Success(product);
     }
 }

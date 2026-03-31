@@ -1,7 +1,7 @@
 using VertexCommerce.Modules.Catalog.Domain.Categories;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories.Documents;
 
-namespace VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories;
+namespace VertexCommerce.Modules.Catalog.Sync.Categories;
 
 internal static class CategoryReadModelMapper
 {

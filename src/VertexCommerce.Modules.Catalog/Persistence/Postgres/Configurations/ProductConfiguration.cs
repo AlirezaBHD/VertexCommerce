@@ -40,6 +40,30 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.UpdatedAt)
             .HasColumnName("updated_at");
 
+        builder.OwnsOne(p => p.Seo, seo =>
+        {
+            seo.Property(s => s.Slug)
+                .HasColumnName("seo_slug")
+                .HasMaxLength(200)
+                .IsRequired();
+
+            seo.Property(s => s.MetaTitle)
+                .HasColumnName("seo_meta_title")
+                .HasMaxLength(60)
+                .IsRequired();
+
+            seo.Property(s => s.MetaDescription)
+                .HasColumnName("seo_meta_description")
+                .HasMaxLength(160)
+                .IsRequired();
+
+            seo.Property(s => s.Keywords)
+                .HasColumnName("seo_keywords")
+                .HasMaxLength(500);
+
+            seo.HasIndex(s => s.Slug).IsUnique();
+        });
+        
         builder.HasOne(p => p.Category)
             .WithMany(c => c.Products)
             .HasForeignKey(p => p.CategoryId)

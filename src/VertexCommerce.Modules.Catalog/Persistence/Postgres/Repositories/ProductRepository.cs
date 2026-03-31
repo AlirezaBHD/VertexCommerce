@@ -21,6 +21,17 @@ public sealed class ProductRepository : IProductRepository
             .FirstOrDefaultAsync(p => p.Id == id, ct);
     }
 
+    public async Task<TResult?> GetByIdAsync<TResult>(Guid id, ISpecification<Product, TResult> spec,
+        CancellationToken ct = default)
+    {
+        var query = _context.Products
+            .AsQueryable();
+
+        return await SpecificationEvaluator
+            .ApplySpecification(query, spec)
+            .FirstOrDefaultAsync(ct);
+    }
+
     public async Task<IReadOnlyList<Product>> GetAllAsync(CancellationToken ct = default)
     {
         return await _context.Products
@@ -61,6 +72,11 @@ public sealed class ProductRepository : IProductRepository
     public async Task AddAsync(Product entity, CancellationToken ct = default)
     {
         await _context.Products.AddAsync(entity, ct);
+    }
+
+    public async Task AddVariantAsync(ProductVariant variant, CancellationToken ct = default)
+    {
+       await _context.Set<ProductVariant>().AddAsync(variant, ct);
     }
 
     public void Update(Product entity)
@@ -105,8 +121,16 @@ public sealed class ProductRepository : IProductRepository
     public async Task<Product?> GetByIdWithVariantsAsync(Guid id, CancellationToken ct)
     {
         return await _context.Products
+            .Include(p => p.Attributes)
             .Include(p => p.Variants)
             .ThenInclude(v => v.Media)
+            .Include(p => p.Variants)
+            .ThenInclude(v => v.Options)
             .FirstOrDefaultAsync(p => p.Id == id, ct);
+    }
+
+    public async Task<bool> SlugExistsAsync(string slug, CancellationToken ct)
+    {
+        return await _context.Products.AnyAsync(p => p.Seo.Slug == slug, ct);
     }
 }
