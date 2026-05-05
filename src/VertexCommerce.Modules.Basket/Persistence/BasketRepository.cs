@@ -1,57 +1,51 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using VertexCommerce.Modules.Basket.Domain.Entities;
-using VertexCommerce.Modules.Basket.Domain.Repositories;
+using VertexCommerce.Modules.Basket.Contract;
+using VertexCommerce.Modules.Basket.Persistence.Configuration;
+using VertexCommerce.Modules.Basket.Persistence.Documents;
 
 namespace VertexCommerce.Modules.Basket.Persistence;
 
-public sealed class BasketRepository : IBasketRepository
+internal sealed class BasketRepository : IBasketRepository
 {
-    private readonly IMongoCollection<CustomerBasket> _baskets;
+    private readonly IMongoCollection<BasketDocument> _baskets;
 
     public BasketRepository(IOptions<MongoDbSettings> settings)
     {
         var client = new MongoClient(settings.Value.ConnectionString);
         var database = client.GetDatabase(settings.Value.DatabaseName);
-        _baskets = database.GetCollection<CustomerBasket>(settings.Value.BasketsCollectionName);
+        _baskets = database.GetCollection<BasketDocument>(settings.Value.BasketsCollectionName);
 
-        // Create indexes
         CreateIndexes();
     }
 
     private void CreateIndexes()
     {
-        var customerIdIndex = new CreateIndexModel<CustomerBasket>(
-            Builders<CustomerBasket>.IndexKeys.Ascending(b => b.CustomerId),
-            new CreateIndexOptions { Unique = true });
+        // ─── CustomerId unique index ───
+        var customerIdIndex = Builders<BasketDocument>.IndexKeys
+            .Ascending(b => b.CustomerId);
 
-        var expiresAtIndex = new CreateIndexModel<CustomerBasket>(
-            Builders<CustomerBasket>.IndexKeys.Ascending(b => b.ExpiresAt),
-            new CreateIndexOptions { ExpireAfter = TimeSpan.Zero });
+        _baskets.Indexes.CreateOne(new CreateIndexModel<BasketDocument>(
+            customerIdIndex,
+            new CreateIndexOptions { Unique = true }));
 
-        _baskets.Indexes.CreateMany([customerIdIndex, expiresAtIndex]);
+        // ─── TTL index ───
+        var ttlIndex = Builders<BasketDocument>.IndexKeys
+            .Ascending(b => b.ExpiresAt);
+
+        _baskets.Indexes.CreateOne(new CreateIndexModel<BasketDocument>(
+            ttlIndex,
+            new CreateIndexOptions { ExpireAfter = TimeSpan.Zero }));
     }
 
-    public async Task<CustomerBasket?> GetByCustomerIdAsync(Guid customerId, CancellationToken ct = default)
+    public async Task<BasketDocument?> GetByCustomerIdAsync(Guid customerId, CancellationToken ct = default)
     {
         return await _baskets
             .Find(b => b.CustomerId == customerId)
             .FirstOrDefaultAsync(ct);
     }
 
-    public async Task<CustomerBasket?> GetByIdAsync(Guid id, CancellationToken ct = default)
-    {
-        return await _baskets
-            .Find(b => b.Id == id)
-            .FirstOrDefaultAsync(ct);
-    }
-
-    public async Task CreateAsync(CustomerBasket basket, CancellationToken ct = default)
-    {
-        await _baskets.InsertOneAsync(basket, cancellationToken: ct);
-    }
-
-    public async Task UpdateAsync(CustomerBasket basket, CancellationToken ct = default)
+    public async Task UpsertAsync(BasketDocument basket, CancellationToken ct = default)
     {
         await _baskets.ReplaceOneAsync(
             b => b.CustomerId == basket.CustomerId,
@@ -62,13 +56,8 @@ public sealed class BasketRepository : IBasketRepository
 
     public async Task DeleteAsync(Guid customerId, CancellationToken ct = default)
     {
-        await _baskets.DeleteOneAsync(b => b.CustomerId == customerId, ct);
-    }
-
-    public async Task<bool> ExistsAsync(Guid customerId, CancellationToken ct = default)
-    {
-        return await _baskets
-            .Find(b => b.CustomerId == customerId)
-            .AnyAsync(ct);
+        await _baskets.DeleteOneAsync(
+            b => b.CustomerId == customerId,
+            ct);
     }
 }

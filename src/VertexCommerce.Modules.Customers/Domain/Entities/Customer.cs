@@ -4,11 +4,10 @@ namespace VertexCommerce.Modules.Customers.Domain.Entities;
 
 public sealed class Customer : AggregateRoot<Guid>
 {
-    public Guid UserId { get; private set; } // Link to Identity
-    public string Email { get; private set; } = default!;
+    public Guid UserId { get; private set; }
+    public string PhoneNumber { get; private set; } = default!;
     public string FirstName { get; private set; } = default!;
     public string LastName { get; private set; } = default!;
-    public string? Phone { get; private set; }
 
     private readonly List<CustomerAddress> _addresses = [];
     public IReadOnlyCollection<CustomerAddress> Addresses => _addresses.AsReadOnly();
@@ -16,15 +15,17 @@ public sealed class Customer : AggregateRoot<Guid>
     public Guid? DefaultShippingAddressId { get; private set; }
     public Guid? DefaultBillingAddressId { get; private set; }
 
-    private Customer() { }
+    private Customer()
+    {
+    }
 
-    public static Customer Create(Guid userId, string email, string firstName, string lastName)
+    public static Customer Create(Guid userId, string phoneNumber, string firstName, string lastName)
     {
         return new Customer
         {
             Id = Guid.NewGuid(),
             UserId = userId,
-            Email = email.ToLowerInvariant(),
+            PhoneNumber = phoneNumber,
             FirstName = firstName,
             LastName = lastName,
             CreatedAt = DateTime.UtcNow
@@ -33,23 +34,16 @@ public sealed class Customer : AggregateRoot<Guid>
 
     public string FullName => $"{FirstName} {LastName}";
 
-    public void UpdateProfile(string firstName, string lastName, string? phone)
+    public void UpdateProfile(string firstName, string lastName)
     {
         FirstName = firstName;
         LastName = lastName;
-        Phone = phone;
-        UpdatedAt = DateTime.UtcNow;
+        SetUpdatedAt();
     }
 
-    public CustomerAddress AddAddress(
-        string street,
-        string city,
-        string state,
-        string country,
-        string zipCode,
-        string? label = null)
+    public void AddAddress(
+        CustomerAddress address)
     {
-        var address = CustomerAddress.Create(Id, street, city, state, country, zipCode, label);
         _addresses.Add(address);
 
         // First address becomes default
@@ -59,8 +53,7 @@ public sealed class Customer : AggregateRoot<Guid>
             DefaultBillingAddressId = address.Id;
         }
 
-        UpdatedAt = DateTime.UtcNow;
-        return address;
+        SetUpdatedAt();
     }
 
     public void RemoveAddress(Guid addressId)
@@ -76,7 +69,7 @@ public sealed class Customer : AggregateRoot<Guid>
         if (DefaultBillingAddressId == addressId)
             DefaultBillingAddressId = _addresses.FirstOrDefault()?.Id;
 
-        UpdatedAt = DateTime.UtcNow;
+        SetUpdatedAt();
     }
 
     public void SetDefaultShippingAddress(Guid addressId)
@@ -85,7 +78,7 @@ public sealed class Customer : AggregateRoot<Guid>
             throw new InvalidOperationException("Address not found");
 
         DefaultShippingAddressId = addressId;
-        UpdatedAt = DateTime.UtcNow;
+        SetUpdatedAt();
     }
 
     public void SetDefaultBillingAddress(Guid addressId)
@@ -94,7 +87,7 @@ public sealed class Customer : AggregateRoot<Guid>
             throw new InvalidOperationException("Address not found");
 
         DefaultBillingAddressId = addressId;
-        UpdatedAt = DateTime.UtcNow;
+        SetUpdatedAt();
     }
 
     public CustomerAddress? GetDefaultShippingAddress()

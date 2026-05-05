@@ -7,9 +7,9 @@ public sealed record UpdateProductRequest(
     string Name,
     string? Description,
     Guid CategoryId,
-    Dictionary<string, string>? Attributes,
     UpdateSeoMetadataDto SeoMetadata,
-    List<UpdateVariantDto>? Variants
+    List<UpdateVariantDto>? Variants,
+    List<UpdateMediaDto>? Media
 );
 
 
@@ -18,9 +18,9 @@ public sealed record UpdateProductCommand(
     string Name,
     string? Description,
     Guid CategoryId,
-    Dictionary<string, string>? Attributes,
     UpdateSeoMetadataDto SeoMetadata,
-    List<UpdateVariantDto> Variants
+    List<UpdateVariantDto>? Variants,
+    List<UpdateMediaDto>? Media
 ) : ICommand;
 
 public sealed record UpdateVariantDto(
@@ -28,15 +28,22 @@ public sealed record UpdateVariantDto(
     decimal Price,
     string? Currency,
     int StockQuantity,
-    int Order,
+    int SortOrder,
     string? Sku,
-    List<UpdateVariantOptionDto> Options,
-    List<UpdateMediaDto> Medias
+    List<UpdateProductAttributeDto> Attributes
+);
+
+public sealed record UpdateProductAttributeDto(
+    string AttributeCode,
+    string OptionCode
 );
 
 public sealed record UpdateMediaDto(
     string Path,
-    int Order
+    int SortOrder,
+    string? AltText,
+    string? AssociatedAttributeCode,
+    string? AssociatedOptionCode
 );
 
 public sealed record UpdateVariantOptionDto(

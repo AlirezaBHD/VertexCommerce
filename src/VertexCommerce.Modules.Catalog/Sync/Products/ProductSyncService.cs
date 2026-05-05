@@ -98,9 +98,8 @@ internal sealed class ProductSyncService(
     {
         return await dbContext.Products
             .Include(p => p.Category)
-            .Include(p => p.Attributes)
-            .Include(p => p.Variants).ThenInclude(v => v.Options)
-            .Include(p => p.Variants).ThenInclude(v => v.Media)
+            .Include(p => p.Media)
+            .Include(p => p.Variants)
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == productId, ct);
     }
@@ -109,9 +108,8 @@ internal sealed class ProductSyncService(
     {
         return await dbContext.Products
             .Include(p => p.Category)
-            .Include(p => p.Attributes)
-            .Include(p => p.Variants).ThenInclude(v => v.Options)
-            .Include(p => p.Variants).ThenInclude(v => v.Media)
+            .Include(p => p.Media)
+            .Include(p => p.Variants)
             .AsNoTracking()
             .ToListAsync(ct);
     }
@@ -120,9 +118,8 @@ internal sealed class ProductSyncService(
     {
         return await dbContext.Products
             .Include(p => p.Category)
-            .Include(p => p.Attributes)
-            .Include(p => p.Variants).ThenInclude(v => v.Options)
-            .Include(p => p.Variants).ThenInclude(v => v.Media)
+            .Include(p => p.Media)
+            .Include(p => p.Variants)
             .Where(p => p.CategoryId == categoryId)
             .AsNoTracking()
             .ToListAsync(ct);

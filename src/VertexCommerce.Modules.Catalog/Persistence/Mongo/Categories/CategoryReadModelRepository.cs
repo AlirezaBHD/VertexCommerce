@@ -5,18 +5,13 @@ using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories.Documents;
 
 namespace VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories;
 
-internal sealed class CategoryReadModelRepository : ICategoryReadModelRepository
+internal sealed class CategoryReadModelRepository(
+    IMongoDatabase database,
+    CategoryIndexManager indexManager)
+    : ICategoryReadModelRepository
 {
-    private readonly IMongoCollection<CategoryReadModel> _collection;
-    private readonly CategoryIndexManager _indexManager;
-
-    public CategoryReadModelRepository(
-        IMongoDatabase database,
-        CategoryIndexManager indexManager)
-    {
-        _collection = database.GetCollection<CategoryReadModel>("categories");
-        _indexManager = indexManager;
-    }
+    private readonly IMongoCollection<CategoryReadModel> _collection = database.GetCollection<CategoryReadModel>("categories");
+    private readonly CategoryIndexManager _indexManager = indexManager;
 
     public IExecutable<CategoryReadModel> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
@@ -36,41 +31,6 @@ internal sealed class CategoryReadModelRepository : ICategoryReadModelRepository
             .Sort(sort).AsExecutable();
     }
 
-    public async Task<List<CategoryReadModel>> GetRootCategoriesAsync(
-        CancellationToken ct = default)
-    {
-        var filter = CategoryQueryFilterBuilder.BuildRootFilter();
-        var sort = CategoryQueryFilterBuilder.BuildDefaultSort();
-
-        return await _collection
-            .Find(filter)
-            .Sort(sort)
-            .ToListAsync(ct);
-    }
-
-    public async Task<List<CategoryReadModel>> GetChildrenAsync(
-        Guid parentId, CancellationToken ct = default)
-    {
-        var filter = CategoryQueryFilterBuilder.BuildChildrenFilter(parentId);
-        var sort = CategoryQueryFilterBuilder.BuildDefaultSort();
-
-        return await _collection
-            .Find(filter)
-            .Sort(sort)
-            .ToListAsync(ct);
-    }
-
-    public async Task<List<CategoryReadModel>> GetByIdsAsync(
-        IEnumerable<Guid> ids, CancellationToken ct = default)
-    {
-        var filter = Builders<CategoryReadModel>.Filter
-            .In(c => c.Id, ids);
-
-        return await _collection
-            .Find(filter)
-            .ToListAsync(ct);
-    }
-
     public async Task UpsertAsync(
         CategoryReadModel model, CancellationToken ct = default)
     {
@@ -88,19 +48,8 @@ internal sealed class CategoryReadModelRepository : ICategoryReadModelRepository
         await _collection.DeleteOneAsync(c => c.Id == id, ct);
     }
 
-    public async Task UpdateProductCountAsync(
-        Guid categoryId, int count, CancellationToken ct = default)
+    public IExecutable<CategoryReadModel> GetFilteredCategories(bool? isActive, bool? showOnHome, bool? showOnMenu)
     {
-        var filter = Builders<CategoryReadModel>.Filter.Eq(c => c.Id, categoryId);
-        var update = Builders<CategoryReadModel>.Update
-            .Set(c => c.ProductCount, count)
-            .Set(c => c.UpdatedAt, DateTime.UtcNow);
-
-        await _collection.UpdateOneAsync(filter, update, cancellationToken: ct);
-    }
-
-    public async Task EnsureIndexesAsync(CancellationToken ct = default)
-    {
-        await _indexManager.EnsureIndexesAsync(ct);
+        return _collection.AsExecutable();
     }
 }

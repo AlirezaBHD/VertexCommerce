@@ -3,7 +3,6 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
-using VertexCommerce.Modules.Catalog;
 
 namespace VertexCommerce.Api.Extensions;
 
@@ -40,13 +39,5 @@ public static class MongoDbExtensions
         services.AddSingleton(database);
 
         return services;
-    }
-
-    public static async Task InitializeMongoDbAsync(
-        this IServiceProvider services)
-    {
-        using var scope = services.CreateScope();
-
-        await services.InitializeCatalogIndexesAsync();
     }
 }

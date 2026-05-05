@@ -1,4 +1,6 @@
 using VertexCommerce.Modules.Catalog.Domain.Products;
+using VertexCommerce.Modules.Catalog.Features.Products.Queries.GetCatalogAttributes;
+using VertexCommerce.Modules.Catalog.Features.Products.Queries.GetProductById.DTOs;
 using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Catalog.Features.Products.Queries.GetProductById;
@@ -14,7 +16,7 @@ public sealed class GetProductByIdQueryHandler : IQueryHandler<GetProductByIdQue
 
     public async Task<Result<ProductResponse>> Handle(GetProductByIdQuery query, CancellationToken ct)
     {
-        var spec = new ProductByIdSpec(query.Id);
+        var spec = new GetProductByIdSpec(query.Id);
         var product = await _productRepository.GetByIdAsync(query.Id, spec, ct);
 
         if (product is null)

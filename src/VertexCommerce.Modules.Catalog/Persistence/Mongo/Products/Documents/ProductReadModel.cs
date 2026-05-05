@@ -1,3 +1,4 @@
+using HotChocolate.Data;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace VertexCommerce.Modules.Catalog.Persistence.Mongo.Products.Documents;
@@ -16,7 +17,6 @@ public sealed class ProductReadModel
     
     // ═══ Stock ═══
     public int TotalStock { get; set; }
-    
     public bool IsActive { get; set; }
 
     // ═══ Category ═══
@@ -29,11 +29,11 @@ public sealed class ProductReadModel
 
     // ═══ Aggregated Options ═══
     // e.g. {"Color": ["Red","Blue"], "Size": ["S","M","L"]}
+    [IsProjected(true)]
     public Dictionary<string, List<string>> AvailableOptions { get; set; } = new();
     
-    // ═══ Product Attributes ═══
-    // e.g. {"Weight": "1.5kg", "Material": "Aluminum"}
-    public Dictionary<string, string> Attributes { get; set; } = new();
+    // ═══ Media ═══
+    public List<ProductMediaReadModel> Media { get; set; } = [];
 
     // ═══ Search ═══
     public string SearchText { get; set; } = default!;

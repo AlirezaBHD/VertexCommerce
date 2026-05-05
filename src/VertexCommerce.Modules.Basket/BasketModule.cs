@@ -1,39 +1,62 @@
 using FluentValidation;
+using HotChocolate.Execution.Configuration;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using VertexCommerce.Modules.Basket.Domain.Repositories;
+using VertexCommerce.Modules.Basket.Configuration;
+using VertexCommerce.Modules.Basket.Contract;
+using VertexCommerce.Modules.Basket.Endpoints;
+using VertexCommerce.Modules.Basket.Features;
+using VertexCommerce.Modules.Basket.GraphQL;
+using VertexCommerce.Modules.Basket.GraphQL.Types;
 using VertexCommerce.Modules.Basket.Persistence;
+using VertexCommerce.Modules.Basket.Persistence.Configuration;
 using VertexCommerce.Modules.Basket.Services;
 using VertexCommerce.Shared.Contracts;
+using VertexCommerce.Shared.Contracts.Baskets;
 
 namespace VertexCommerce.Modules.Basket;
 
-public static class BasketModule
+public class BasketModule : IModule
 {
-    public static IServiceCollection AddBasketModule(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public string Name => "Basket";
+
+    public void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {
-        // MongoDB Configuration
         MongoDbConfiguration.Configure();
 
-        // Settings
+        services.Configure<BasketSettings>(
+            configuration.GetSection(BasketSettings.SectionName));
         services.Configure<MongoDbSettings>(
-            configuration.GetSection("MongoDb"));
+            configuration.GetSection($"{BasketSettings.SectionName}:MongoDB"));
 
-        // Repository
-        services.AddSingleton<IBasketRepository, BasketRepository>();
+        // Infrastructure
+        // services.AddSingleton<MongoDbContext>();
 
-        // Cross-Module Service
+        // Domain Services
+        services.AddScoped<BasketFactory>();
+        
+        
+        // services.Configure<MongoDbSettings>(
+        //     configuration.GetSection("MongoDb"));
+
+        services.AddScoped<IBasketRepository, BasketRepository>();
+
         services.AddScoped<IBasketService, BasketService>();
 
-        // MediatR handlers from this assembly
         services.AddMediatR(cfg =>
             cfg.RegisterServicesFromAssembly(typeof(BasketModule).Assembly));
 
-        // FluentValidation validators from this assembly
         services.AddValidatorsFromAssembly(typeof(BasketModule).Assembly);
+    }
 
-        return services;
+    public void MapEndpoints(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapBasketEndpoints();
+    }
+
+    public void ConfigureGraphQl(IRequestExecutorBuilder builder)
+    {
+        builder.AddTypeExtension<BasketQueries>();
     }
 }

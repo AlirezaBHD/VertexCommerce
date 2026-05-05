@@ -1,0 +1,144 @@
+using MediatR;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AddAddress;
+using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.EditAddress;
+using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.RemoveAddress;
+using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Queries.GetAddressById;
+using VertexCommerce.Modules.Customers.Features.Customers.Commands.SetDefaultBillingAddress;
+using VertexCommerce.Modules.Customers.Features.Customers.Commands.SetDefaultShippingAddress;
+using VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomer;
+using VertexCommerce.Shared.Extensions;
+
+namespace VertexCommerce.Modules.Customers.Endpoints;
+
+public static class CustomerEndpoints
+{
+    public static IEndpointRouteBuilder MapCustomerEndpoints(this IEndpointRouteBuilder app)
+    {
+        var group = app.MapGroup("/api/customers")
+            .WithTags("Customers")
+            .RequireAuthorization();
+
+        group.MapGet("/me", GetMyProfile);
+        group.MapPost("/me/addresses", AddAddress);
+        group.MapDelete("/me/addresses/{id:guid}", RemoveAddress);
+        group.MapGet("/me/addresses/{id:guid}", GetAddressById);
+        group.MapPut("/me/addresses/{id:guid}", EditAddress);
+        group.MapPatch("/me/addresses/{id:guid}/set-default-shipping", SetDefaultShippingAddress);
+        group.MapPatch("/me/addresses/{id:guid}/set-default-billing", SetDefaultBillingAddress);
+
+        return app;
+    }
+
+    private static async Task<IResult> SetDefaultShippingAddress(
+        Guid id,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var query = new SetDefaultShippingAddressCommand(AddressId: id);
+        var result = await sender.Send(query, ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+    private static async Task<IResult> SetDefaultBillingAddress(
+        Guid id,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var query = new SetDefaultBillingAddressCommand(AddressId: id);
+        var result = await sender.Send(query, ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> GetAddressById(
+        Guid id,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var query = new GetAddressByIdQuery(AddressId: id);
+        var result = await sender.Send(query, ct);
+
+        return result.IsSuccess
+            ? Results.Ok(result.Value)
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> RemoveAddress(
+        Guid id,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var command = new RemoveAddressCommand(AddressId: id);
+        var result = await sender.Send(command, ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> GetMyProfile(
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var query = new GetCustomerQuery();
+        var result = await sender.Send(query, ct);
+
+        return result.IsSuccess
+            ? Results.Ok(result.Value)
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> AddAddress(
+        [FromBody] AddAddressRequest request,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var command = new AddAddressCommand(
+            Province: request.Province,
+            City: request.City,
+            PostalAddress: request.PostalAddress,
+            PostalCode: request.PostalCode,
+            Latitude: request.Latitude,
+            Longitude: request.Longitude,
+            Label: request.Label
+        );
+
+        var result = await sender.Send(command, ct);
+
+        return result.IsSuccess
+            ? Results.Created($"/api/customers/me/addresses/{result.Value.Id}", result.Value)
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> EditAddress(
+        Guid id,
+        [FromBody] AddAddressRequest request,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var command = new EditAddressCommand(
+            AddressId: id,
+            Province: request.Province,
+            City: request.City,
+            PostalAddress: request.PostalAddress,
+            PostalCode: request.PostalCode,
+            Latitude: request.Latitude,
+            Longitude: request.Longitude,
+            Label: request.Label
+        );
+
+        var result = await sender.Send(command, ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+}

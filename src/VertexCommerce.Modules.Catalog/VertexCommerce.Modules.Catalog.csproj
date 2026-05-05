@@ -8,6 +8,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="HotChocolate.AspNetCore" />
+<!--      <PackageReference Include="HotChocolate.AspNetCore.Playground" />-->
+      <PackageReference Include="HotChocolate.Data" />
+      <PackageReference Include="HotChocolate.Types" />
       <PackageReference Include="MongoDB.Driver" />
       <PackageReference Include="HotChocolate.Data.MongoDb" />
     </ItemGroup>
@@ -15,12 +19,13 @@
     <ItemGroup>
       <Folder Include="Features\Categories\Commands\" />
       <Folder Include="Features\Products\" />
+      <Folder Include="Persistence\Postgres\Migrations\" />
     </ItemGroup>
-
+    
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <LangVersion>14</LangVersion>
-        <ImplicitUsings>enable</ImplicitUsings>
+        <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 

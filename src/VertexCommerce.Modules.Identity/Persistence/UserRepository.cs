@@ -20,11 +20,11 @@ internal sealed class UserRepository : IUserRepository
             .FirstOrDefaultAsync(u => u.Id == id, ct);
     }
 
-    public async Task<User?> GetByEmailAsync(string email, CancellationToken ct = default)
+    public async Task<User?> GetByPhoneNumberAsync(string phoneNumber, CancellationToken ct = default)
     {
         return await _context.Users
             .Include(u => u.RefreshTokens)
-            .FirstOrDefaultAsync(u => u.Email == email.ToLowerInvariant(), ct);
+            .FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber, ct);
     }
 
     public async Task<User?> GetByRefreshTokenAsync(string refreshToken, CancellationToken ct = default)
@@ -32,11 +32,6 @@ internal sealed class UserRepository : IUserRepository
         return await _context.Users
             .Include(u => u.RefreshTokens)
             .FirstOrDefaultAsync(u => u.RefreshTokens.Any(rt => rt.Token == refreshToken), ct);
-    }
-
-    public async Task<bool> EmailExistsAsync(string email, CancellationToken ct = default)
-    {
-        return await _context.Users.AnyAsync(u => u.Email == email.ToLowerInvariant(), ct);
     }
 
     public async Task AddAsync(User user, CancellationToken ct = default)
@@ -47,5 +42,10 @@ internal sealed class UserRepository : IUserRepository
     public void Update(User user)
     {
         _context.Users.Update(user);
+    }
+
+    public async Task<bool> PhoneExistsAsync(string phoneNumber, CancellationToken ct)
+    {
+        return await _context.Users.AnyAsync(u => u.PhoneNumber == phoneNumber, ct);
     }
 }

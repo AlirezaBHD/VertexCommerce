@@ -4,61 +4,68 @@ namespace VertexCommerce.Modules.Orders.Domain.ValueObjects;
 
 public sealed class Address : ValueObject
 {
-    public string Street { get; private set; }
-    public string City { get; private set; }
-    public string State { get; private set; }
-    public string Country { get; private set; }
-    public string ZipCode { get; private set; }
+    public string Province { get; private set; } = default!;
+    public string City { get; private set; } = default!;
+    public string PostalAddress { get; private set; } = default!;
+    public string PostalCode { get; private set; } = default!;
+    public decimal Latitude { get; private set; }
+    public decimal Longitude { get; private set; }
+    public string? Label { get; private set; }
 
     private Address()
     {
-        Street = string.Empty;
+        Province = string.Empty;
         City = string.Empty;
-        State = string.Empty;
-        Country = string.Empty;
-        ZipCode = string.Empty;
+        PostalAddress = string.Empty;
+        PostalCode = string.Empty;
     }
 
-    private Address(string street, string city, string state, string country, string zipCode)
+    private Address(string province, string city, string postalAddress, string postalCode, decimal latitude,
+        decimal longitude, string? label)
     {
-        Street = street;
+        Province = province;
         City = city;
-        State = state;
-        Country = country;
-        ZipCode = zipCode;
+        PostalAddress = postalAddress;
+        PostalCode = postalCode;
+        Latitude = latitude;
+        Longitude = longitude;
+        Label = label;
     }
 
-    public static Address Create(string street, string city, string state, string country, string zipCode)
+    public static Address Create(string province, string city, string postalAddress, string postalCode, decimal latitude,
+        decimal longitude, string? label)
     {
-        if (string.IsNullOrWhiteSpace(street))
-            throw new ArgumentException("Street cannot be empty.", nameof(street));
+        if (string.IsNullOrWhiteSpace(province))
+            throw new ArgumentException("province cannot be empty.", nameof(province));
 
         if (string.IsNullOrWhiteSpace(city))
             throw new ArgumentException("City cannot be empty.", nameof(city));
 
-        if (string.IsNullOrWhiteSpace(country))
-            throw new ArgumentException("Country cannot be empty.", nameof(country));
+        if (string.IsNullOrWhiteSpace(postalAddress))
+            throw new ArgumentException("postalAddress cannot be empty.", nameof(postalAddress));
 
-        if (string.IsNullOrWhiteSpace(zipCode))
-            throw new ArgumentException("ZipCode cannot be empty.", nameof(zipCode));
+        if (string.IsNullOrWhiteSpace(postalCode))
+            throw new ArgumentException("postalCode cannot be empty.", nameof(postalCode));
 
         return new Address(
-            street.Trim(),
-            city.Trim(),
-            state?.Trim() ?? string.Empty,
-            country.Trim(),
-            zipCode.Trim()
-        );
+            province: province.Trim(),
+            city: city.Trim(),
+            postalAddress: postalAddress.Trim(),
+            postalCode: postalCode.Trim(),
+            latitude: latitude,
+            longitude: longitude,
+            label: label?.Trim());
     }
 
     protected override IEnumerable<object?> GetEqualityComponents()
     {
-        yield return Street;
+        yield return Province;
         yield return City;
-        yield return State;
-        yield return Country;
-        yield return ZipCode;
+        yield return PostalAddress;
+        yield return PostalCode;
     }
 
-    public override string ToString() => $"{Street}, {City}, {State} {ZipCode}, {Country}";
+    public override string ToString() => $"{Province}، {City}، {PostalAddress} — {PostalCode}";
+    public string ToStringSummary() => 
+        $"{Province}، {City}، {(PostalAddress.Length > 10 ? PostalAddress[..10] + "..." : PostalAddress)}";
 }

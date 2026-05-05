@@ -2,81 +2,95 @@ using VertexCommerce.Modules.Orders.Domain.Entities;
 using VertexCommerce.Modules.Orders.Domain.Repositories;
 using VertexCommerce.Modules.Orders.Domain.ValueObjects;
 using VertexCommerce.Modules.Orders.Persistence;
-using VertexCommerce.Shared.Contracts;
+using VertexCommerce.Shared.Contracts.Baskets;
+using VertexCommerce.Shared.Contracts.Customers;
+using VertexCommerce.Shared.Contracts.Identity;
 using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Orders.Features.Checkout;
 
-public sealed class CheckoutCommandHandler : ICommandHandler<CheckoutCommand, CheckoutResponse>
+public sealed class CheckoutCommandHandler(
+    IOrderRepository orderRepository,
+    IBasketService basketService,
+    IOrdersUnitOfWork unitOfWork,
+    ICurrentUser currentUser,
+    ICustomerResolver customerResolver,
+    ICustomerService customerService)
+    : ICommandHandler<CheckoutCommand, CheckoutResponse>
 {
-    private readonly IOrderRepository _orderRepository;
-    private readonly IBasketService _basketService;
-    private readonly IOrdersUnitOfWork _unitOfWork;
-
-    public CheckoutCommandHandler(
-        IOrderRepository orderRepository,
-        IBasketService basketService,
-        IOrdersUnitOfWork unitOfWork)
-    {
-        _orderRepository = orderRepository;
-        _basketService = basketService;
-        _unitOfWork = unitOfWork;
-    }
-
     public async Task<Result<CheckoutResponse>> Handle(CheckoutCommand command, CancellationToken ct)
     {
-        var basket = await _basketService.GetBasketAsync(command.CustomerId, ct);
+        var customerId = await customerResolver.GetCustomerIdByUserIdAsync(currentUser.UserId, ct);
+
+        var basket = await basketService.GetBasketAsync(
+            customerId: customerId,
+            ct);
 
         if (basket is null || basket.Items.Count == 0)
         {
             return Result.Failure<CheckoutResponse>(
-                Error.Validation("Basket is empty. Cannot checkout."));
+                Error.Validation("Basket.Empty", "Basket is empty. Cannot checkout."));
         }
 
-        var shippingAddress = Address.Create(
-            command.ShippingAddress.Street,
-            command.ShippingAddress.City,
-            command.ShippingAddress.State,
-            command.ShippingAddress.Country,
-            command.ShippingAddress.ZipCode
-        );
+        var customer = await customerService.GetCustomerInfo(
+            customerId: customerId,
+            ct);
 
-        var billingAddress = Address.Create(
-                command.BillingAddress.Street,
-                command.BillingAddress.City,
-                command.BillingAddress.State,
-                command.BillingAddress.Country,
-                command.BillingAddress.ZipCode
-            );
+        if (customer is null)
+        {
+            return Result.Failure<CheckoutResponse>(
+                Error.NotFound("Customer.NotFound", "Customer not found."));
+        }
+
+        var shippingAddressResult = CreateShippingAddress(customer);
+        if (shippingAddressResult.IsFailure)
+        {
+            return Result.Failure<CheckoutResponse>(shippingAddressResult.Error);
+        }
+
+        var billingAddressResult = CreateBillingAddress(customer);
+        if (billingAddressResult.IsFailure)
+        {
+            return Result.Failure<CheckoutResponse>(billingAddressResult.Error);
+        }
 
         var order = Order.Create(
-            command.CustomerId,
-            command.CustomerEmail,
-            shippingAddress,
-            billingAddress,
-            basket.Currency,
-            command.Notes
+            customerId: customerId,
+            customerPhoneNumber: customer.PhoneNumber,
+            shippingAddress: shippingAddressResult.Value,
+            billingAddress: billingAddressResult.Value,
+            notes: command.Notes
         );
 
         foreach (var item in basket.Items)
         {
-            var unitPrice = Money.Create(item.UnitPrice, basket.Currency);
-            
+            if (item.Quantity <= 0)
+            {
+                continue;
+            }
+
+            var unitPrice = Money.Create(item.UnitPrice);
+
             order.AddItem(
-                item.ProductId,
-                item.ProductName,
-                item.ProductSku,
-                unitPrice,
-                item.Quantity
+                productId: item.ProductId,
+                variantId: item.VariantId,
+                productName: item.ProductName,
+                productSku: item.Sku,
+                unitPrice: unitPrice,
+                quantity: item.Quantity
             );
         }
 
-        order.Confirm();
+        if (!order.Items.Any())
+        {
+            return Result.Failure<CheckoutResponse>(
+                Error.Validation("Order.EmptyItems", "Order has no valid items."));
+        }
 
-        await _orderRepository.AddAsync(order, ct);
-        await _unitOfWork.SaveChangesAsync(ct);
+        await orderRepository.AddAsync(order, ct);
+        await unitOfWork.SaveChangesAsync(ct);
 
-        await _basketService.ClearBasketAsync(command.CustomerId, ct);
+        await basketService.ClearBasketAsync(customerId, ct);
 
         return Result.Success(new CheckoutResponse(
             order.Id,
@@ -84,5 +98,47 @@ public sealed class CheckoutCommandHandler : ICommandHandler<CheckoutCommand, Ch
             order.TotalAmount.Amount,
             order.TotalAmount.Currency
         ));
+    }
+
+    private static Result<Address> CreateShippingAddress(CustomerInfoDto customer)
+    {
+        var csa = customer.ShippingAddress;
+        if (csa is null)
+        {
+            return Result.Failure<Address>(
+                Error.Validation("ShippingAddress.NotSet", "Shipping address is not set. Cannot checkout."));
+        }
+
+        var address = Address.Create(
+            province: csa.Province,
+            city: csa.City,
+            postalAddress: csa.PostalAddress,
+            postalCode: csa.PostalCode,
+            latitude: csa.Latitude,
+            longitude: csa.Longitude,
+            label: csa.Label);
+
+        return Result.Success(address);
+    }
+
+    private static Result<Address> CreateBillingAddress(CustomerInfoDto customer)
+    {
+        var cba = customer.BillingAddress ?? customer.ShippingAddress;
+        if (cba is null)
+        {
+            return Result.Failure<Address>(
+                Error.Validation("BillingAddress.NotSet", "Billing address is not set. Cannot checkout."));
+        }
+
+        var address = Address.Create(
+            province: cba.Province,
+            city: cba.City,
+            postalAddress: cba.PostalAddress,
+            postalCode: cba.PostalCode,
+            latitude: cba.Latitude,
+            longitude: cba.Longitude,
+            label: cba.Label);
+
+        return Result.Success(address);
     }
 }

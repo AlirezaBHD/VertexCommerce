@@ -1,4 +1,4 @@
-using VertexCommerce.Modules.Basket.Domain.Repositories;
+using VertexCommerce.Modules.Basket.Contract;
 using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Basket.Features.ClearBasket;
@@ -12,19 +12,20 @@ public sealed class ClearBasketCommandHandler : ICommandHandler<ClearBasketComma
         _basketRepository = basketRepository;
     }
 
-    public async Task<Result> Handle(ClearBasketCommand command, CancellationToken ct)
+    public Task<Result> Handle(ClearBasketCommand command, CancellationToken ct)
     {
-        var basket = await _basketRepository.GetByCustomerIdAsync(command.CustomerId, ct);
-
-        if (basket is null)
-        {
-            return Result.Success(); // Already empty
-        }
-
-        basket.Clear();
-
-        await _basketRepository.UpdateAsync(basket, ct);
-
-        return Result.Success();
+        throw new NotImplementedException();
+        // var basket = await _basketRepository.GetOrCreateAsync(command.CustomerId, ct);
+        //
+        // if (basket is null)
+        // {
+        //     return Result.Success(); // Already empty
+        // }
+        //
+        // basket.Clear();
+        //
+        // await _basketRepository.UpdateAsync(basket, ct);
+        //
+        // return Result.Success();
     }
 }

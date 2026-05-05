@@ -1,4 +1,5 @@
 using VertexCommerce.Modules.Catalog.Domain.Categories;
+using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
 using VertexCommerce.Modules.Catalog.Persistence.Postgres;
 using VertexCommerce.Shared.CQRS;
 
@@ -34,15 +35,34 @@ public sealed class CreateCategoryCommandHandler : ICommandHandler<CreateCategor
             return Result.Failure<Guid>(Error.Conflict($"Category with name '{command.Name}' already exists."));
         }
 
+        var slugExists = await _categoryRepository.SlugExistsAsync(command.Name, null, ct);
+        if (slugExists)
+        {
+            return Result.Failure<Guid>(Error.Conflict($"Category with slug '{command.Seo.Slug}' already exists."));
+        }
+
+        var seo = SeoMetadata.Create(
+            slug: command.Seo.Slug,
+            metaTitle: command.Seo.MetaTitle,
+            metaDescription: command.Seo.MetaDescription,
+            keywords: command.Seo.Keywords);
+
         var category = Category.Create(
-            command.Name,
-            command.Description,
-            command.ParentId,
-            command.SortOrder
+            name: command.Name,
+            description: command.Description,
+            seoMetadata: seo,
+            iconPath: command.IconPath,
+            coverImagePath: command.CoverImagePath,
+            imageAltText: command.ImageAltText,
+            parentId: command.ParentId,
+            isActive: command.IsActive,
+            showOnHome: command.ShowOnHome,
+            includeInMenu: command.IncludeInMenu,
+            sortOrder: command.SortOrder
         );
 
         await _categoryRepository.AddAsync(category, ct);
-        var count = await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.SaveChangesAsync(ct);
 
         return Result.Success(category.Id);
     }

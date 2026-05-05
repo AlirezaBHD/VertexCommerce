@@ -1,3 +1,4 @@
+using HotChocolate;
 using VertexCommerce.Api.GraphQL.Orders.Types;
 using VertexCommerce.Modules.Orders.Domain.Repositories;
 
@@ -37,7 +38,7 @@ public sealed class OrderQueries{
         Id = order.Id,
         OrderNumber = order.OrderNumber,
         CustomerId = order.CustomerId,
-        CustomerEmail = order.CustomerEmail,
+        CustomerEmail = order.CustomerPhoneNumber,
         Status = order.Status,
         PaymentStatus = order.PaymentStatus,
         SubTotal = order.SubTotal.Amount,

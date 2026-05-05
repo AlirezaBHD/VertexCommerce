@@ -1,17 +1,21 @@
 using FluentValidation;
+using HotChocolate.Execution.Configuration;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using VertexCommerce.Modules.Orders.Domain.Repositories;
+using VertexCommerce.Modules.Orders.Endpoints;
 using VertexCommerce.Modules.Orders.Persistence;
+using VertexCommerce.Shared.Contracts;
 
 namespace VertexCommerce.Modules.Orders;
 
-public static class OrdersModule
+public class OrdersModule :IModule
 {
-    public static IServiceCollection AddOrdersModule(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public string Name => "Orders";
+
+    public void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<OrdersDbContext>(options =>
             options.UseNpgsql(
@@ -25,7 +29,16 @@ public static class OrdersModule
             cfg.RegisterServicesFromAssembly(typeof(OrdersModule).Assembly));
 
         services.AddValidatorsFromAssembly(typeof(OrdersModule).Assembly);
+    }
 
-        return services;
+    public void MapEndpoints(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapCheckoutEndpoints();
+        endpoints.MapOrdersEndpoints();
+    }
+
+    public void ConfigureGraphQl(IRequestExecutorBuilder builder)
+    {
+        
     }
 }

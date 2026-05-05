@@ -1,6 +1,6 @@
 namespace VertexCommerce.Modules.Basket.Features.UpdateItemQuantity;
 
 public sealed record UpdateItemQuantityRequest(
-    Guid ProductId,
+    Guid VariantId,
     int Quantity
 );

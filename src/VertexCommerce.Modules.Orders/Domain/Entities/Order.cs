@@ -9,10 +9,11 @@ public sealed class Order : AggregateRoot<Guid>
 {
     public string OrderNumber { get; private set; } = default!;
     public Guid CustomerId { get; private set; }
-    public string CustomerEmail { get; private set; } = default!;
+    public string CustomerPhoneNumber { get; private set; } = default!;
     public OrderStatus Status { get; private set; }
     public PaymentStatus PaymentStatus { get; private set; }
-
+    public string? ReceiptImagePath { get; private set; }
+    public string? TransactionReference { get; private set; }
     public Money SubTotal { get; private set; } = default!;
     public Money ShippingCost { get; private set; } = default!;
     public Money Tax { get; private set; } = default!;
@@ -38,7 +39,7 @@ public sealed class Order : AggregateRoot<Guid>
 
     public static Order Create(
         Guid customerId,
-        string customerEmail,
+        string customerPhoneNumber,
         Address shippingAddress,
         Address billingAddress,
         string currency = "USD",
@@ -49,12 +50,12 @@ public sealed class Order : AggregateRoot<Guid>
             Id = Guid.NewGuid(),
             OrderNumber = GenerateOrderNumber(),
             CustomerId = customerId,
-            CustomerEmail = customerEmail,
+            CustomerPhoneNumber = customerPhoneNumber,
             Status = OrderStatus.Pending,
             PaymentStatus = PaymentStatus.Pending,
             ShippingAddress = shippingAddress,
             BillingAddress = billingAddress,
-            Notes = notes,
+            Notes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim(),
             SubTotal = Money.Zero(currency),
             ShippingCost = Money.Zero(currency),
             Tax = Money.Zero(currency),
@@ -63,20 +64,26 @@ public sealed class Order : AggregateRoot<Guid>
         };
     }
 
-    public void AddItem(Guid productId, string productName, string? productSku, Money unitPrice, int quantity)
+    public void AddItem(
+        Guid productId,
+        Guid variantId,
+        string productName,
+        string? productSku,
+        Money unitPrice,
+        int quantity)
     {
-        var existingItem = _items.FirstOrDefault(i => i.ProductId == productId);
+        ArgumentNullException.ThrowIfNull(unitPrice);
 
-        if (existingItem is not null)
-        {
-            // existingItem.IncreaseQuantity(quantity);
-            //TODO
-        }
-        else
-        {
-            var item = OrderItem.Create(Id, productId, productName, productSku, unitPrice, quantity);
-            _items.Add(item);
-        }
+        var item = OrderItem.Create(
+            orderId: Id,
+            productId: productId,
+            variantId: variantId,
+            productName: productName,
+            productSku: productSku,
+            unitPrice: unitPrice,
+            quantity: quantity);
+
+        _items.Add(item);
 
         RecalculateTotals();
     }
@@ -109,7 +116,30 @@ public sealed class Order : AggregateRoot<Guid>
 
         return Result.Success();
     }
+    public Result<string> SubmitPaymentReceipt(string receiptImagePath)
+    {
+        if (Status != OrderStatus.AwaitingPayment)
+            return Result.Failure<string>(Error.Validation($"Cannot submit payment for order with status {Status}"));
+        ReceiptImagePath = receiptImagePath;
+        TransactionReference = GenerateTransactionReference();
+        Status = OrderStatus.PaymentUnderReview;
+         return Result.Success(TransactionReference);
+    }
+    
+    public Result InitiatePayment()
+    {
+        if (Status != OrderStatus.Pending)
+            return Result.Failure(Error.Validation($"Cannot initiate payment for order with status {Status}"));
 
+        if (!_items.Any())
+            return Result.Failure(Error.Validation("Cannot initiate payment order without items"));
+
+        Status = OrderStatus.AwaitingPayment;
+        UpdatedAt = DateTime.UtcNow;
+
+        return Result.Success();
+    }
+    
     public Result Ship(string trackingNumber)
     {
         if (Status != OrderStatus.Processing)
@@ -212,6 +242,11 @@ public sealed class Order : AggregateRoot<Guid>
     }
 
     private static string GenerateOrderNumber()
+    {
+        return $"ORD-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..8].ToUpper()}";
+    }
+    
+    private static string GenerateTransactionReference()
     {
         return $"ORD-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..8].ToUpper()}";
     }

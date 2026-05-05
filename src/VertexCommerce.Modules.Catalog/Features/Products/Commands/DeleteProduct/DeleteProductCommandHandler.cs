@@ -8,8 +8,7 @@ namespace VertexCommerce.Modules.Catalog.Features.Products.Commands.DeleteProduc
 
 internal sealed class DeleteProductCommandHandler(
     IProductRepository productRepository,
-    ICatalogUnitOfWork unitOfWork,
-    IProductSyncService  syncService)
+    ICatalogUnitOfWork unitOfWork)
     : ICommandHandler<DeleteProductCommand>
 {
     public async Task<Result> Handle(DeleteProductCommand command, CancellationToken ct)
@@ -17,10 +16,11 @@ internal sealed class DeleteProductCommandHandler(
         var product = await productRepository.GetByIdAsync(command.Id, ct);
         if (product is null)
             return Result.Failure(Error.NotFound("Product", command.Id));
-
+        
+        product.Delete();
+        
         productRepository.Delete(product);
         await unitOfWork.SaveChangesAsync(ct);
-        await syncService.DeleteProductAsync(command.Id, ct);
 
         return Result.Success();
     }

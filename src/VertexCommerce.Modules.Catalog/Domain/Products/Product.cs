@@ -13,11 +13,12 @@ public sealed class Product : AggregateRoot<Guid>
     public Guid CategoryId { get; private set; }
     public Category? Category { get; private set; }
     public SeoMetadata Seo { get; private set; } = null!;
-    private readonly List<ProductAttribute> _attributes = [];
-    public IReadOnlyCollection<ProductAttribute> Attributes => _attributes.AsReadOnly();
-
+    
     private readonly List<ProductVariant> _variants = [];
     public IReadOnlyCollection<ProductVariant> Variants => _variants.AsReadOnly();
+    
+    private readonly List<ProductMedia> _media = [];
+    public IReadOnlyCollection<ProductMedia> Media => _media.AsReadOnly();
 
     private Product()
     {
@@ -70,6 +71,11 @@ public sealed class Product : AggregateRoot<Guid>
         AddDomainEvent(new ProductUpdatedEvent(Id, Name));
     }
 
+    public void Delete()
+    {
+        AddDomainEvent(new ProductDeletedEvent(Id));
+    }
+    
     public void Activate()
     {
         IsActive = true;
@@ -86,39 +92,6 @@ public sealed class Product : AggregateRoot<Guid>
     {
         CategoryId = categoryId;
         SetUpdatedAt();
-    }
-
-    public void AddAttribute(string key, string value, string? type = null)
-    {
-        var existing = _attributes.FirstOrDefault(a => a.Key == key);
-        if (existing is not null)
-        {
-            _attributes.Remove(existing);
-        }
-
-        _attributes.Add(ProductAttribute.Create(Id, key, value, type));
-        SetUpdatedAt();
-    }
-
-    public void RemoveAttribute(string key)
-    {
-        var attribute = _attributes.FirstOrDefault(a => a.Key == key);
-        if (attribute is not null)
-        {
-            _attributes.Remove(attribute);
-            SetUpdatedAt();
-        }
-    }
-    
-    public void UpdateAttributes(Dictionary<string, string> commandAttributes)
-    {
-        var attributes = new List<ProductAttribute>();
-        foreach (var commandAttribute in commandAttributes)
-        {
-            attributes.Add(ProductAttribute.Create(Id, commandAttribute.Key, commandAttribute.Value));
-        }
-        _attributes.Clear();
-        _attributes.AddRange(attributes);
     }
 
     #endregion
@@ -144,5 +117,43 @@ public sealed class Product : AggregateRoot<Guid>
         }
     }
     #endregion
+
+    #region Media Management
+
+    public void AddMedia(ProductMedia media)
+    {
+        _media.Add(media);
+        SetUpdatedAt();
+    }
+    public void SetMedia(IEnumerable<ProductMedia> mediaList)
+    {
+        _media.Clear();
+        _media.AddRange(mediaList);
+        SetUpdatedAt();
+    }
     
+    public void ReplaceMedia(List<ProductMedia> newMedias)
+    {
+        _media.RemoveAll(m => !newMedias.Any(newM => newM.Path == m.Path));
+        var toAdd = newMedias.Where(newM => !_media.Any(m => m.Path == newM.Path));
+        _media.AddRange(toAdd);
+    
+        var sorted = _media.OrderBy(m => m.SortOrder).ToList();
+        _media.Clear();
+        _media.AddRange(sorted);
+
+        SetUpdatedAt();
+    }
+
+    public void RemoveMedia(string path)
+    {
+        var media = _media.FirstOrDefault(m => m.Path == path);
+        if (media is not null)
+        {
+            _media.Remove(media);
+            SetUpdatedAt();
+        }
+    }
+
+    #endregion
 }

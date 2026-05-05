@@ -11,13 +11,28 @@ public sealed class CategoryReadModel
     public string Name { get; set; } = string.Empty;
 
     [BsonElement("description")]
-    public string? Description { get; set; }
+    public string Description { get; set; } = string.Empty;
 
     [BsonElement("parentId")]
     public Guid? ParentId { get; set; }
+    
+    [BsonElement("iconPath")]
+    public string? IconPath { get; set; }
+    
+    [BsonElement("coverImagePath")]
+    public string CoverImagePath { get; set; } = string.Empty;
+    
+    [BsonElement("imageAltText")]
+    public string? ImageAltText { get; set; }
 
     [BsonElement("isActive")]
     public bool IsActive { get; set; }
+    
+    [BsonElement("showOnHome")]
+    public bool ShowOnHome { get; set; }
+    
+    [BsonElement("includeInMenu")]
+    public bool IncludeInMenu { get; set; }
 
     [BsonElement("sortOrder")]
     public int SortOrder { get; set; }
@@ -48,4 +63,17 @@ public sealed class CategoryReadModel
 
     [BsonElement("updatedAt")]
     public DateTime? UpdatedAt { get; set; }
+    
+    // ═══ Metadata ═══
+    [BsonElement("slug")]
+    public string Slug { get; set; } = string.Empty;
+
+    [BsonElement("metaTitle")]
+    public string MetaTitle { get; set; } = string.Empty;
+
+    [BsonElement("metaDescription")]
+    public string MetaDescription { get; set; } = string.Empty;
+
+    [BsonElement("keywords")]
+    public string? Keywords { get; set; }
 }

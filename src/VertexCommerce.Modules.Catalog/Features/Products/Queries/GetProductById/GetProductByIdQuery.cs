@@ -1,3 +1,4 @@
+using VertexCommerce.Modules.Catalog.Features.Products.Queries.GetProductById.DTOs;
 using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Catalog.Features.Products.Queries.GetProductById;

@@ -20,15 +20,24 @@ internal static class CategoryReadModelMapper
             Name = category.Name,
             Description = category.Description,
             ParentId = category.ParentId,
+            IconPath = category.IconPath,
+            CoverImagePath = category.CoverImagePath,
+            ImageAltText = category.ImageAltText,
             IsActive = category.IsActive,
+            ShowOnHome = category.ShowOnHome,
+            IncludeInMenu = category.IncludeInMenu,
             SortOrder = category.SortOrder,
+            Slug = category.Seo.Slug,
+            MetaTitle = category.Seo.MetaTitle,
+            MetaDescription = category.Seo.MetaDescription,
+            Keywords = category.Seo.Keywords,
             Path = path,
             PathIds = pathIds,
             Depth = depth,
             ChildCount = childCount,
             ProductCount = productCount,
             CreatedAt = category.CreatedAt,
-            UpdatedAt = category.UpdatedAt
+            UpdatedAt = category.UpdatedAt,
         };
     }
 

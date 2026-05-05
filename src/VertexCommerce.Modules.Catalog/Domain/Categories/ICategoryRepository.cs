@@ -10,10 +10,10 @@ public interface ICategoryRepository
     Task<bool> NameExistsAsync(string name, Guid? excludeId, CancellationToken ct = default);
     Task AddAsync(Category category, CancellationToken ct = default);
     void Update(Category category);
-    void Delete(Category category);
     Task<IReadOnlyList<TResult>> ListAsync<TResult>(
         ISpecification<Category, TResult> spec,
         CancellationToken ct = default);
-    Task<bool> HasChildrenAsync(Guid categoryId, CancellationToken ct = default);
 
+    Task<bool> HasChildrenAsync(Guid categoryId, CancellationToken ct = default);
+    Task<bool> SlugExistsAsync(string slug, Guid? excludeId, CancellationToken ct);
 }

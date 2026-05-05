@@ -6,8 +6,8 @@ public sealed class UpdateItemQuantityCommandValidator : AbstractValidator<Updat
 {
     public UpdateItemQuantityCommandValidator()
     {
-        RuleFor(x => x.CustomerId)
-            .NotEmpty().WithMessage("Customer ID is required.");
+        // RuleFor(x => x.CustomerId)
+        //     .NotEmpty().WithMessage("Customer ID is required.");
 
         RuleFor(x => x.ProductId)
             .NotEmpty().WithMessage("Product ID is required.");

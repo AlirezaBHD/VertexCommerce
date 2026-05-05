@@ -19,24 +19,24 @@ internal static class ProductReadModelMapper
         var maxPrice = prices.Count > 0 ? prices.Max() : 0m;
         var totalStock = activeVariants.Sum(v => v.StockQuantity);
 
-        var attributes = product.Attributes.ToDictionary(a => a.Key, a => a.Value);
         var availableOptions = BuildAvailableOptions(variants);
-        var searchText = BuildSearchText(product, categoryName, variants, attributes);
+        var searchText = BuildSearchText(product, categoryName, variants);
 
         return new ProductReadModel
         {
             Id = product.Id,
             Name = product.Name,
             Description = product.Description,
-            MinPrice = minPrice ?? 0,
-            MaxPrice = maxPrice ?? 0,
+            MinPrice = minPrice,
+            MaxPrice = maxPrice,
             TotalStock = totalStock,
             IsActive = product.IsActive,
             CategoryId = product.CategoryId,
             CategoryName = categoryName,
             CategoryPath = categoryPath,
             Variants = variants,
-            AvailableOptions = availableOptions, Attributes = attributes,
+            AvailableOptions = availableOptions,
+            Media = MapMedia(product.Media),
             SearchText = searchText,
             CreatedAt = product.CreatedAt,
             UpdatedAt = product.UpdatedAt,
@@ -58,26 +58,28 @@ internal static class ProductReadModelMapper
             Price = v.Price.Amount,
             StockQuantity = v.StockQuantity,
             IsActive = v.IsActive,
-            Order = v.Order,
-            Options = v.Options.ToDictionary(o => o.Name, o => o.Value),
-            Media = MapMedia(v.Media)
+            SortOrder = v.SortOrder,
+            Attributes = v.Attributes.Select(a => new ProductAttributeReadModel
+            {
+                AttributeCode = a.AttributeCode,
+                OptionCode = a.OptionCode
+            }).ToList()
         }).ToList();
     }
 
     private static List<ProductMediaReadModel> MapMedia(
-        IReadOnlyCollection<ProductMedia>? mediaList)
+        IReadOnlyCollection<ProductMedia> mediaList)
     {
-        if (mediaList is null || mediaList.Count == 0)
-            return [];
-
         return mediaList
-            .OrderBy(m => m.Order)
+            .OrderBy(m => m.SortOrder)
             .Select(m => new ProductMediaReadModel
             {
                 Path = m.Path,
                 Type = m.Type.ToString(),
                 AltText = m.AltText,
-                Order = m.Order
+                SortOrder = m.SortOrder,
+                AssociatedAttributeCode = m.AssociatedAttributeCode,
+                AssociatedOptionCode = m.AssociatedOptionCode
             }).ToList();
     }
 
@@ -88,27 +90,30 @@ internal static class ProductReadModelMapper
 
         foreach (var variant in variants.Where(v => v.IsActive))
         {
-            foreach (var (key, value) in variant.Options)
+            foreach (var attr in variant.Attributes)
             {
-                if (!options.TryGetValue(key, out var values))
+                if (!options.TryGetValue(attr.AttributeCode, out var values))
                 {
                     values = [];
-                    options[key] = values;
+                    options[attr.AttributeCode] = values;
                 }
 
-                if (!values.Contains(value))
-                    values.Add(value);
+                if (!values.Contains(attr.OptionCode))
+                    values.Add(attr.OptionCode);
             }
         }
 
-        return options;
-    }
+        return options
+            .OrderBy(x => x.Key)
+            .ToDictionary(
+                x => x.Key, 
+                x => x.Value.OrderBy(v => v).ToList()
+            );    }
 
     private static string BuildSearchText(
         Product product,
         string categoryName,
-        List<ProductVariantReadModel> variants,
-        Dictionary<string, string> attributes)
+        List<ProductVariantReadModel> variants)
     {
         var parts = new List<string> { product.Name, categoryName };
 
@@ -118,10 +123,8 @@ internal static class ProductReadModelMapper
         foreach (var variant in variants)
         {
             parts.Add(variant.Sku);
-            parts.AddRange(variant.Options.Values);
+            parts.AddRange(variant.Attributes.Select(a => $"{a.AttributeCode} {a.OptionCode}"));
         }
-
-        parts.AddRange(attributes.Values);
 
         return string.Join(" ", parts).ToLowerInvariant();
     }

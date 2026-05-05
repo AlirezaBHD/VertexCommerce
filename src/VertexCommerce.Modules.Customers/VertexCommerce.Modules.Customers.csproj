@@ -3,6 +3,15 @@
     <ItemGroup>
       <ProjectReference Include="..\VertexCommerce.Shared\VertexCommerce.Shared.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Features\Customers\Queries\" />
+      <Folder Include="Infrastructure\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Scrutor" />
+    </ItemGroup>
     <PropertyGroup>
         <NuGetAudit>false</NuGetAudit>
     </PropertyGroup>

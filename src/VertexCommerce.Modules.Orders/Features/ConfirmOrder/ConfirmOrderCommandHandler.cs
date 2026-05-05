@@ -4,22 +4,14 @@ using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Orders.Features.ConfirmOrder;
 
-internal sealed class ConfirmOrderCommandHandler : ICommandHandler<ConfirmOrderCommand>
+internal sealed class ConfirmOrderCommandHandler(
+    IOrderRepository orderRepository,
+    IOrdersUnitOfWork unitOfWork)
+    : ICommandHandler<ConfirmOrderCommand>
 {
-    private readonly IOrderRepository _orderRepository;
-    private readonly IOrdersUnitOfWork _unitOfWork;
-
-    public ConfirmOrderCommandHandler(
-        IOrderRepository orderRepository,
-        IOrdersUnitOfWork unitOfWork)
-    {
-        _orderRepository = orderRepository;
-        _unitOfWork = unitOfWork;
-    }
-
     public async Task<Result> Handle(ConfirmOrderCommand command, CancellationToken ct)
     {
-        var order = await _orderRepository.GetByIdAsync(command.OrderId, ct);
+        var order = await orderRepository.GetByIdAsync(command.OrderId, ct);
         if (order is null)
             return Result.Failure(Error.NotFound("Order", command.OrderId));
 
@@ -27,7 +19,7 @@ internal sealed class ConfirmOrderCommandHandler : ICommandHandler<ConfirmOrderC
         if (result.IsFailure)
             return result;
 
-        await _unitOfWork.SaveChangesAsync(ct);
+        await unitOfWork.SaveChangesAsync(ct);
         return Result.Success();
     }
 }

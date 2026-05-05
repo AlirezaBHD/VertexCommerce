@@ -1,44 +1,65 @@
 using VertexCommerce.Modules.Catalog.Domain.Categories;
+using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
 using VertexCommerce.Modules.Catalog.Persistence.Postgres;
 using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Catalog.Features.Categories.Commands.UpdateCategory;
 
-internal sealed class UpdateCategoryCommandHandler : ICommandHandler<UpdateCategoryCommand>
+internal sealed class UpdateCategoryCommandHandler(
+    ICategoryRepository categoryRepository,
+    ICatalogUnitOfWork unitOfWork)
+    : ICommandHandler<UpdateCategoryCommand>
 {
-    private readonly ICategoryRepository _categoryRepository;
-    private readonly ICatalogUnitOfWork _unitOfWork;
-
-    public UpdateCategoryCommandHandler(
-        ICategoryRepository categoryRepository,
-        ICatalogUnitOfWork unitOfWork)
-    {
-        _categoryRepository = categoryRepository;
-        _unitOfWork = unitOfWork;
-    }
-
     public async Task<Result> Handle(UpdateCategoryCommand command, CancellationToken ct)
     {
-        var category = await _categoryRepository.GetByIdAsync(command.Id, ct);
+        var category = await categoryRepository.GetByIdAsync(command.Id, ct);
         if (category is null)
             return Result.Failure(Error.NotFound("Category", command.Id));
 
-        if (command.ParentId.HasValue && command.ParentId.Value == command.Id)
-            return Result.Failure(Error.Validation("Category cannot be its own parent"));
 
         if (command.ParentId.HasValue)
         {
-            var parentExists = await _categoryRepository.ExistsAsync(command.ParentId.Value, ct);
+            if (command.ParentId.Value == command.Id)
+                return Result.Failure(Error.Validation("Category cannot be its own parent"));
+
+            var parentExists = await categoryRepository.ExistsAsync(command.ParentId.Value, ct);
             if (!parentExists)
                 return Result.Failure(Error.NotFound("Parent Category", command.ParentId.Value));
         }
 
-        var nameExists = await _categoryRepository.NameExistsAsync(command.Name, command.Id, ct);
+        var nameExists = await categoryRepository.NameExistsAsync(command.Name, command.Id, ct);
         if (nameExists)
-            return Result.Failure(Error.Conflict("Category with this name already exists"));
+        {
+            return Result.Failure(Error.Conflict($"Category with name '{command.Name}' already exists."));
+        }
 
-        category.Update(command.Name, command.Description, command.ParentId, command.SortOrder);
-        await _unitOfWork.SaveChangesAsync(ct);
+        var slugExists = await categoryRepository.SlugExistsAsync(command.Name,command.Id, ct);
+        if (slugExists)
+        {
+            return Result.Failure(Error.Conflict($"Category with slug '{command.Seo.Slug}' already exists."));
+        }
+
+        var seo = SeoMetadata.Create(
+            slug: command.Seo.Slug,
+            metaTitle: command.Seo.MetaTitle,
+            metaDescription: command.Seo.MetaDescription,
+            keywords: command.Seo.Keywords);
+
+        category.Update(
+            name: command.Name,
+            description: command.Description,
+            seoMetadata: seo,
+            iconPath: command.IconPath,
+            coverImagePath: command.CoverImagePath,
+            imageAltText: command.ImageAltText,
+            parentId: command.ParentId,
+            isActive: command.IsActive,
+            showOnHome: command.ShowOnHome,
+            includeInMenu: command.IncludeInMenu,
+            sortOrder: command.SortOrder
+        );
+        
+        await unitOfWork.SaveChangesAsync(ct);
 
         return Result.Success();
     }

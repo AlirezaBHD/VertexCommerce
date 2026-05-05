@@ -11,6 +11,7 @@
     </PropertyGroup>
     
     <ItemGroup>
+<!--      <PackageReference Include="BananaCakePop.Middleware" />-->
       <PackageReference Include="HotChocolate.AspNetCore" />
 <!--      <PackageReference Include="HotChocolate.AspNetCore.Playground" />-->
       <PackageReference Include="HotChocolate.Data" />
@@ -34,7 +35,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="GraphQL\Common\" />
+      <Folder Include="wwwroot\uploads\color\" />
       <Folder Include="wwwroot\uploads\product\" />
     </ItemGroup>
 

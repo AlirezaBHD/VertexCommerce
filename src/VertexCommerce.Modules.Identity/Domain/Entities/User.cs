@@ -1,11 +1,12 @@
 using VertexCommerce.Modules.Identity.Domain.Enums;
 using VertexCommerce.Shared.Domain;
+using VertexCommerce.Shared.IntegrationEvents;
 
 namespace VertexCommerce.Modules.Identity.Domain.Entities;
 
 public sealed class User : AggregateRoot<Guid>
 {
-    public string Email { get; private set; } = default!;
+    public string PhoneNumber { get; private set; } = default!;
     public string PasswordHash { get; private set; } = default!;
     public string FirstName { get; private set; } = default!;
     public string LastName { get; private set; } = default!;
@@ -19,16 +20,16 @@ public sealed class User : AggregateRoot<Guid>
     private User() { }
 
     public static User Create(
-        string email,
+        string phoneNumber,
         string passwordHash,
         string firstName,
         string lastName,
         UserRole role = UserRole.User)
     {
-        return new User
+        var user = new User
         {
             Id = Guid.NewGuid(),
-            Email = email.ToLowerInvariant(),
+            PhoneNumber = phoneNumber,
             PasswordHash = passwordHash,
             FirstName = firstName,
             LastName = lastName,
@@ -36,6 +37,10 @@ public sealed class User : AggregateRoot<Guid>
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };
+        
+        user.AddDomainEvent(new UserCreatedEvent(user.Id,  phoneNumber, firstName, lastName));
+        
+        return user;
     }
 
     public string FullName => $"{FirstName} {LastName}";
@@ -44,13 +49,13 @@ public sealed class User : AggregateRoot<Guid>
     {
         FirstName = firstName;
         LastName = lastName;
-        UpdatedAt = DateTime.UtcNow;
+        SetUpdatedAt();
     }
 
     public void ChangePassword(string newPasswordHash)
     {
         PasswordHash = newPasswordHash;
-        UpdatedAt = DateTime.UtcNow;
+        SetUpdatedAt();
     }
 
     public void RecordLogin()
@@ -61,13 +66,13 @@ public sealed class User : AggregateRoot<Guid>
     public void Deactivate()
     {
         IsActive = false;
-        UpdatedAt = DateTime.UtcNow;
+        SetUpdatedAt();
     }
 
     public void Activate()
     {
         IsActive = true;
-        UpdatedAt = DateTime.UtcNow;
+        SetUpdatedAt();
     }
 
     public RefreshToken AddRefreshToken(string token, DateTime expiresAt)

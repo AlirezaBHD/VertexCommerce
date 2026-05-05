@@ -3,10 +3,12 @@ namespace VertexCommerce.Modules.Orders.Domain.Enums;
 public enum OrderStatus
 {
     Pending = 1,
-    Confirmed = 2,
-    Processing = 3,
-    Shipped = 4,
-    Delivered = 5,
-    Cancelled = 6,
-    Refunded = 7
+    AwaitingPayment = 2,
+    PaymentUnderReview = 3,
+    Confirmed = 4,
+    Processing = 5,
+    Shipped = 6,
+    Delivered = 7,
+    Cancelled = 8,
+    Refunded = 9
 }

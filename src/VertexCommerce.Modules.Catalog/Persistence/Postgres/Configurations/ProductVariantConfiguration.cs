@@ -14,27 +14,20 @@ public sealed class ProductVariantConfiguration : IEntityTypeConfiguration<Produ
         
         builder.ComplexProperty(v => v.Sku, skuBuilder => 
         {
-            skuBuilder.Property(s => s.Value).HasColumnName("Sku").IsRequired();
+            skuBuilder.Property(s => s.Value).HasColumnName("sku").IsRequired();
         });
 
         builder.ComplexProperty(v => v.Price, priceBuilder => 
         {
-            priceBuilder.Property(p => p.Amount).HasColumnName("PriceAmount");
-            priceBuilder.Property(p => p.Currency).HasColumnName("PriceCurrency");
+            priceBuilder.Property(p => p.Amount).HasColumnName("price_amount").IsRequired();
+            priceBuilder.Property(p => p.Currency).HasColumnName("price_currency").IsRequired();
         });
 
-        builder.OwnsMany(v => v.Options, ob =>
+        builder.OwnsMany(v => v.Attributes, ob =>
         {
             ob.ToJson();
-            ob.Property(o => o.Name).IsRequired();
-            ob.Property(o => o.Value).IsRequired();
-        });
-
-        builder.OwnsMany(v => v.Media, mb =>
-        {
-            mb.ToJson();
-            mb.Property(m => m.Path).IsRequired();
-            mb.Property(m => m.Type).IsRequired();
+            ob.Property(o => o.AttributeCode).HasJsonPropertyName("attribute_code").IsRequired();
+            ob.Property(o => o.OptionCode).HasJsonPropertyName("option_code").IsRequired();
         });
     }
 }

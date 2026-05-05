@@ -28,13 +28,94 @@ internal sealed class UpdateProductCommandHandler(
         var slugValidation = await ValidateSlugAsync(product, command.SeoMetadata.Slug, ct);
         if (slugValidation.IsFailure)
         {
-            return slugValidation;
+            return Result.Failure(Error.Conflict("Slug already exists."));
         }
 
+        // Update variants
         if (command.Variants is { Count: > 0 })
         {
-            var variantSync = new VariantSynchronizer(product, productRepository);
-            await variantSync.SyncAsync(command.Variants, ct);
+            var existingVariantIds = command.Variants
+                .Where(v => v.Id.HasValue)
+                .Select(v => v.Id!.Value)
+                .ToHashSet();
+
+            // Remove deleted variants
+            var variantsToRemove = product.Variants
+                .Where(v => !existingVariantIds.Contains(v.Id))
+                .Select(v => v.Id)
+                .ToList();
+
+            foreach (var variantId in variantsToRemove)
+            {
+                product.RemoveVariant(variantId);
+            }
+
+            // Add or update variants
+            foreach (var variantDto in command.Variants)
+            {
+                var attributes = variantDto.Attributes
+                    .Select(a => ProductAttribute.Create(a.AttributeCode, a.OptionCode))
+                    .ToList();
+            
+                if (variantDto.Id.HasValue)
+                {
+                    // // Update existing variant
+                    var existingVariant = product.Variants.FirstOrDefault(v => v.Id == variantDto.Id.Value);
+                    if (existingVariant is not null)
+                    {
+                        var sku = !string.IsNullOrEmpty(variantDto.Sku) 
+                            ? Sku.Create(variantDto.Sku) 
+                            : existingVariant.Sku;
+                        
+                        var price = Money.Create(variantDto.Price, variantDto.Currency ?? "USD");
+                        
+                        existingVariant.Update(
+                            sku: sku,
+                            stockQuantity: variantDto.StockQuantity,
+                            order: variantDto.SortOrder,
+                            price: price,
+                            attributes: attributes);
+                         productRepository.UpdateVariantAsync(existingVariant);
+
+                    }
+                }
+                else
+                {
+                    // Create new variant
+                    var sku = !string.IsNullOrEmpty(variantDto.Sku)
+                                                ? Sku.Create(variantDto.Sku)
+                        : Sku.Generate();
+            
+                    var price = Money.Create(variantDto.Price, variantDto.Currency ?? "USD");
+            
+                    var newVariant = ProductVariant.Create(
+                        productId: product.Id,
+                        sku: sku,
+                        stockQuantity: variantDto.StockQuantity,
+                        order: variantDto.SortOrder,
+                        price: price,
+                        attributes: attributes);
+            
+                    product.AddVariant(newVariant);
+                    await productRepository.AddVariantAsync(newVariant, ct);
+                }
+            }
+        }
+
+        // Update media
+        if (command.Media is { Count: > 0 })
+        {
+            var medias = command.Media.Select(m =>
+                ProductMedia.Create(
+                    path: m.Path,
+                    type: MediaType.Image,
+                    order: m.SortOrder,
+                    altText: m.AltText,
+                    associatedAttributeCode: m.AssociatedAttributeCode,
+                    associatedOptionCode: m.AssociatedOptionCode
+                )).ToList();
+
+            product.SetMedia(medias);
         }
 
         var seoMetadata = SeoMetadata.Create(
@@ -43,13 +124,12 @@ internal sealed class UpdateProductCommandHandler(
             command.SeoMetadata.MetaDescription,
             command.SeoMetadata.Keywords);
 
-        if (command.Attributes is not null)
-        {
-            product.UpdateAttributes(command.Attributes);
-        }
+        product.Update(
+            name: command.Name,
+            description: command.Description,
+            categoryId: command.CategoryId,
+            seoMetadata: seoMetadata);
 
-        product.Update(command.Name, command.Description, command.CategoryId, seoMetadata);
-        
         await unitOfWork.SaveChangesAsync(ct);
         return Result.Success();
     }

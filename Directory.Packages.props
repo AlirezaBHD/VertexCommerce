@@ -4,8 +4,10 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- CQRS -->
+    <PackageVersion Include="BananaCakePop.Middleware" Version="15.0.4" />
     <PackageVersion Include="HotChocolate.AspNetCore.Playground" Version="15.1.12" />
     <PackageVersion Include="HotChocolate.Data.EntityFramework" Version="15.1.12" />
+    <PackageVersion Include="HotChocolate.Execution.Abstractions" Version="15.1.12" />
     <PackageVersion Include="MediatR" Version="12.4.1" />
     <!-- Validation -->
     <PackageVersion Include="FluentValidation" Version="11.11.0" />
@@ -13,6 +15,7 @@
     <!-- Database -->
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.4" />
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.2" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4" />
@@ -24,6 +27,7 @@
     <PackageVersion Include="HotChocolate.Data.MongoDb" Version="15.1.12" />
     <!-- Testing -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageVersion Include="Scrutor" Version="7.0.0" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.0" />
     <PackageVersion Include="FluentAssertions" Version="8.2.0" />

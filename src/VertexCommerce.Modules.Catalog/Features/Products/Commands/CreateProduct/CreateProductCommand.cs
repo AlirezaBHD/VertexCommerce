@@ -1,4 +1,3 @@
-using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
 using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Catalog.Features.Products.Commands.CreateProduct;
@@ -7,28 +6,37 @@ public sealed record CreateProductCommand(
     string Name,
     string? Description,
     Guid CategoryId,
-    Dictionary<string, string>? Attributes,
-    SeoMetadataDto SeoMetadata,
-    List<CreateVariantDto>? Variants
+    SeoMetadataRequest SeoMetadata,
+    List<CreateVariantRequest>? Variants,
+    List<CreateMediaRequest>? Media
 ) : ICommand<CreateProductResponse>;
 
-public sealed record CreateVariantDto(
+public sealed record SeoMetadataRequest(
+    string Slug,
+    string MetaTitle,
+    string MetaDescription,
+    string? Keywords
+);
+
+public sealed record CreateVariantRequest(
     decimal Price,
     string? Currency,
     int StockQuantity,
-    int Order,
-    List<VariantOptionDto> Options,
-    List<MediaDto> Medias
+    int SortOrder,
+    List<ProductAttributeRequest> Attributes
 );
 
-public sealed record MediaDto(
+public sealed record ProductAttributeRequest(
+    string AttributeCode,
+    string OptionCode
+);
+
+public sealed record CreateMediaRequest(
     string Path,
-    int Order
-);
-
-public sealed record VariantOptionDto(
-    string Name,
-    string Value
+    int SortOrder,
+    string? AltText,
+    string? AssociatedAttributeCode,
+    string? AssociatedOptionCode
 );
 
 public sealed record CreateProductResponse(
@@ -39,11 +47,4 @@ public sealed record CreateProductResponse(
 public sealed record VariantInfo(
     Guid VariantId,
     string Sku
-);
-
-public sealed record SeoMetadataDto(
-    string Slug,
-    string MetaTitle,
-    string MetaDescription,
-    string? Keywords
 );

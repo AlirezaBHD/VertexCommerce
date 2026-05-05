@@ -1,8 +1,17 @@
+using VertexCommerce.Modules.Catalog.Features.Products.Commands.CreateProduct;
+
 namespace VertexCommerce.Modules.Catalog.Features.Categories.Commands.CreateCategory;
 
 public sealed record CreateCategoryRequest(
     string Name,
-    string? Description,
+    string Description,
+    SeoMetadataRequest Seo,
+    string? IconPath,
+    string CoverImagePath,
+    string? ImageAltText,
     Guid? ParentId,
+    bool IsActive,
+    bool ShowOnHome,
+    bool IncludeInMenu,
     int SortOrder
 );

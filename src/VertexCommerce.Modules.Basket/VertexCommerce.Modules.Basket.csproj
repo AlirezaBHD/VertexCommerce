@@ -10,13 +10,22 @@
 
     <ItemGroup>
       <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+      <PackageReference Include="HotChocolate.AspNetCore" />
+      <PackageReference Include="HotChocolate.Data" />
+      <PackageReference Include="HotChocolate.Types" />
       <PackageReference Include="MongoDB.Driver" />
+      <PackageReference Include="HotChocolate.Data.MongoDb" />
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <Folder Include="Domain\Repositories\" />
     </ItemGroup>
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <LangVersion>14</LangVersion>
-        <ImplicitUsings>enable</ImplicitUsings>
+        <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 

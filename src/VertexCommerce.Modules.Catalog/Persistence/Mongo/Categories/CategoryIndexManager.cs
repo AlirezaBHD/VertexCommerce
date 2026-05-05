@@ -12,6 +12,15 @@ internal sealed class CategoryIndexManager(IMongoDatabase database)
     {
         var indexes = new List<CreateIndexModel<CategoryReadModel>>
         {
+            // new(
+            //     Builders<CategoryReadModel>.IndexKeys.Ascending(c => c.Slug),
+            //     new CreateIndexOptions 
+            //     { 
+            //         Name = "IX_Slug_Unique", 
+            //         Unique = true
+            //     }
+            // ),
+            
             new(
                 Builders<CategoryReadModel>.IndexKeys.Ascending(c => c.ParentId),
                 new CreateIndexOptions { Name = "IX_ParentId" }

@@ -22,68 +22,61 @@ internal sealed class CreateProductCommandHandler(
             return Result.Failure<CreateProductResponse>(
                 Error.Conflict($"Product Slug '{command.SeoMetadata.Slug}' already exists."));
 
-        
         var seoMetadata = SeoMetadata.Create(
             command.SeoMetadata.Slug,
             command.SeoMetadata.MetaTitle,
             command.SeoMetadata.MetaDescription,
             command.SeoMetadata.Keywords);
-        
-        
+
         var product = Product.Create(
             command.Name,
             command.Description,
             command.CategoryId,
             seoMetadata
         );
-        
-        if (command.Attributes is not null)
+
+        if (command.Media is not null)
         {
-            foreach (var attr in command.Attributes)
-                product.AddAttribute(attr.Key, attr.Value);
+            var mediaList = command.Media
+                .Select(m => 
+                    ProductMedia.Create(
+                        m.Path, MediaType.Image,
+                        m.SortOrder, m.AltText, 
+                        m.AssociatedAttributeCode, m.AssociatedOptionCode))
+                .ToList();
+            product.SetMedia(mediaList);
         }
-        
-        
+
         var variantInfos = new List<VariantInfo>();
 
         if (command.Variants is not null)
         {
             foreach (var v in command.Variants)
             {
-                // if (await _productRepository.SkuExistsAsync(v.Sku, ct))
-                //     return Result.Failure<CreateProductResponse>(
-                //         Error.Conflict($"Variant SKU '{v.Sku}' already exists."));
-
-                var options = v.Options
-                    .Select(o => VariantOption.Create(o.Name, o.Value))
+                var attributes = v.Attributes
+                    .Select(a => ProductAttribute.Create(a.AttributeCode, a.OptionCode))
                     .ToList();
 
                 var price = Money.Create(v.Price, v.Currency ?? "USD");
-
                 var sku = Sku.Generate();
+
                 var variant = ProductVariant.Create(
                     product.Id,
                     sku,
-                    options,
                     v.StockQuantity,
-                    v.Order,
-                    price
+                    v.SortOrder,
+                    price,
+                    attributes
                 );
-                var variantMediaList = v.Medias.Select(media => ProductMedia.Create(media.Path, MediaType.Image, media.Order)).ToList();//TODO hardcoded Image type.
-                variant.SetMedia(variantMediaList);
 
                 product.AddVariant(variant);
-
                 variantInfos.Add(new VariantInfo(variant.Id, sku.Value));
             }
         }
-        
-        
+
         await productRepository.AddAsync(product, ct);
         await unitOfWork.SaveChangesAsync(ct);
-        
-        return Result.Success(
-            new CreateProductResponse(product.Id, variantInfos));
-        
+
+        return Result.Success(new CreateProductResponse(product.Id, variantInfos));
     }
 }

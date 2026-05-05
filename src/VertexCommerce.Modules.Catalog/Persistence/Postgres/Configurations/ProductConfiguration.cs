@@ -8,7 +8,7 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 {
     public void Configure(EntityTypeBuilder<Product> builder)
     {
-        builder.ToTable("products");
+        builder.ToTable("products", "catalog");
 
         builder.HasKey(p => p.Id);
 
@@ -63,20 +63,25 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 
             seo.HasIndex(s => s.Slug).IsUnique();
         });
-        
+
+        builder.OwnsMany(p => p.Media, mb =>
+        {
+            mb.ToJson();
+            mb.Property(m => m.Path).HasJsonPropertyName("media_path").IsRequired();
+            mb.Property(m => m.Type).HasJsonPropertyName("media_type").IsRequired();
+            mb.Property(m => m.SortOrder).HasJsonPropertyName("sort_order").IsRequired();
+            mb.Property(m => m.AltText).HasJsonPropertyName("alt_text");
+            mb.Property(m => m.AssociatedAttributeCode).HasJsonPropertyName("associated_attribute_code");
+            mb.Property(m => m.AssociatedOptionCode).HasJsonPropertyName("associated_option_code");
+        });
+
         builder.HasOne(p => p.Category)
             .WithMany(c => c.Products)
             .HasForeignKey(p => p.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasMany(p => p.Attributes)
-            .WithOne()
-            .HasForeignKey(a => a.ProductId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         builder.Ignore(p => p.DomainEvents);
 
-        builder.HasIndex(p => p.Name);
         builder.HasIndex(p => p.CategoryId);
         builder.HasIndex(p => p.IsActive);
 

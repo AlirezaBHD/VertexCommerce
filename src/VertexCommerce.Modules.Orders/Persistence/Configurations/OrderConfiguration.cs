@@ -18,7 +18,7 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.HasIndex(o => o.OrderNumber).IsUnique();
         builder.HasIndex(o => o.CustomerId);
 
-        builder.Property(o => o.CustomerEmail)
+        builder.Property(o => o.CustomerPhoneNumber)
             .HasMaxLength(256)
             .IsRequired();
 
@@ -58,23 +58,33 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
             money.Property(m => m.Currency).HasColumnName("TotalAmountCurrency").HasMaxLength(3);
         });
 
-        builder.OwnsOne(o => o.ShippingAddress, address =>
+        builder.ComplexProperty(o => o.ShippingAddress, address =>
         {
-            address.Property(a => a.Street).HasColumnName("ShippingStreet").HasMaxLength(200);
+            address.Property(a => a.Province).HasColumnName("ShippingProvince").HasMaxLength(100);
             address.Property(a => a.City).HasColumnName("ShippingCity").HasMaxLength(100);
-            address.Property(a => a.State).HasColumnName("ShippingState").HasMaxLength(100);
-            address.Property(a => a.Country).HasColumnName("ShippingCountry").HasMaxLength(100);
-            address.Property(a => a.ZipCode).HasColumnName("ShippingZipCode").HasMaxLength(20);
+            address.Property(a => a.PostalAddress).HasColumnName("ShippingPostalAddress").HasMaxLength(500);
+            address.Property(a => a.PostalCode).HasColumnName("ShippingPostalCode").HasMaxLength(20);
+            address.Property(a => a.Latitude).HasColumnName("ShippingLatitude").HasPrecision(9, 6);
+            address.Property(a => a.Longitude).HasColumnName("ShippingLongitude").HasPrecision(9, 6);
+            address.Property(a => a.Label).HasColumnName("ShippingLabel").HasMaxLength(100);
         });
 
-        builder.OwnsOne(o => o.BillingAddress, address =>
+        builder.ComplexProperty(o => o.BillingAddress, address =>
         {
-            address.Property(a => a.Street).HasColumnName("BillingStreet").HasMaxLength(200);
+            address.Property(a => a.Province).HasColumnName("BillingProvince").HasMaxLength(100);
             address.Property(a => a.City).HasColumnName("BillingCity").HasMaxLength(100);
-            address.Property(a => a.State).HasColumnName("BillingState").HasMaxLength(100);
-            address.Property(a => a.Country).HasColumnName("BillingCountry").HasMaxLength(100);
-            address.Property(a => a.ZipCode).HasColumnName("BillingZipCode").HasMaxLength(20);
+            address.Property(a => a.PostalAddress).HasColumnName("BillingPostalAddress").HasMaxLength(500);
+            address.Property(a => a.PostalCode).HasColumnName("BillingPostalCode").HasMaxLength(20);
+            address.Property(a => a.Latitude).HasColumnName("BillingLatitude");
+            address.Property(a => a.Longitude).HasColumnName("BillingLongitude");
+            address.Property(a => a.Label).HasColumnName("BillingLabel").HasMaxLength(100);
         });
+
+        builder.Property(o => o.ConfirmedAt);
+        builder.Property(o => o.ProcessingAt);
+        builder.Property(o => o.ShippedAt);
+        builder.Property(o => o.DeliveredAt);
+        builder.Property(o => o.CancelledAt);
 
         builder.HasMany(o => o.Items)
             .WithOne()

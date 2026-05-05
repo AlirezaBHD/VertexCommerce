@@ -6,6 +6,7 @@ public abstract class Entity<TId> : IEquatable<Entity<TId>>
     public TId Id { get; protected init; } = default!;
     public DateTime CreatedAt { get; protected set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; protected set; }
+    public bool IsDeleted { get; protected set; } = false;
 
     protected Entity()
     {
@@ -19,6 +20,16 @@ public abstract class Entity<TId> : IEquatable<Entity<TId>>
     public void SetUpdatedAt()
     {
         UpdatedAt = DateTime.UtcNow;
+    }
+    
+    public void SoftDelete()
+    {
+        IsDeleted = true;
+    }
+    
+    public void Restore()
+    {
+        IsDeleted = true;
     }
     
     public bool Equals(Entity<TId>? other)
