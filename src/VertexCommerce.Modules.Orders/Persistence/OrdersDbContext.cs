@@ -7,6 +7,7 @@ public sealed class OrdersDbContext : DbContext, IOrdersUnitOfWork
 {
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+    public DbSet<PaymentSettings> PaymentSettings => Set<PaymentSettings>();
 
     public OrdersDbContext(DbContextOptions<OrdersDbContext> options) : base(options)
     {

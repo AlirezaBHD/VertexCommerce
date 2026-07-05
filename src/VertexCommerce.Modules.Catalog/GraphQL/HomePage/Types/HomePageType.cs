@@ -1,6 +1,8 @@
 using VertexCommerce.Modules.Catalog.GraphQL.Categories.Types;
+using VertexCommerce.Modules.Catalog.GraphQL.Content.Types;
 using VertexCommerce.Modules.Catalog.GraphQL.Products.Types;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories;
+using VertexCommerce.Modules.Catalog.Persistence.Mongo.Content;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Products;
 
 namespace VertexCommerce.Modules.Catalog.GraphQL.HomePage.Types;
@@ -10,6 +12,26 @@ public sealed class HomePageType : ObjectType<HomePageData>
     protected override void Configure(IObjectTypeDescriptor<HomePageData> descriptor)
     {
         descriptor.Name("HomePage");
+
+        descriptor
+            .Field("hero")
+            .Description("Active hero section content")
+            .Type<HeroContentType>()
+            .Resolve(async ctx =>
+            {
+                var repo = ctx.Service<IContentRepository>();
+                return await repo.GetActiveHeroAsync(ctx.RequestAborted);
+            });
+
+        descriptor
+            .Field("banners")
+            .Description("Active banner slider items ordered by sortOrder")
+            .Type<NonNullType<ListType<NonNullType<BannerType>>>>()
+            .Resolve(async ctx =>
+            {
+                var repo = ctx.Service<IContentRepository>();
+                return await repo.GetActiveBannersAsync(ctx.RequestAborted);
+            });
 
         descriptor
             .Field("featuredCategories")

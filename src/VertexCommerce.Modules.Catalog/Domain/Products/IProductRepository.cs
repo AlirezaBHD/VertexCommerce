@@ -16,4 +16,5 @@ public interface IProductRepository
     Task<Product?> GetByIdWithVariantsAsync(Guid id, CancellationToken ct);
     Task<bool> SlugExistsAsync(string slug, CancellationToken ct);
     void UpdateVariantAsync(ProductVariant variant);
+    Task<ProductVariant?> GetVariantByIdAsync(Guid variantId, CancellationToken ct = default);
 }

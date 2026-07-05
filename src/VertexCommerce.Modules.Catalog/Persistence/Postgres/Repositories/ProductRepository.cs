@@ -72,6 +72,11 @@ public sealed class ProductRepository(CatalogDbContext context) : IProductReposi
     public void UpdateVariantAsync(ProductVariant variant)
     {
         context.Set<ProductVariant>().Update(variant);
+    }
 
+    public async Task<ProductVariant?> GetVariantByIdAsync(Guid variantId, CancellationToken ct = default)
+    {
+        return await context.Set<ProductVariant>()
+            .FirstOrDefaultAsync(v => v.Id == variantId, ct);
     }
 }

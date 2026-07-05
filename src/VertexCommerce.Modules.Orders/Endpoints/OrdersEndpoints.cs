@@ -25,8 +25,8 @@ public static class OrderEndpoints
         var group = app.MapGroup("/api/orders")
             .WithTags("Orders");
 
-        var customerGroup = group.MapGroup("/")
-            .RequireAuthorization();
+        var customerGroup = group.MapGroup("/");
+            // .RequireAuthorization();
 
         customerGroup.MapGet("/my", GetMyOrders);
         customerGroup.MapGet("/my/{id:guid}", GetOrder);

@@ -8,8 +8,10 @@ using VertexCommerce.Modules.Catalog.Domain.Categories;
 using VertexCommerce.Modules.Catalog.Domain.Products;
 using VertexCommerce.Modules.Catalog.Endpoints;
 using VertexCommerce.Modules.Catalog.GraphQL;
+using VertexCommerce.Modules.Catalog.GraphQL.Content.Types;
 using VertexCommerce.Modules.Catalog.GraphQL.HomePage.Types;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories;
+using VertexCommerce.Modules.Catalog.Persistence.Mongo.Content;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Products;
 using VertexCommerce.Modules.Catalog.Persistence.Postgres;
 using VertexCommerce.Modules.Catalog.Persistence.Postgres.Repositories;
@@ -57,7 +59,9 @@ public class CatalogModule : IModule
 
         services.AddSingleton<ProductIndexManager>();
         services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<IStockService, StockService>();
         services.AddScoped<IProductReadModelRepository, ProductReadModelRepository>();
+        services.AddScoped<IContentRepository, ContentRepository>();
         
         services.AddScoped<IProductSyncService, ProductSyncService>();
         services.AddScoped<CategoryPathBuilder>();
@@ -75,12 +79,15 @@ public class CatalogModule : IModule
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapEndpoints();
+        endpoints.MapContentEndpoints();
     }
 
     public void ConfigureGraphQl(IRequestExecutorBuilder builder)
     {
         builder.AddTypeExtension<CatalogQueries>();
-        builder.AddType<HomePageType>(); 
+        builder.AddType<HomePageType>();
+        builder.AddType<HeroContentType>();
+        builder.AddType<BannerType>();
     }
 
     public async Task InitializeAsync(IServiceProvider serviceProvider, CancellationToken ct = default)

@@ -92,13 +92,14 @@ public sealed class Order : AggregateRoot<Guid>
 
     public Result Confirm()
     {
-        if (Status != OrderStatus.Pending)
+        if (Status != OrderStatus.PaymentUnderReview)
             return Result.Failure(Error.Validation($"Cannot confirm order with status {Status}"));
 
         if (!_items.Any())
             return Result.Failure(Error.Validation("Cannot confirm order without items"));
 
         Status = OrderStatus.Confirmed;
+        PaymentStatus = PaymentStatus.Paid;
         ConfirmedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
 

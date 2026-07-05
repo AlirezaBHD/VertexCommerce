@@ -13,7 +13,8 @@ public static class CheckoutEndpoints
     public static void MapCheckoutEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/checkout")
-            .WithTags("Checkout");
+            .WithTags("Checkout")
+            .RequireAuthorization();
 
         group.MapPost("/", Checkout)
             .WithName("Checkout")

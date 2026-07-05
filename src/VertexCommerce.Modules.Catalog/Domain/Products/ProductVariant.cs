@@ -71,6 +71,16 @@ public sealed class ProductVariant : Entity<Guid>
         SetUpdatedAt();
     }
 
+    public bool TryDeductStock(int quantity)
+    {
+        if (quantity <= 0 || StockQuantity < quantity)
+            return false;
+
+        StockQuantity -= quantity;
+        SetUpdatedAt();
+        return true;
+    }
+
     public void SetPrice(Money price)
     {
         Price = price;

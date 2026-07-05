@@ -23,6 +23,7 @@ public class OrdersModule :IModule
                 npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "orders")));
 
         services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IPaymentSettingsRepository, PaymentSettingsRepository>();
         services.AddScoped<IOrdersUnitOfWork>(sp => sp.GetRequiredService<OrdersDbContext>());
 
         services.AddMediatR(cfg =>
@@ -35,6 +36,7 @@ public class OrdersModule :IModule
     {
         endpoints.MapCheckoutEndpoints();
         endpoints.MapOrdersEndpoints();
+        endpoints.MapPaymentSettingsEndpoints();
     }
 
     public void ConfigureGraphQl(IRequestExecutorBuilder builder)
