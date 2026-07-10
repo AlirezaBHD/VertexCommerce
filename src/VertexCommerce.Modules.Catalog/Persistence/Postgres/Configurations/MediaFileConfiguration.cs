@@ -16,7 +16,31 @@ public sealed class MediaFileConfiguration : IEntityTypeConfiguration<MediaFile>
             .HasColumnName("id")
             .ValueGeneratedNever();
 
-        
+        builder.Property(c => c.RelativePath)
+            .HasColumnName("relative_path")
+            .IsRequired()
+            .HasMaxLength(500);
+
+        builder.Property(c => c.OriginalFileName)
+            .HasColumnName("original_file_name")
+            .IsRequired()
+            .HasMaxLength(300);
+
+        builder.Property(c => c.ContentType)
+            .HasColumnName("content_type")
+            .IsRequired()
+            .HasMaxLength(100);
+
+        builder.Property(c => c.SizeBytes)
+            .HasColumnName("size_bytes");
+
+        builder.Property(c => c.Status)
+            .HasColumnName("status")
+            .HasConversion<int>();
+
+        builder.Property(c => c.ConfirmedAt)
+            .HasColumnName("confirmed_at");
+
         builder.Ignore(c => c.DomainEvents);
     }
 }

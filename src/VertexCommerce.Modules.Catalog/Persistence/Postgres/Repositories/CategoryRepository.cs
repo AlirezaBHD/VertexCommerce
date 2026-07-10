@@ -13,6 +13,17 @@ public sealed class CategoryRepository(CatalogDbContext context) : ICategoryRepo
             .FirstOrDefaultAsync(c => c.Id == id, ct);
     }
 
+    public async Task<TResult?> GetByIdAsync<TResult>(Guid id, ISpecification<Category, TResult> spec,
+        CancellationToken ct = default)
+    {
+        var query = context.Categories
+            .AsQueryable();
+
+        return await SpecificationEvaluator
+            .ApplySpecification(query, spec)
+            .FirstOrDefaultAsync(ct);
+    }
+
     public async Task<IReadOnlyList<Category>> GetAllAsync(CancellationToken ct = default)
     {
         return await context.Categories

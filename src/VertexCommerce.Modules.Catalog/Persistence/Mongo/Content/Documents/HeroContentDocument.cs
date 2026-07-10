@@ -10,8 +10,14 @@ public sealed class HeroContentDocument
     [BsonElement("title")]
     public string Title { get; set; } = string.Empty;
 
+    [BsonElement("imageMediaFileId")]
+    public Guid? ImageMediaFileId { get; set; }
+
     [BsonElement("imagePath")]
     public string? ImagePath { get; set; }
+
+    [BsonElement("videoMediaFileId")]
+    public Guid? VideoMediaFileId { get; set; }
     
     [BsonElement("videoPath")]
     public string? VideoPath { get; set; }

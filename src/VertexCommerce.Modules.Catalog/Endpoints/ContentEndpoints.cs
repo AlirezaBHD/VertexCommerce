@@ -1,27 +1,31 @@
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using VertexCommerce.Modules.Catalog.Persistence.Mongo.Content;
-using VertexCommerce.Modules.Catalog.Persistence.Mongo.Content.Documents;
+using VertexCommerce.Modules.Catalog.Features.Content.Commands.CreateOrUpdateBanner;
+using VertexCommerce.Modules.Catalog.Features.Content.Commands.CreateOrUpdateHero;
+using VertexCommerce.Modules.Catalog.Features.Content.Commands.DeleteBanner;
+using VertexCommerce.Modules.Catalog.Features.Content.Commands.DeleteHero;
+using VertexCommerce.Modules.Catalog.Features.Content.Commands.SetActiveHero;
+using VertexCommerce.Modules.Catalog.Features.Content.Commands.UpdateAbout;
+using VertexCommerce.Modules.Catalog.Features.Content.Commands.UpdateContact;
+using VertexCommerce.Shared.Extensions;
 
 namespace VertexCommerce.Modules.Catalog.Endpoints;
 
 public static class ContentEndpoints
 {
-    public static void MapContentEndpoints(this IEndpointRouteBuilder app)
+    public static IEndpointRouteBuilder MapContentEndpoints(this IEndpointRouteBuilder app)
     {
         // ── Hero ─────────────────────────────────────────────────────────────
 
         var heroGroup = app.MapGroup("/api/content/hero").WithTags("Content");
 
-        heroGroup.MapGet("/", GetAllHero)
-            .WithName("GetAllHero")
-            .Produces<IReadOnlyList<HeroContentDocument>>();
-
         heroGroup.MapPost("/", CreateOrUpdateHero)
             .WithName("CreateOrUpdateHero")
-            .Produces<HeroContentDocument>(StatusCodes.Status200OK);
+            .Produces(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status404NotFound);
 
         heroGroup.MapPost("/{id:guid}/set-active", SetActiveHero)
             .WithName("SetActiveHero")
@@ -36,108 +40,165 @@ public static class ContentEndpoints
 
         var bannerGroup = app.MapGroup("/api/content/banners").WithTags("Content");
 
-        bannerGroup.MapGet("/", GetAllBanners)
-            .WithName("GetAllBanners")
-            .Produces<IReadOnlyList<BannerDocument>>();
-
         bannerGroup.MapPost("/", CreateOrUpdateBanner)
             .WithName("CreateOrUpdateBanner")
-            .Produces<BannerDocument>(StatusCodes.Status200OK);
+            .Produces(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status404NotFound);
 
         bannerGroup.MapDelete("/{id:guid}", DeleteBanner)
             .WithName("DeleteBanner")
             .Produces(StatusCodes.Status204NoContent);
+
+        // ── About ──────────────────────────────────────────────────────────────
+
+        var aboutGroup = app.MapGroup("/api/content/about").WithTags("Content");
+
+        aboutGroup.MapPost("/", UpdateAbout)
+            .WithName("UpdateAbout")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status400BadRequest);
+
+        // ── Contact ────────────────────────────────────────────────────────────
+
+        var contactGroup = app.MapGroup("/api/content/contact").WithTags("Content");
+
+        contactGroup.MapPost("/", UpdateContact)
+            .WithName("UpdateContact")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status400BadRequest);
+
+        return app;
     }
 
     // ── Hero handlers ─────────────────────────────────────────────────────────
 
-    private static async Task<IResult> GetAllHero(
-        IContentRepository repo, CancellationToken ct)
-    {
-        var items = await repo.GetAllHeroAsync(ct);
-        return Results.Ok(items);
-    }
-
     private static async Task<IResult> CreateOrUpdateHero(
-        [FromBody] HeroUpsertRequest request,
-        IContentRepository repo, CancellationToken ct)
+        [FromBody] CreateOrUpdateHeroRequest request,
+        [FromServices] ISender sender,
+        CancellationToken ct)
     {
-        var doc = new HeroContentDocument
-        {
-            Id = request.Id ?? Guid.NewGuid(),
-            Title = request.Title,
-            RedirectPath = request.RedirectPath,
-            VideoPath = request.VideoPath,
-            ImagePath = request.ImagePath,
-            IsActive = request.IsActive,
-        };
-        await repo.UpsertHeroAsync(doc, ct);
-        return Results.Ok(doc);
+        var command = new CreateOrUpdateHeroCommand(
+            request.Id,
+            request.Title,
+            request.RedirectPath,
+            request.ImageMediaFileId,
+            request.VideoMediaFileId,
+            request.ImagePath,
+            request.VideoPath,
+            request.IsActive);
+
+        var result = await sender.Send(command, ct);
+
+        return result.IsSuccess
+            ? Results.Ok(new { Id = result.Value })
+            : result.Error.ToHttpResult();
     }
 
     private static async Task<IResult> SetActiveHero(
-        Guid id, IContentRepository repo, CancellationToken ct)
+        Guid id,
+        [FromServices] ISender sender,
+        CancellationToken ct)
     {
-        await repo.SetActiveHeroAsync(id, ct);
-        return Results.NoContent();
+        var result = await sender.Send(new SetActiveHeroCommand(id), ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
     }
 
     private static async Task<IResult> DeleteHero(
-        Guid id, IContentRepository repo, CancellationToken ct)
+        Guid id,
+        [FromServices] ISender sender,
+        CancellationToken ct)
     {
-        await repo.DeleteHeroAsync(id, ct);
-        return Results.NoContent();
+        var result = await sender.Send(new DeleteHeroCommand(id), ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
     }
 
     // ── Banner handlers ───────────────────────────────────────────────────────
 
-    private static async Task<IResult> GetAllBanners(
-        IContentRepository repo, CancellationToken ct)
-    {
-        var items = await repo.GetAllBannersAsync(ct);
-        return Results.Ok(items);
-    }
-
     private static async Task<IResult> CreateOrUpdateBanner(
-        [FromBody] BannerUpsertRequest request,
-        IContentRepository repo, CancellationToken ct)
+        [FromBody] CreateOrUpdateBannerRequest request,
+        [FromServices] ISender sender,
+        CancellationToken ct)
     {
-        var doc = new BannerDocument
-        {
-            Id = request.Id ?? Guid.NewGuid(),
-            Title = request.Title,
-            RedirectPath = request.RedirectPath,
-            ImagePath = request.ImagePath,
-            SortOrder = request.SortOrder,
-            IsActive = request.IsActive,
-            CreatedAt = request.Id is null ? DateTime.UtcNow : default,
-        };
-        await repo.UpsertBannerAsync(doc, ct);
-        return Results.Ok(doc);
+        var command = new CreateOrUpdateBannerCommand(
+            request.Id,
+            request.Title,
+            request.RedirectPath,
+            request.MediaFileId,
+            request.ImagePath,
+            request.SortOrder,
+            request.IsActive);
+
+        var result = await sender.Send(command, ct);
+
+        return result.IsSuccess
+            ? Results.Ok(new { Id = result.Value })
+            : result.Error.ToHttpResult();
     }
 
     private static async Task<IResult> DeleteBanner(
-        Guid id, IContentRepository repo, CancellationToken ct)
+        Guid id,
+        [FromServices] ISender sender,
+        CancellationToken ct)
     {
-        await repo.DeleteBannerAsync(id, ct);
-        return Results.NoContent();
+        var result = await sender.Send(new DeleteBannerCommand(id), ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+
+    // ── About handler ─────────────────────────────────────────────────────────
+
+    private static async Task<IResult> UpdateAbout(
+        [FromBody] UpdateAboutRequest request,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var command = new UpdateAboutCommand(
+            request.Title,
+            request.Subtitle,
+            request.Description,
+            request.Mission,
+            request.Vision,
+            request.Values,
+            request.Stats,
+            request.Team);
+
+        var result = await sender.Send(command, ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+
+    // ── Contact handler ───────────────────────────────────────────────────────
+
+    private static async Task<IResult> UpdateContact(
+        [FromBody] UpdateContactRequest request,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var command = new UpdateContactCommand(
+            request.Title,
+            request.Subtitle,
+            request.Description,
+            request.Email,
+            request.Phone,
+            request.Address,
+            request.WorkingHours,
+            request.MapEmbedUrl,
+            request.SocialLinks);
+
+        var result = await sender.Send(command, ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
     }
 }
-
-// ── Request DTOs ──────────────────────────────────────────────────────────────
-
-public sealed record HeroUpsertRequest(
-    Guid? Id,
-    string Title,
-    string RedirectPath,
-    string? VideoPath,
-    string? ImagePath,
-    bool IsActive = false);
-
-public sealed record BannerUpsertRequest(
-    Guid? Id,
-    string Title,
-    string RedirectPath,
-    string ImagePath,
-    int SortOrder = 0,
-    bool IsActive = true);

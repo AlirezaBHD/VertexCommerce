@@ -5,19 +5,13 @@ using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Catalog.Features.Products.Queries.GetProductById;
 
-public sealed class GetProductByIdQueryHandler : IQueryHandler<GetProductByIdQuery, ProductResponse>
+public sealed class GetProductByIdQueryHandler(IProductRepository productRepository)
+    : IQueryHandler<GetProductByIdQuery, ProductResponse>
 {
-    private readonly IProductRepository _productRepository;
-
-    public GetProductByIdQueryHandler(IProductRepository productRepository)
-    {
-        _productRepository = productRepository;
-    }
-
     public async Task<Result<ProductResponse>> Handle(GetProductByIdQuery query, CancellationToken ct)
     {
         var spec = new GetProductByIdSpec(query.Id);
-        var product = await _productRepository.GetByIdAsync(query.Id, spec, ct);
+        var product = await productRepository.GetByIdAsync(query.Id, spec, ct);
 
         if (product is null)
         {

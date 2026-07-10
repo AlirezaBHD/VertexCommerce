@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Routing;
 using VertexCommerce.Modules.Catalog.Features.Categories.Commands.CreateCategory;
 using VertexCommerce.Modules.Catalog.Features.Categories.Commands.DeleteCategory;
 using VertexCommerce.Modules.Catalog.Features.Categories.Commands.UpdateCategory;
+using VertexCommerce.Modules.Catalog.Features.Categories.Queries.GetCategoryById;
 using VertexCommerce.Modules.Catalog.Features.Products.Commands.CreateProduct;
 using VertexCommerce.Modules.Catalog.Features.Products.Commands.DeleteProduct;
 using VertexCommerce.Modules.Catalog.Features.Products.Commands.ToggleProductStatus;
@@ -38,6 +39,7 @@ public static class CatalogEndpoints
 
         // Categories
         group.MapPost("/categories", CreateCategory);
+        group.MapGet("/categories/{id:guid}", GetCategoryById);
         group.MapPut("/categories/{id:guid}", UpdateCategory);
         group.MapDelete("/categories/{id:guid}", DeleteCategory);
 
@@ -211,6 +213,19 @@ public static class CatalogEndpoints
 
         return result.IsSuccess
             ? Results.Created($"/api/catalog/categories/{result.Value}", new { Id = result.Value })
+            : result.Error.ToHttpResult();
+    }
+    
+    private static async Task<IResult> GetCategoryById(
+        Guid id,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var query = new GetCategoryByIdQuery(id);
+        var result = await sender.Send(query, ct);
+        
+        return result.IsSuccess
+            ? Results.Ok(result.Value)
             : result.Error.ToHttpResult();
     }
 

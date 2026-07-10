@@ -18,6 +18,7 @@
 
     <ItemGroup>
       <Folder Include="Features\Categories\Commands\" />
+      <Folder Include="Features\Content\" />
       <Folder Include="Features\Products\" />
       <Folder Include="Persistence\Postgres\Migrations\" />
     </ItemGroup>

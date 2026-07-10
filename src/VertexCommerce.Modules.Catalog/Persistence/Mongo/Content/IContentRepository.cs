@@ -17,4 +17,12 @@ public interface IContentRepository
     Task<BannerDocument?> GetBannerByIdAsync(Guid id, CancellationToken ct = default);
     Task UpsertBannerAsync(BannerDocument banner, CancellationToken ct = default);
     Task DeleteBannerAsync(Guid id, CancellationToken ct = default);
+
+    // About
+    Task<AboutDocument?> GetAboutAsync(CancellationToken ct = default);
+    Task UpsertAboutAsync(AboutDocument about, CancellationToken ct = default);
+
+    // Contact
+    Task<ContactDocument?> GetContactAsync(CancellationToken ct = default);
+    Task UpsertContactAsync(ContactDocument contact, CancellationToken ct = default);
 }

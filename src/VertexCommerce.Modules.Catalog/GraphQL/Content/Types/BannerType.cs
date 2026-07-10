@@ -9,10 +9,11 @@ public sealed class BannerType : ObjectType<BannerDocument>
         descriptor.Name("Banner");
 
         descriptor.Field(b => b.Id).Type<NonNullType<UuidType>>();
-        descriptor.Field(h => h.Title).Type<NonNullType<StringType>>();
-        descriptor.Field(h => h.RedirectPath).Type<NonNullType<StringType>>();
-        descriptor.Field(b => b.ImagePath).Type<NonNullType<StringType>>();
-        descriptor.Field(b => b.SortOrder).Type<NonNullType<StringType>>();
+        descriptor.Field(b => b.Title).Type<NonNullType<StringType>>();
+        descriptor.Field(b => b.RedirectPath).Type<NonNullType<StringType>>();
+        descriptor.Field(b => b.MediaFileId).Type<UuidType>();
+        descriptor.Field(b => b.ImagePath).Type<StringType>();
+        descriptor.Field(b => b.SortOrder).Type<NonNullType<IntType>>();
         descriptor.Field(b => b.IsActive).Type<NonNullType<BooleanType>>();
         descriptor.Field(b => b.CreatedAt).Type<NonNullType<DateTimeType>>();
         descriptor.Field(b => b.UpdatedAt).Type<NonNullType<DateTimeType>>();

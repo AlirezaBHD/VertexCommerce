@@ -13,8 +13,11 @@ public sealed class BannerDocument
     [BsonElement("redirectPath")]
     public string RedirectPath { get; set; } = string.Empty;
     
+    [BsonElement("mediaFileId")]
+    public Guid? MediaFileId { get; set; }
+    
     [BsonElement("imagePath")]
-    public string ImagePath { get; set; } = string.Empty;
+    public string? ImagePath { get; set; }
     
     [BsonElement("sortOrder")]
     public int SortOrder { get; set; }

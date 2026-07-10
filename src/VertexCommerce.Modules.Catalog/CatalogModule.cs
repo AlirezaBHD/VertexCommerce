@@ -8,6 +8,7 @@ using VertexCommerce.Modules.Catalog.Domain.Categories;
 using VertexCommerce.Modules.Catalog.Domain.Products;
 using VertexCommerce.Modules.Catalog.Endpoints;
 using VertexCommerce.Modules.Catalog.GraphQL;
+using VertexCommerce.Modules.Catalog.GraphQL.Content;
 using VertexCommerce.Modules.Catalog.GraphQL.Content.Types;
 using VertexCommerce.Modules.Catalog.GraphQL.HomePage.Types;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories;
@@ -62,6 +63,7 @@ public class CatalogModule : IModule
         services.AddScoped<IStockService, StockService>();
         services.AddScoped<IProductReadModelRepository, ProductReadModelRepository>();
         services.AddScoped<IContentRepository, ContentRepository>();
+        services.AddScoped<IMediaFileRepository, MediaFileRepository>();
         
         services.AddScoped<IProductSyncService, ProductSyncService>();
         services.AddScoped<CategoryPathBuilder>();
@@ -85,9 +87,12 @@ public class CatalogModule : IModule
     public void ConfigureGraphQl(IRequestExecutorBuilder builder)
     {
         builder.AddTypeExtension<CatalogQueries>();
+        builder.AddTypeExtension<ContentQueries>();
         builder.AddType<HomePageType>();
         builder.AddType<HeroContentType>();
         builder.AddType<BannerType>();
+        builder.AddType<AboutType>();
+        builder.AddType<ContactType>();
     }
 
     public async Task InitializeAsync(IServiceProvider serviceProvider, CancellationToken ct = default)

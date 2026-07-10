@@ -34,6 +34,26 @@ public sealed class HomePageType : ObjectType<HomePageData>
             });
 
         descriptor
+            .Field("about")
+            .Description("About page content")
+            .Type<AboutType>()
+            .Resolve(async ctx =>
+            {
+                var repo = ctx.Service<IContentRepository>();
+                return await repo.GetAboutAsync(ctx.RequestAborted);
+            });
+
+        descriptor
+            .Field("contact")
+            .Description("Contact page content")
+            .Type<ContactType>()
+            .Resolve(async ctx =>
+            {
+                var repo = ctx.Service<IContentRepository>();
+                return await repo.GetContactAsync(ctx.RequestAborted);
+            });
+
+        descriptor
             .Field("featuredCategories")
             .Description("Categories marked to show on the home page")
             .Type<NonNullType<ListType<NonNullType<CategoryType>>>>()

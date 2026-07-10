@@ -11,6 +11,12 @@ internal sealed class ContentRepository(IMongoDatabase database) : IContentRepos
     private readonly IMongoCollection<BannerDocument> _banners =
         database.GetCollection<BannerDocument>("banners");
 
+    private readonly IMongoCollection<AboutDocument> _about =
+        database.GetCollection<AboutDocument>("about_content");
+
+    private readonly IMongoCollection<ContactDocument> _contact =
+        database.GetCollection<ContactDocument>("contact_content");
+
     // ── Hero ─────────────────────────────────────────────────────────────────
 
     public async Task<HeroContentDocument?> GetActiveHeroAsync(CancellationToken ct = default)
@@ -78,4 +84,38 @@ internal sealed class ContentRepository(IMongoDatabase database) : IContentRepos
 
     public async Task DeleteBannerAsync(Guid id, CancellationToken ct = default)
         => await _banners.DeleteOneAsync(b => b.Id == id, ct);
+
+    // ── About ─────────────────────────────────────────────────────────────────
+
+    public async Task<AboutDocument?> GetAboutAsync(CancellationToken ct = default)
+        => await _about.Find(a => a.Id == Guid.Parse("00000000-0000-0000-0000-000000000001"))
+            .FirstOrDefaultAsync(ct);
+
+    public async Task UpsertAboutAsync(AboutDocument about, CancellationToken ct = default)
+    {
+        about.Id = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        about.UpdatedAt = DateTime.UtcNow;
+        await _about.ReplaceOneAsync(
+            a => a.Id == about.Id,
+            about,
+            new ReplaceOptions { IsUpsert = true },
+            ct);
+    }
+
+    // ── Contact ───────────────────────────────────────────────────────────────
+
+    public async Task<ContactDocument?> GetContactAsync(CancellationToken ct = default)
+        => await _contact.Find(c => c.Id == Guid.Parse("00000000-0000-0000-0000-000000000002"))
+            .FirstOrDefaultAsync(ct);
+
+    public async Task UpsertContactAsync(ContactDocument contact, CancellationToken ct = default)
+    {
+        contact.Id = Guid.Parse("00000000-0000-0000-0000-000000000002");
+        contact.UpdatedAt = DateTime.UtcNow;
+        await _contact.ReplaceOneAsync(
+            c => c.Id == contact.Id,
+            contact,
+            new ReplaceOptions { IsUpsert = true },
+            ct);
+    }
 }

@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using VertexCommerce.Modules.Catalog.Domain.Medias;
+using VertexCommerce.Modules.Catalog.Persistence.Postgres.Repositories;
 using VertexCommerce.Shared.Services;
 
 namespace VertexCommerce.Api.Endpoints;
@@ -14,7 +16,7 @@ public static class MediaEndpoints
         group.MapPost("/upload", UploadMedia)
             .DisableAntiforgery()
             .WithName("UploadMedia")
-            .WithSummary("Upload a single media file")
+            .WithSummary("Upload a single media file and create a MediaFile record")
             .Produces<MediaUploadResponse>(200)
             .Produces(400);
 
@@ -29,6 +31,7 @@ public static class MediaEndpoints
         IFormFile file,
         [FromQuery] string? folder,
         IMediaService mediaService,
+        IMediaFileRepository mediaFileRepository,
         CancellationToken ct)
     {
         var validation = ValidateFile(file);
@@ -36,9 +39,23 @@ public static class MediaEndpoints
             return validation;
 
         await using var stream = file.OpenReadStream();
-        var path = await mediaService.SaveFileAsync(stream, file.FileName, folder ?? "general", ct);
+        var relativePath = await mediaService.SaveFileAsync(stream, file.FileName, folder ?? "general", ct);
 
-        return Results.Ok(new MediaUploadResponse(path, file.FileName, file.ContentType, file.Length));
+        var mediaFile = MediaFile.Create(
+            relativePath,
+            file.FileName,
+            file.ContentType,
+            file.Length);
+
+        await mediaFileRepository.AddAsync(mediaFile, ct);
+        await mediaFileRepository.SaveChangesAsync(ct);
+
+        return Results.Ok(new MediaUploadResponse(
+            mediaFile.Id,
+            relativePath,
+            file.FileName,
+            file.ContentType,
+            file.Length));
     }
 
 
@@ -75,6 +92,7 @@ public static class MediaEndpoints
 }
 
 public sealed record MediaUploadResponse(
+    Guid MediaFileId,
     string Path,
     string FileName,
     string ContentType,
