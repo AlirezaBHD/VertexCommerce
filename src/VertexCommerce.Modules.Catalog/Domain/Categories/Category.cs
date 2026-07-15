@@ -130,6 +130,13 @@ public sealed class Category : AggregateRoot<Guid>
         SetUpdatedAt();
     }
 
+    public void SetSortOrder(int sortOrder)
+    {
+        SortOrder = sortOrder;
+        SetUpdatedAt();
+        AddDomainEvent(new CategoryUpdatedEvent(Id, Name, ParentId, IsActive, sortOrder));
+    }
+
     public void SetParent(Guid? parentId)
     {
         if (parentId == Id)

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using VertexCommerce.Modules.Catalog.Features.Categories.Commands.CreateCategory;
 using VertexCommerce.Modules.Catalog.Features.Categories.Commands.DeleteCategory;
+using VertexCommerce.Modules.Catalog.Features.Categories.Commands.ReorderCategories;
 using VertexCommerce.Modules.Catalog.Features.Categories.Commands.UpdateCategory;
 using VertexCommerce.Modules.Catalog.Features.Categories.Queries.GetCategoryById;
 using VertexCommerce.Modules.Catalog.Features.Products.Commands.CreateProduct;
@@ -42,6 +43,7 @@ public static class CatalogEndpoints
         group.MapGet("/categories/{id:guid}", GetCategoryById);
         group.MapPut("/categories/{id:guid}", UpdateCategory);
         group.MapDelete("/categories/{id:guid}", DeleteCategory);
+        group.MapPatch("/categories/reorder", ReorderCategories);
 
         group.MapGet("/attributes", GetAttributes);
 
@@ -263,6 +265,19 @@ public static class CatalogEndpoints
         CancellationToken ct)
     {
         var result = await sender.Send(new DeleteCategoryCommand(id), ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> ReorderCategories(
+        [FromBody] ReorderCategoriesRequest request,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var command = new ReorderCategoriesCommand(request.Items);
+        var result = await sender.Send(command, ct);
 
         return result.IsSuccess
             ? Results.NoContent()
