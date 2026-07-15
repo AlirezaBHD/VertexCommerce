@@ -23,7 +23,6 @@ internal sealed class SendOptCommandHandler(
         }
 
         var otp = otpService.GenerateOtpAsync(phoneNumber, ct);
-        Console.WriteLine($"OTP: {otp}");
         await otpService.SendOtpAsync(phoneNumber, otp, ct);
         
         var registrationToken = Guid.NewGuid().ToString("N");

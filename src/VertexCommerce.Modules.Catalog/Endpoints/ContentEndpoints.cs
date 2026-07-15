@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using VertexCommerce.Modules.Catalog.Features.Content.Commands.CreateOrUpdateBanner;
 using VertexCommerce.Modules.Catalog.Features.Content.Commands.CreateOrUpdateHero;
+using VertexCommerce.Modules.Catalog.Features.Content.Commands.ReorderBanners;
 using VertexCommerce.Modules.Catalog.Features.Content.Commands.DeleteBanner;
 using VertexCommerce.Modules.Catalog.Features.Content.Commands.DeleteHero;
 using VertexCommerce.Modules.Catalog.Features.Content.Commands.SetActiveHero;
@@ -48,6 +49,11 @@ public static class ContentEndpoints
         bannerGroup.MapDelete("/{id:guid}", DeleteBanner)
             .WithName("DeleteBanner")
             .Produces(StatusCodes.Status204NoContent);
+
+        bannerGroup.MapPatch("/reorder", ReorderBanners)
+            .WithName("ReorderBanners")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status400BadRequest);
 
         // ── About ──────────────────────────────────────────────────────────────
 
@@ -147,6 +153,20 @@ public static class ContentEndpoints
         CancellationToken ct)
     {
         var result = await sender.Send(new DeleteBannerCommand(id), ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> ReorderBanners(
+        [FromBody] ReorderBannersRequest request,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var command = new ReorderBannersCommand(request.Items);
+
+        var result = await sender.Send(command, ct);
 
         return result.IsSuccess
             ? Results.NoContent()

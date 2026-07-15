@@ -85,6 +85,14 @@ internal sealed class ContentRepository(IMongoDatabase database) : IContentRepos
     public async Task DeleteBannerAsync(Guid id, CancellationToken ct = default)
         => await _banners.DeleteOneAsync(b => b.Id == id, ct);
 
+    public async Task UpdateBannerSortOrderAsync(Guid id, int sortOrder, CancellationToken ct = default)
+        => await _banners.UpdateOneAsync(
+            b => b.Id == id,
+            Builders<BannerDocument>.Update
+                .Set(b => b.SortOrder, sortOrder)
+                .Set(b => b.UpdatedAt, DateTime.UtcNow),
+            cancellationToken: ct);
+
     // ── About ─────────────────────────────────────────────────────────────────
 
     public async Task<AboutDocument?> GetAboutAsync(CancellationToken ct = default)
