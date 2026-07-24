@@ -24,7 +24,8 @@ internal sealed class ContentRepository(IMongoDatabase database) : IContentRepos
 
     public async Task<IReadOnlyList<HeroContentDocument>> GetAllHeroAsync(CancellationToken ct = default)
         => await _heroes.Find(FilterDefinition<HeroContentDocument>.Empty)
-            .SortByDescending(h => h.UpdatedAt)
+            .SortByDescending(h => h.IsActive)
+            .ThenByDescending(h => h.UpdatedAt)
             .ToListAsync(ct);
 
     public async Task UpsertHeroAsync(HeroContentDocument hero, CancellationToken ct = default)

@@ -13,7 +13,12 @@ internal sealed class PaymentSettingsRepository(OrdersDbContext context) : IPaym
         => await context.PaymentSettings.FirstOrDefaultAsync(p => p.Id == id, ct);
 
     public async Task<IReadOnlyList<PaymentSettings>> GetAllAsync(CancellationToken ct = default)
-        => await context.PaymentSettings.OrderByDescending(p => p.CreatedAt).ToListAsync(ct);
+    {
+        return await context.PaymentSettings
+            .OrderByDescending(p => p.IsActive)
+            .ThenByDescending(p => p.CreatedAt)
+            .ToListAsync(ct);
+    }
 
     public async Task AddAsync(PaymentSettings settings, CancellationToken ct = default)
         => await context.PaymentSettings.AddAsync(settings, ct);

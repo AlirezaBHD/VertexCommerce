@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using VertexCommerce.Modules.Orders.Features.PaymentSettings.CreatePaymentSettings;
 using VertexCommerce.Modules.Orders.Features.PaymentSettings.DeletePaymentSettings;
+using VertexCommerce.Modules.Orders.Features.PaymentSettings.GetPaymentSettingById;
 using VertexCommerce.Modules.Orders.Features.PaymentSettings.GetPaymentSettings;
 using VertexCommerce.Modules.Orders.Features.PaymentSettings.SetActivePaymentSettings;
 using VertexCommerce.Modules.Orders.Features.PaymentSettings.UpdatePaymentSettings;
@@ -32,6 +33,11 @@ public static class PaymentSettingsEndpoints
             .WithName("GetAllPaymentSettings")
             .Produces<IReadOnlyList<PaymentSettingsResponse>>(StatusCodes.Status200OK);
 
+        adminGroup.MapGet("/{id:guid}", GetById)
+            .WithName("GetPaymentSettingsWithId")
+            .Produces<PaymentSettingsResponse>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+        
         adminGroup.MapPost("/", Create)
             .WithName("CreatePaymentSettings")
             .Produces<PaymentSettingsResponse>(StatusCodes.Status201Created)
@@ -51,6 +57,12 @@ public static class PaymentSettingsEndpoints
             .WithName("DeletePaymentSettings")
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status404NotFound);
+    }
+    
+    private static async Task<IResult> GetById(Guid id, ISender sender, CancellationToken ct)
+    {
+        var result = await sender.Send(new GetPaymentSettingByIdQuery(id), ct);
+        return result.IsSuccess ? Results.Ok(result.Value) : result.Error.ToHttpResult();
     }
 
     private static async Task<IResult> GetActive(ISender sender, CancellationToken ct)

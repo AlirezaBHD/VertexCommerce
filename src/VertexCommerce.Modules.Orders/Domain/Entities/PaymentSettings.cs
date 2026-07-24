@@ -31,7 +31,7 @@ public sealed class PaymentSettings : Entity<Guid>
             ShabaNumber = string.IsNullOrWhiteSpace(shabaNumber) ? null : shabaNumber.Trim(),
             AccountNumber = string.IsNullOrWhiteSpace(accountNumber) ? null : accountNumber.Trim(),
             Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim(),
-            IsActive = true,
+            IsActive = false,
             CreatedAt = DateTime.UtcNow,
         };
     }
