@@ -24,8 +24,8 @@ public static class CatalogEndpoints
     public static IEndpointRouteBuilder MapEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/catalog")
-            .WithTags("Catalog");
-            // .RequireAuthorization("Admin");
+            .WithTags("Catalog")
+            .RequireAuthorization("Admin");
             
         // Products
         group.MapPost("/products", CreateProduct);

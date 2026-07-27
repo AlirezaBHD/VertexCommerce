@@ -7,8 +7,10 @@ public sealed record CreateOrUpdateHeroRequest(
     string Title,
     string RedirectPath,
     Guid? ImageMediaFileId,
+    Guid? MobileImageMediaFileId,
     Guid? VideoMediaFileId,
     string? ImagePath,
+    string? MobileImagePath,
     string? VideoPath,
     bool IsActive = false);
 
@@ -17,7 +19,9 @@ public sealed record CreateOrUpdateHeroCommand(
     string Title,
     string RedirectPath,
     Guid? ImageMediaFileId,
+    Guid? MobileImageMediaFileId,
     Guid? VideoMediaFileId,
     string? ImagePath,
+    string? MobileImagePath,
     string? VideoPath,
     bool IsActive = false) : ICommand<Guid>;

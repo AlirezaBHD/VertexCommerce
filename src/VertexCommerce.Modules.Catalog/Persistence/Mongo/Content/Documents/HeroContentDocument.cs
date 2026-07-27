@@ -16,6 +16,12 @@ public sealed class HeroContentDocument
     [BsonElement("imagePath")]
     public string? ImagePath { get; set; }
 
+    [BsonElement("mobileImageMediaFileId")]
+    public Guid? MobileImageMediaFileId { get; set; }
+
+    [BsonElement("mobileImagePath")]
+    public string? MobileImagePath { get; set; }
+
     [BsonElement("videoMediaFileId")]
     public Guid? VideoMediaFileId { get; set; }
     

@@ -13,6 +13,8 @@ public sealed class HeroContentType : ObjectType<HeroContentDocument>
         descriptor.Field(h => h.RedirectPath).Type<NonNullType<StringType>>();
         descriptor.Field(h => h.ImageMediaFileId).Type<UuidType>();
         descriptor.Field(h => h.ImagePath).Type<StringType>();
+        descriptor.Field(h => h.MobileImageMediaFileId).Type<UuidType>();
+        descriptor.Field(h => h.MobileImagePath).Type<StringType>();
         descriptor.Field(h => h.VideoMediaFileId).Type<UuidType>();
         descriptor.Field(h => h.VideoPath).Type<StringType>();
         descriptor.Field(h => h.IsActive).Type<NonNullType<BooleanType>>();

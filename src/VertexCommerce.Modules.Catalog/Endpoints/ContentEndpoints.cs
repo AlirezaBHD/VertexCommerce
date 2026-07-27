@@ -88,8 +88,10 @@ public static class ContentEndpoints
             request.Title,
             request.RedirectPath,
             request.ImageMediaFileId,
+            request.MobileImageMediaFileId,
             request.VideoMediaFileId,
             request.ImagePath,
+            request.MobileImagePath,
             request.VideoPath,
             request.IsActive);
 

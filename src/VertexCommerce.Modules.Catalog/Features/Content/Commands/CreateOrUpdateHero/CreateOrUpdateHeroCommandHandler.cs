@@ -14,6 +14,8 @@ internal sealed class CreateOrUpdateHeroCommandHandler(
     {
         string? imagePath = command.ImagePath;
         Guid? imageMediaFileId = command.ImageMediaFileId;
+        string? mobileImagePath = command.MobileImagePath;
+        Guid? mobileImageMediaFileId = command.MobileImageMediaFileId;
         string? videoPath = command.VideoPath;
         Guid? videoMediaFileId = command.VideoMediaFileId;
 
@@ -27,6 +29,16 @@ internal sealed class CreateOrUpdateHeroCommandHandler(
             mediaFile.Confirm();
         }
 
+        if (command.MobileImageMediaFileId is not null)
+        {
+            var mediaFile = await mediaFileRepository.GetByIdAsync(command.MobileImageMediaFileId.Value, ct);
+            if (mediaFile is null)
+                return Result.Failure<Guid>(Error.NotFound("MediaFile", command.MobileImageMediaFileId.Value));
+
+            mobileImagePath = mediaFile.RelativePath;
+            mediaFile.Confirm();
+        }
+
         if (command.VideoMediaFileId is not null)
         {
             var mediaFile = await mediaFileRepository.GetByIdAsync(command.VideoMediaFileId.Value, ct);
@@ -37,7 +49,7 @@ internal sealed class CreateOrUpdateHeroCommandHandler(
             mediaFile.Confirm();
         }
 
-        if (command.ImageMediaFileId is not null || command.VideoMediaFileId is not null)
+        if (command.ImageMediaFileId is not null || command.MobileImageMediaFileId is not null || command.VideoMediaFileId is not null)
             await mediaFileRepository.SaveChangesAsync(ct);
 
         var doc = new HeroContentDocument
@@ -47,6 +59,8 @@ internal sealed class CreateOrUpdateHeroCommandHandler(
             RedirectPath = command.RedirectPath,
             ImageMediaFileId = imageMediaFileId,
             ImagePath = imagePath,
+            MobileImageMediaFileId = mobileImageMediaFileId,
+            MobileImagePath = mobileImagePath,
             VideoMediaFileId = videoMediaFileId,
             VideoPath = videoPath,
             IsActive = command.IsActive,
