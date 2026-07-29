@@ -57,7 +57,7 @@ public sealed class CreateOrUpdateBannerCommandValidator : AbstractValidator<Cre
                 .NotEmpty().WithMessage("InternalPath is required.")
                 .Must(path => path != null && path.StartsWith('/'))
                 .WithMessage("InternalPath must start with '/'.")
-                .Must(path => path != null && path.StartsWith("//"))
+                .Must(path => path != null && !path.StartsWith("//"))
                 .WithMessage("InternalPath must not start with '//'.")
                 .Must(path =>
                 {
