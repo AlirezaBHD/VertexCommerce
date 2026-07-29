@@ -5,7 +5,7 @@ namespace VertexCommerce.Modules.Catalog.Features.Content.Commands.CreateOrUpdat
 public sealed record CreateOrUpdateBannerRequest(
     Guid? Id,
     string Title,
-    string RedirectPath,
+    BannerTargetDto Target,
     Guid? MediaFileId,
     string? ImagePath,
     int SortOrder = 0,
@@ -14,7 +14,7 @@ public sealed record CreateOrUpdateBannerRequest(
 public sealed record CreateOrUpdateBannerCommand(
     Guid? Id,
     string Title,
-    string RedirectPath,
+    BannerTargetDto Target,
     Guid? MediaFileId,
     string? ImagePath,
     int SortOrder = 0,

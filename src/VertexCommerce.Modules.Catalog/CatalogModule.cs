@@ -49,11 +49,10 @@ public class CatalogModule : IModule
             options.UseNpgsql(
                 configuration.GetConnectionString("CatalogDb"),
                 npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "catalog"));
-            
+
             options.AddInterceptors(sp.GetRequiredService<OutboxInterceptor>());
         });
-        
-        
+
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<ICatalogUnitOfWork>(sp => sp.GetRequiredService<CatalogDbContext>());
@@ -64,14 +63,18 @@ public class CatalogModule : IModule
         services.AddScoped<IProductReadModelRepository, ProductReadModelRepository>();
         services.AddScoped<IContentRepository, ContentRepository>();
         services.AddScoped<IMediaFileRepository, MediaFileRepository>();
-        
+
         services.AddScoped<IProductSyncService, ProductSyncService>();
         services.AddScoped<CategoryPathBuilder>();
-        
+
         services.AddSingleton<CategoryIndexManager>();
         services.AddScoped<ICategoryReadModelRepository, CategoryReadModelRepository>();
         services.AddScoped<CategorySyncService>();
-        
+
+        // Banner
+        services.AddSingleton<BannerIndexManager>();
+        services.AddScoped<IBannerService, BannerService>();
+
         services.AddMediatR(cfg =>
             cfg.RegisterServicesFromAssembly(typeof(CatalogModule).Assembly));
 
@@ -99,8 +102,11 @@ public class CatalogModule : IModule
     {
         var productRepo = serviceProvider.GetRequiredService<ProductIndexManager>();
         await productRepo.EnsureIndexesAsync(ct);
-        
+
         var categoryRepo = serviceProvider.GetRequiredService<CategoryIndexManager>();
         await categoryRepo.EnsureIndexesAsync(ct);
+
+        var bannerRepo = serviceProvider.GetRequiredService<BannerIndexManager>();
+        await bannerRepo.EnsureIndexesAsync(ct);
     }
 }
