@@ -1,3 +1,4 @@
+using VertexCommerce.Modules.Catalog.Domain.Banners;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Content;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Content.Documents;
 using VertexCommerce.Modules.Catalog.Persistence.Postgres.Repositories;
@@ -52,11 +53,25 @@ internal sealed class CreateOrUpdateHeroCommandHandler(
         if (command.ImageMediaFileId is not null || command.MobileImageMediaFileId is not null || command.VideoMediaFileId is not null)
             await mediaFileRepository.SaveChangesAsync(ct);
 
+        var target = new BannerTarget
+        {
+            Type = command.Target.Type,
+            ProductId = command.Target.ProductId,
+            ProductTitleSnapshot = command.Target.ProductTitleSnapshot,
+            ProductSlugSnapshot = command.Target.ProductSlugSnapshot,
+            ProductSkuSnapshot = command.Target.ProductSkuSnapshot,
+            CategoryId = command.Target.CategoryId,
+            CategoryTitleSnapshot = command.Target.CategoryTitleSnapshot,
+            CategorySlugSnapshot = command.Target.CategorySlugSnapshot,
+            InternalPath = command.Target.InternalPath,
+            ExternalUrl = command.Target.ExternalUrl
+        };
+
         var doc = new HeroContentDocument
         {
             Id = command.Id ?? Guid.NewGuid(),
             Title = command.Title,
-            RedirectPath = command.RedirectPath,
+            Target = target,
             ImageMediaFileId = imageMediaFileId,
             ImagePath = imagePath,
             MobileImageMediaFileId = mobileImageMediaFileId,

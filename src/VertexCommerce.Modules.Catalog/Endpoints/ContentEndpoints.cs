@@ -124,7 +124,7 @@ public static class ContentEndpoints
         var command = new CreateOrUpdateHeroCommand(
             request.Id,
             request.Title,
-            request.RedirectPath,
+            request.Target,
             request.ImageMediaFileId,
             request.MobileImageMediaFileId,
             request.VideoMediaFileId,
@@ -236,7 +236,7 @@ public static class ContentEndpoints
 
     private static async Task<IResult> GetActiveBanners(
         [FromServices] IContentRepository contentRepository,
-        [FromServices] IBannerService bannerService,
+        [FromServices] ITargetResolver targetResolver,
         CancellationToken ct)
     {
         var banners = await contentRepository.GetActiveBannersAsync(ct);
@@ -245,7 +245,7 @@ public static class ContentEndpoints
             b.Id,
             b.Title,
             b.Target,
-            bannerService.ResolveHref(b.Target, out var isExternal),
+            targetResolver.ResolveHref(b.Target, out var isExternal),
             isExternal,
             b.MediaFileId,
             b.ImagePath,

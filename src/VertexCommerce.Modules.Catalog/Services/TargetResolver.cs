@@ -5,12 +5,12 @@ using VertexCommerce.Modules.Catalog.Persistence.Mongo.Products.Documents;
 
 namespace VertexCommerce.Modules.Catalog.Services;
 
-public interface IBannerService
+public interface ITargetResolver
 {
     string? ResolveHref(BannerTarget target, out bool isExternal);
 }
 
-internal sealed class BannerService(IMongoDatabase database) : IBannerService
+internal sealed class TargetResolver(IMongoDatabase database) : ITargetResolver
 {
     private readonly IMongoCollection<ProductReadModel> _products =
         database.GetCollection<ProductReadModel>("products");
@@ -31,7 +31,6 @@ internal sealed class BannerService(IMongoDatabase database) : IBannerService
                 var slug = target.ProductSlugSnapshot;
                 if (string.IsNullOrEmpty(slug))
                 {
-                    // Try to resolve from DB using ProductId
                     if (target.ProductId.HasValue)
                     {
                         var product = _products.Find(p => p.Id == target.ProductId.Value).FirstOrDefault();

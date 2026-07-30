@@ -1,4 +1,5 @@
 using MongoDB.Bson.Serialization.Attributes;
+using VertexCommerce.Modules.Catalog.Domain.Banners;
 
 namespace VertexCommerce.Modules.Catalog.Persistence.Mongo.Content.Documents;
 
@@ -9,6 +10,9 @@ public sealed class HeroContentDocument
 
     [BsonElement("title")]
     public string Title { get; set; } = string.Empty;
+
+    [BsonElement("target")]
+    public BannerTarget Target { get; set; } = new() { Type = TargetType.None };
 
     [BsonElement("imageMediaFileId")]
     public Guid? ImageMediaFileId { get; set; }
@@ -28,9 +32,6 @@ public sealed class HeroContentDocument
     [BsonElement("videoPath")]
     public string? VideoPath { get; set; }
     
-    [BsonElement("redirectPath")]
-    public string RedirectPath { get; set; } = string.Empty;
-
     [BsonElement("isActive")]
     public bool IsActive { get; set; }
 

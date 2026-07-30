@@ -73,7 +73,7 @@ public class CatalogModule : IModule
 
         // Banner
         services.AddSingleton<BannerIndexManager>();
-        services.AddScoped<IBannerService, BannerService>();
+        services.AddScoped<ITargetResolver, TargetResolver>();
 
         services.AddMediatR(cfg =>
             cfg.RegisterServicesFromAssembly(typeof(CatalogModule).Assembly));

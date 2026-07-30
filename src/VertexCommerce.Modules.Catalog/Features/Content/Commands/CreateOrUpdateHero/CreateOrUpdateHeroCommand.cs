@@ -1,3 +1,4 @@
+using VertexCommerce.Modules.Catalog.Features.Content.Commands.CreateOrUpdateBanner;
 using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Catalog.Features.Content.Commands.CreateOrUpdateHero;
@@ -5,7 +6,7 @@ namespace VertexCommerce.Modules.Catalog.Features.Content.Commands.CreateOrUpdat
 public sealed record CreateOrUpdateHeroRequest(
     Guid? Id,
     string Title,
-    string RedirectPath,
+    BannerTargetDto Target,
     Guid? ImageMediaFileId,
     Guid? MobileImageMediaFileId,
     Guid? VideoMediaFileId,
@@ -17,7 +18,7 @@ public sealed record CreateOrUpdateHeroRequest(
 public sealed record CreateOrUpdateHeroCommand(
     Guid? Id,
     string Title,
-    string RedirectPath,
+    BannerTargetDto Target,
     Guid? ImageMediaFileId,
     Guid? MobileImageMediaFileId,
     Guid? VideoMediaFileId,

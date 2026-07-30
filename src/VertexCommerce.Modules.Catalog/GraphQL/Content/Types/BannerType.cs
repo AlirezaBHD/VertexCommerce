@@ -25,8 +25,8 @@ public sealed class BannerType : ObjectType<BannerDocument>
             .Resolve(context =>
             {
                 var banner = context.Parent<BannerDocument>();
-                var service = context.Service<IBannerService>();
-                return service.ResolveHref(banner.Target, out _);
+                var resolver = context.Service<ITargetResolver>();
+                return resolver.ResolveHref(banner.Target, out _);
             });
 
         descriptor.Field("isExternal")
@@ -34,8 +34,8 @@ public sealed class BannerType : ObjectType<BannerDocument>
             .Resolve(context =>
             {
                 var banner = context.Parent<BannerDocument>();
-                var service = context.Service<IBannerService>();
-                service.ResolveHref(banner.Target, out var isExternal);
+                var resolver = context.Service<ITargetResolver>();
+                resolver.ResolveHref(banner.Target, out var isExternal);
                 return isExternal;
             });
     }
