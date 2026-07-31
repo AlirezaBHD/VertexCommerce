@@ -34,6 +34,35 @@ internal sealed class CustomerRepository(CustomersDbContext context) : ICustomer
             .FirstOrDefaultAsync(c => c.UserId == userId, ct);
     }
 
+    public async Task<Customer?> GetByPhoneNumberAsync(string phoneNumber, CancellationToken ct = default)
+    {
+        var normalized = phoneNumber.Trim();
+        return await context.Customers
+            .Include(c => c.Addresses)
+            .FirstOrDefaultAsync(c => c.PhoneNumber == normalized, ct);
+    }
+
+    public async Task<IReadOnlyList<Customer>> SearchAsync(string? searchTerm, int limit = 20,
+        CancellationToken ct = default)
+    {
+        var query = context.Customers.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var term = searchTerm.Trim();
+            query = query.Where(c =>
+                c.PhoneNumber.Contains(term) ||
+                c.FirstName.Contains(term) ||
+                c.LastName.Contains(term));
+        }
+
+        return await query
+            .Include(c => c.Addresses)
+            .OrderByDescending(c => c.CreatedAt)
+            .Take(limit)
+            .ToListAsync(ct);
+    }
+
     public async Task<Guid> GetIdByUserIdAsync(Guid userId, CancellationToken ct = default)
     {
         var query = context.Customers.AsNoTracking()

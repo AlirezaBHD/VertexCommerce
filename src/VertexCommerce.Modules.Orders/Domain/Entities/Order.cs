@@ -45,14 +45,54 @@ public sealed class Order : AggregateRoot<Guid>
         string currency = "USD",
         string? notes = null)
     {
+        return CreateOrder(
+            customerId: customerId,
+            customerPhoneNumber: customerPhoneNumber,
+            shippingAddress: shippingAddress,
+            billingAddress: billingAddress,
+            status: OrderStatus.Pending,
+            paymentStatus: PaymentStatus.Pending,
+            currency: currency,
+            notes: notes);
+    }
+
+    public static Order CreateManual(
+        Guid customerId,
+        string customerPhoneNumber,
+        Address shippingAddress,
+        Address billingAddress,
+        string currency = "USD",
+        string? notes = null)
+    {
+        return CreateOrder(
+            customerId: customerId,
+            customerPhoneNumber: customerPhoneNumber,
+            shippingAddress: shippingAddress,
+            billingAddress: billingAddress,
+            status: OrderStatus.Confirmed,
+            paymentStatus: PaymentStatus.Paid,
+            currency: currency,
+            notes: notes);
+    }
+
+    private static Order CreateOrder(
+        Guid customerId,
+        string customerPhoneNumber,
+        Address shippingAddress,
+        Address billingAddress,
+        OrderStatus status,
+        PaymentStatus paymentStatus,
+        string currency,
+        string? notes)
+    {
         return new Order
         {
             Id = Guid.NewGuid(),
             OrderNumber = GenerateOrderNumber(),
             CustomerId = customerId,
             CustomerPhoneNumber = customerPhoneNumber,
-            Status = OrderStatus.Pending,
-            PaymentStatus = PaymentStatus.Pending,
+            Status = status,
+            PaymentStatus = paymentStatus,
             ShippingAddress = shippingAddress,
             BillingAddress = billingAddress,
             Notes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim(),
@@ -60,6 +100,7 @@ public sealed class Order : AggregateRoot<Guid>
             ShippingCost = Money.Zero(currency),
             Tax = Money.Zero(currency),
             TotalAmount = Money.Zero(currency),
+            ConfirmedAt = status == OrderStatus.Confirmed ? DateTime.UtcNow : null,
             CreatedAt = DateTime.UtcNow
         };
     }

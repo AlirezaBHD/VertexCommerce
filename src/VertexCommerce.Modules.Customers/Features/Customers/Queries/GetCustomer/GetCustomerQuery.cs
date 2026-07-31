@@ -6,7 +6,7 @@ public sealed record GetCustomerQuery() : IQuery<CustomerResponse>;
 
 public sealed record CustomerResponse(
     Guid Id,
-    Guid UserId,
+    Guid? UserId,
     string PhoneNumber,
     string FirstName,
     string LastName,

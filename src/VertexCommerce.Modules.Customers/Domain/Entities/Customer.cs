@@ -4,7 +4,7 @@ namespace VertexCommerce.Modules.Customers.Domain.Entities;
 
 public sealed class Customer : AggregateRoot<Guid>
 {
-    public Guid UserId { get; private set; }
+    public Guid? UserId { get; private set; }
     public string PhoneNumber { get; private set; } = default!;
     public string FirstName { get; private set; } = default!;
     public string LastName { get; private set; } = default!;
@@ -19,7 +19,7 @@ public sealed class Customer : AggregateRoot<Guid>
     {
     }
 
-    public static Customer Create(Guid userId, string phoneNumber, string firstName, string lastName)
+    public static Customer Create(Guid? userId, string phoneNumber, string firstName, string lastName)
     {
         return new Customer
         {

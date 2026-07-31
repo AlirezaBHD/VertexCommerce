@@ -7,9 +7,11 @@ using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AddAd
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.EditAddress;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.RemoveAddress;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Queries.GetAddressById;
+using VertexCommerce.Modules.Customers.Features.Customers.Commands.CreateCustomer;
 using VertexCommerce.Modules.Customers.Features.Customers.Commands.SetDefaultBillingAddress;
 using VertexCommerce.Modules.Customers.Features.Customers.Commands.SetDefaultShippingAddress;
 using VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomer;
+using VertexCommerce.Modules.Customers.Features.Customers.Queries.SearchCustomers;
 using VertexCommerce.Shared.Extensions;
 
 namespace VertexCommerce.Modules.Customers.Endpoints;
@@ -30,7 +32,40 @@ public static class CustomerEndpoints
         group.MapPatch("/me/addresses/{id:guid}/set-default-shipping", SetDefaultShippingAddress);
         group.MapPatch("/me/addresses/{id:guid}/set-default-billing", SetDefaultBillingAddress);
 
+        var adminGroup = app.MapGroup("/api/admin/customers")
+            .WithTags("Customers")
+            .RequireAuthorization("Admin");
+
+        adminGroup.MapGet("/", SearchCustomers);
+        adminGroup.MapPost("/", CreateCustomer);
+
         return app;
+    }
+
+    private static async Task<IResult> SearchCustomers(
+        [FromQuery] string? searchTerm,
+        [FromQuery] int limit,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var query = new SearchCustomersQuery(SearchTerm: searchTerm, Limit: limit);
+        var result = await sender.Send(query, ct);
+
+        return result.IsSuccess
+            ? Results.Ok(result.Value)
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> CreateCustomer(
+        [FromBody] CreateCustomerCommand command,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var result = await sender.Send(command, ct);
+
+        return result.IsSuccess
+            ? Results.Created($"/api/admin/customers/{result.Value.Id}", result.Value)
+            : result.Error.ToHttpResult();
     }
 
     private static async Task<IResult> SetDefaultShippingAddress(
