@@ -20,6 +20,13 @@ internal sealed class CategoryReadModelRepository(
             .AsExecutable();
     }
 
+    public IExecutable<CategoryReadModel> GetBySlugAsync(string slug, CancellationToken ct = default)
+    {
+        return _collection
+            .Find(c => c.Slug == slug)
+            .AsExecutable();
+    }
+
     public IExecutable<CategoryReadModel> GetAllAsync(
         bool? isActive = null, CancellationToken ct = default)
     {

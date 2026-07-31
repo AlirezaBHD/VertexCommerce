@@ -53,6 +53,16 @@ public sealed class CatalogQueries
         return repository.GetByIdAsync(id, ct);
     }
 
+    [UseProjection]
+    [UseFirstOrDefault]
+    public IExecutable<CategoryReadModel> GetCategoryBySlug(
+        string slug,
+        [Service] ICategoryReadModelRepository repository,
+        CancellationToken ct)
+    {
+        return repository.GetBySlugAsync(slug, ct);
+    }
+
     [GraphQLType(typeof(HomePageType))]
     [Description("Gets all aggregated data required for the home page layout")]
     public HomePageData GetHomePage()
