@@ -34,8 +34,9 @@ public sealed class Customer : AggregateRoot<Guid>
 
     public string FullName => $"{FirstName} {LastName}";
 
-    public void UpdateProfile(string firstName, string lastName)
+    public void UpdateProfile(string phoneNumber, string firstName, string lastName)
     {
+        PhoneNumber = phoneNumber;
         FirstName = firstName;
         LastName = lastName;
         SetUpdatedAt();

@@ -12,7 +12,7 @@ internal sealed class GetAllOrdersQueryHandler(
 {
     public async Task<Result<PagedResult<AllOrdersResponse>>> Handle(GetAllOrdersQuery query, CancellationToken ct)
     {
-        var spec = new GetAllOrdersSpec();
+        var spec = new GetAllOrdersSpec(query.CustomerId);
 
         var orders = await orderRepository.GetPaginatedAsync
             (spec, skip: query.Skip, take: query.Take, ct);

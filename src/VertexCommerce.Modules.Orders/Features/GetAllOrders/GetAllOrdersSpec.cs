@@ -5,8 +5,13 @@ namespace VertexCommerce.Modules.Orders.Features.GetAllOrders;
 
 public sealed class GetAllOrdersSpec : BaseSpecification<Order, AllOrdersResponse>
 {
-    public GetAllOrdersSpec()
+    public GetAllOrdersSpec(Guid? customerId = null)
     {
+        if (customerId.HasValue)
+        {
+            Where(o => o.CustomerId == customerId.Value);
+        }
+
         OrderByDesc(o => o.UpdatedAt ?? o.CreatedAt);
 
         Select(o => new AllOrdersResponse(

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using VertexCommerce.Modules.Orders.Features.CancelOrder;
 using VertexCommerce.Modules.Orders.Features.ConfirmOrder;
-using VertexCommerce.Modules.Orders.Features.CreateManualOrder;
+// using VertexCommerce.Modules.Orders.Features.CreateManualOrder;
 using VertexCommerce.Modules.Orders.Features.DeliverOrder;
 using VertexCommerce.Modules.Orders.Features.GetAllOrders;
 using VertexCommerce.Modules.Orders.Features.GetMyOrderById;
@@ -40,7 +40,7 @@ public static class OrderEndpoints
 
         adminGroup.MapGet("/", GetAllOrders);
         adminGroup.MapGet("/{id:guid}", GetOrderById);
-        adminGroup.MapPost("/manual", CreateManualOrder);
+        // adminGroup.MapPost("/manual", CreateManualOrder);
         adminGroup.MapPost("/{id:guid}/confirm", ConfirmOrder);
         adminGroup.MapPost("/{id:guid}/process", ProcessOrder);
         adminGroup.MapPost("/{id:guid}/ship", ShipOrder);
@@ -66,10 +66,11 @@ public static class OrderEndpoints
     private static async Task<IResult> GetAllOrders(
         [FromQuery] int page,
         [FromQuery] int pageSize,
+        [FromQuery] Guid? customerId,
         [FromServices] ISender sender,
         CancellationToken ct)
     {
-        var query = new GetAllOrdersQuery()
+        var query = new GetAllOrdersQuery(CustomerId: customerId)
         {
             Page = page,
             PageSize = pageSize
@@ -82,17 +83,17 @@ public static class OrderEndpoints
             : result.Error.ToHttpResult();
     }
 
-    private static async Task<IResult> CreateManualOrder(
-        [FromBody] CreateManualOrderCommand command,
-        [FromServices] ISender sender,
-        CancellationToken ct)
-    {
-        var result = await sender.Send(command, ct);
-
-        return result.IsSuccess
-            ? Results.Created($"/api/orders/{result.Value.OrderId}", result.Value)
-            : result.Error.ToHttpResult();
-    }
+    // private static async Task<IResult> CreateManualOrder(
+    //     [FromBody] CreateManualOrderCommand command,
+    //     [FromServices] ISender sender,
+    //     CancellationToken ct)
+    // {
+    //     var result = await sender.Send(command, ct);
+    //
+    //     return result.IsSuccess
+    //         ? Results.Created($"/api/orders/{result.Value.OrderId}", result.Value)
+    //         : result.Error.ToHttpResult();
+    // }
 
     private static async Task<IResult> SubmitPaymentReceipt(
         [FromRoute] Guid id,

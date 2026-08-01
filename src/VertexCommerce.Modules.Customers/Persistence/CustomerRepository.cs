@@ -3,6 +3,7 @@ using VertexCommerce.Modules.Customers.Domain.Entities;
 using VertexCommerce.Modules.Customers.Domain.Repositories;
 using VertexCommerce.Modules.Customers.Services;
 using VertexCommerce.Shared.Contracts.Customers;
+using VertexCommerce.Shared.Contracts.Pagination;
 using VertexCommerce.Shared.Specifications;
 
 namespace VertexCommerce.Modules.Customers.Persistence;
@@ -61,6 +62,25 @@ internal sealed class CustomerRepository(CustomersDbContext context) : ICustomer
             .OrderByDescending(c => c.CreatedAt)
             .Take(limit)
             .ToListAsync(ct);
+    }
+
+    public async Task<PagedResult<TResult>> GetPaginatedAsync<TResult>(ISpecification<Customer, TResult> spec,
+        int skip = 0, int take = 10, CancellationToken ct = default)
+    {
+        var baseQuery = context.Customers.AsQueryable();
+
+        var query = SpecificationEvaluator
+            .ApplySpecification(baseQuery, spec);
+
+        var count = await query.CountAsync(ct);
+        var result = await query.Skip(skip).Take(take).ToListAsync(ct);
+
+        return new PagedResult<TResult>(
+            Items: result,
+            HasNextPage: count > (skip + 1) * take,
+            HasPreviousPage: skip > 0,
+            TotalCount: count
+        );
     }
 
     public async Task<Guid> GetIdByUserIdAsync(Guid userId, CancellationToken ct = default)

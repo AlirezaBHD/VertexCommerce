@@ -10,8 +10,10 @@ using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Queries.GetAdd
 using VertexCommerce.Modules.Customers.Features.Customers.Commands.CreateCustomer;
 using VertexCommerce.Modules.Customers.Features.Customers.Commands.SetDefaultBillingAddress;
 using VertexCommerce.Modules.Customers.Features.Customers.Commands.SetDefaultShippingAddress;
+using VertexCommerce.Modules.Customers.Features.Customers.Commands.UpdateCustomer;
 using VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomer;
-using VertexCommerce.Modules.Customers.Features.Customers.Queries.SearchCustomers;
+using VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomerAdmin;
+using VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomers;
 using VertexCommerce.Shared.Extensions;
 
 namespace VertexCommerce.Modules.Customers.Endpoints;
@@ -36,19 +38,39 @@ public static class CustomerEndpoints
             .WithTags("Customers")
             .RequireAuthorization("Admin");
 
-        adminGroup.MapGet("/", SearchCustomers);
+        adminGroup.MapGet("/", GetCustomers);
+        adminGroup.MapGet("/{id:guid}", GetCustomerAdmin);
         adminGroup.MapPost("/", CreateCustomer);
+        adminGroup.MapPut("/{id:guid}", UpdateCustomer);
 
         return app;
     }
 
-    private static async Task<IResult> SearchCustomers(
+    private static async Task<IResult> GetCustomers(
         [FromQuery] string? searchTerm,
-        [FromQuery] int limit,
+        [FromQuery] int page,
+        [FromQuery] int pageSize,
         [FromServices] ISender sender,
         CancellationToken ct)
     {
-        var query = new SearchCustomersQuery(SearchTerm: searchTerm, Limit: limit);
+        var query = new GetCustomersQuery(SearchTerm: searchTerm)
+        {
+            Page = page,
+            PageSize = pageSize
+        };
+        var result = await sender.Send(query, ct);
+
+        return result.IsSuccess
+            ? Results.Ok(result.Value)
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> GetCustomerAdmin(
+        Guid id,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var query = new GetCustomerAdminQuery(CustomerId: id);
         var result = await sender.Send(query, ct);
 
         return result.IsSuccess
@@ -65,6 +87,25 @@ public static class CustomerEndpoints
 
         return result.IsSuccess
             ? Results.Created($"/api/admin/customers/{result.Value.Id}", result.Value)
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> UpdateCustomer(
+        Guid id,
+        [FromBody] UpdateCustomerRequest request,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var command = new UpdateCustomerCommand(
+            CustomerId: id,
+            PhoneNumber: request.PhoneNumber,
+            FirstName: request.FirstName,
+            LastName: request.LastName);
+
+        var result = await sender.Send(command, ct);
+
+        return result.IsSuccess
+            ? Results.Ok(result.Value)
             : result.Error.ToHttpResult();
     }
 
