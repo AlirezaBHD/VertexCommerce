@@ -12,7 +12,7 @@ internal sealed class CustomerAddressRepository(CustomersDbContext context) : IC
         await context.CustomerAddresses.AddAsync(address, ct);
     }
 
-    public async Task<CustomerAddress?> GetAsync(Guid customerId, Guid addressId, CancellationToken ct)
+    public async Task<CustomerAddress?> GetAsync( Guid addressId, Guid customerId, CancellationToken ct)
     {
         var query = context.CustomerAddresses
             .Where(a => a.CustomerId == customerId && a.Id == addressId);

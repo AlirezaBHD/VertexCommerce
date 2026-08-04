@@ -15,6 +15,9 @@ using VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomer;
 using VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomerAdmin;
 using VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomers;
 using VertexCommerce.Shared.Extensions;
+using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminAddAddress;
+using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminEditAddress;
+using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminRemoveAddress;
 
 namespace VertexCommerce.Modules.Customers.Endpoints;
 
@@ -42,6 +45,9 @@ public static class CustomerEndpoints
         adminGroup.MapGet("/{id:guid}", GetCustomerAdmin);
         adminGroup.MapPost("/", CreateCustomer);
         adminGroup.MapPut("/{id:guid}", UpdateCustomer);
+        adminGroup.MapPost("/{id:guid}/addresses", AdminAddAddress);
+        adminGroup.MapPut("/{id:guid}/addresses/{addressId:guid}", AdminEditAddress);
+        adminGroup.MapDelete("/{id:guid}/addresses/{addressId:guid}", AdminRemoveAddress);
 
         return app;
     }
@@ -209,6 +215,74 @@ public static class CustomerEndpoints
             Latitude: request.Latitude,
             Longitude: request.Longitude,
             Label: request.Label
+        );
+
+        var result = await sender.Send(command, ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> AdminAddAddress(
+        Guid id,
+        [FromBody] AddAddressRequest request,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var command = new AdminAddAddressCommand(
+            CustomerId: id,
+            Province: request.Province,
+            City: request.City,
+            PostalAddress: request.PostalAddress,
+            PostalCode: request.PostalCode,
+            Latitude: request.Latitude,
+            Longitude: request.Longitude,
+            Label: request.Label
+        );
+
+        var result = await sender.Send(command, ct);
+
+        return result.IsSuccess
+            ? Results.Created($"/api/admin/customers/{id}/addresses/{result.Value.Id}", result.Value)
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> AdminEditAddress(
+        Guid id,
+        Guid addressId,
+        [FromBody] AddAddressRequest request,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var command = new AdminEditAddressCommand(
+            CustomerId: id,
+            AddressId: addressId,
+            Province: request.Province,
+            City: request.City,
+            PostalAddress: request.PostalAddress,
+            PostalCode: request.PostalCode,
+            Latitude: request.Latitude,
+            Longitude: request.Longitude,
+            Label: request.Label
+        );
+
+        var result = await sender.Send(command, ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> AdminRemoveAddress(
+        Guid id,
+        Guid addressId,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var command = new AdminRemoveAddressCommand(
+            CustomerId: id,
+            AddressId: addressId
         );
 
         var result = await sender.Send(command, ct);
