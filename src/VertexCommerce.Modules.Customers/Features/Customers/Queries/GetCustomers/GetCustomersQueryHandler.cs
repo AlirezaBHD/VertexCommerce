@@ -11,7 +11,7 @@ internal sealed class GetCustomersQueryHandler(ICustomerRepository customerRepos
         GetCustomersQuery query,
         CancellationToken ct)
     {
-        var spec = new GetCustomersSpec(query.SearchTerm);
+        var spec = new GetCustomersSpec(query.SearchTerm, query.SortBy, query.SortDescending);
 
         var result = await customerRepository.GetPaginatedAsync(
             spec, skip: query.Skip, take: query.Take, ct);

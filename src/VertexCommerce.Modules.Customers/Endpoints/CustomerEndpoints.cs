@@ -54,12 +54,17 @@ public static class CustomerEndpoints
 
     private static async Task<IResult> GetCustomers(
         [FromQuery] string? searchTerm,
+        [FromQuery] string? sortBy,
+        [FromQuery] bool? sortDescending,
         [FromQuery] int page,
         [FromQuery] int pageSize,
         [FromServices] ISender sender,
         CancellationToken ct)
     {
-        var query = new GetCustomersQuery(SearchTerm: searchTerm)
+        var query = new GetCustomersQuery(
+            SearchTerm: searchTerm,
+            SortBy: sortBy,
+            SortDescending: sortDescending ?? true)
         {
             Page = page,
             PageSize = pageSize

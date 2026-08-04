@@ -3,7 +3,11 @@ using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomers;
 
-public sealed record GetCustomersQuery(string? SearchTerm) : PagedQuery, IQuery<PagedResult<CustomerAdminListItem>>;
+public sealed record GetCustomersQuery(
+    string? SearchTerm,
+    string? SortBy = null,
+    bool SortDescending = true
+) : PagedQuery, IQuery<PagedResult<CustomerAdminListItem>>;
 
 public sealed record CustomerAdminListItem(
     Guid Id,

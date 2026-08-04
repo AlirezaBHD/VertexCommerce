@@ -5,7 +5,7 @@ namespace VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustome
 
 public sealed class GetCustomersSpec : BaseSpecification<Customer, CustomerAdminListItem>
 {
-    public GetCustomersSpec(string? searchTerm)
+    public GetCustomersSpec(string? searchTerm, string? sortBy = null, bool sortDescending = true)
     {
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
@@ -15,7 +15,26 @@ public sealed class GetCustomersSpec : BaseSpecification<Customer, CustomerAdmin
                        c.LastName.Contains(term));
         }
 
-        OrderByDesc(c => c.CreatedAt);
+        switch (sortBy?.ToLowerInvariant())
+        {
+            case "firstname":
+                if (sortDescending) OrderByDesc(c => c.FirstName);
+                else OrderByAsc(c => c.FirstName);
+                break;
+            case "lastname":
+                if (sortDescending) OrderByDesc(c => c.LastName);
+                else OrderByAsc(c => c.LastName);
+                break;
+            case "phonenumber":
+                if (sortDescending) OrderByDesc(c => c.PhoneNumber);
+                else OrderByAsc(c => c.PhoneNumber);
+                break;
+            case "createdat":
+            default:
+                if (sortDescending) OrderByDesc(c => c.CreatedAt);
+                else OrderByAsc(c => c.CreatedAt);
+                break;
+        }
 
         Select(c => new CustomerAdminListItem(
             Id: c.Id,
