@@ -28,6 +28,9 @@ public sealed class GetCustomerSpec : BaseSpecification<Customer, CustomerRespon
             Province: a.Province,
             City: a.City,
             PostalAddress: a.PostalAddress,
+            PostalCode: a.PostalCode,
+            Latitude: a.Latitude,
+            Longitude: a.Longitude,
             Label: a.Label)
         ).ToList();
 }

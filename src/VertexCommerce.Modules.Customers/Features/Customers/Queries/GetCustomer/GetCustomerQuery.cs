@@ -20,5 +20,8 @@ public sealed record AddressSummaryResponse(
     string Province,
     string City,
     string PostalAddress,
+    string PostalCode,
+    decimal Latitude,
+    decimal Longitude,
     string? Label = null
 );

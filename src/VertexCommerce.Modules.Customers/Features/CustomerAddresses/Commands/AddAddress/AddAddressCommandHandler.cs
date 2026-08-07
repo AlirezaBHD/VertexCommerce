@@ -50,6 +50,9 @@ internal sealed class AddAddressCommandHandler(
             Province: address.Province,
             City: address.City,
             PostalAddress: address.PostalAddress,
+            PostalCode: address.PostalCode,
+            Latitude: address.Latitude,
+            Longitude: address.Longitude,
             Label: address.Label
         ));
     }
