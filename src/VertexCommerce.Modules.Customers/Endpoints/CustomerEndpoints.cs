@@ -18,6 +18,7 @@ using VertexCommerce.Shared.Extensions;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminAddAddress;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminEditAddress;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminRemoveAddress;
+using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminSetDefaultAddress;
 
 namespace VertexCommerce.Modules.Customers.Endpoints;
 
@@ -48,6 +49,7 @@ public static class CustomerEndpoints
         adminGroup.MapPost("/{id:guid}/addresses", AdminAddAddress);
         adminGroup.MapPut("/{id:guid}/addresses/{addressId:guid}", AdminEditAddress);
         adminGroup.MapDelete("/{id:guid}/addresses/{addressId:guid}", AdminRemoveAddress);
+        adminGroup.MapPatch("/{id:guid}/addresses/{addressId:guid}/set-default", AdminSetDefaultAddress);
 
         return app;
     }
@@ -286,6 +288,24 @@ public static class CustomerEndpoints
         CancellationToken ct)
     {
         var command = new AdminRemoveAddressCommand(
+            CustomerId: id,
+            AddressId: addressId
+        );
+
+        var result = await sender.Send(command, ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> AdminSetDefaultAddress(
+        Guid id,
+        Guid addressId,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var command = new AdminSetDefaultAddressCommand(
             CustomerId: id,
             AddressId: addressId
         );
