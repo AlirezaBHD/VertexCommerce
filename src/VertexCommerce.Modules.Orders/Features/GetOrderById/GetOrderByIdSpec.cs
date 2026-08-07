@@ -12,6 +12,7 @@ public sealed class GetOrderByIdSpec : BaseSpecification<Order, GetOrderByIdResp
         Select(o => new GetOrderByIdResponse(
             Id: o.Id,
             CustomerId: o.CustomerId,
+            CustomerName: null,
             CustomerPhoneNumber: o.CustomerPhoneNumber,
             OrderNumber: o.OrderNumber,
             Status: o.Status.ToString(),
@@ -28,7 +29,17 @@ public sealed class GetOrderByIdSpec : BaseSpecification<Order, GetOrderByIdResp
             ProcessingAt: o.ProcessingAt,
             ShippedAt: o.ShippedAt,
             DeliveredAt: o.DeliveredAt,
-            CancelledAt: o.CancelledAt
+            CancelledAt: o.CancelledAt,
+            Items: o.Items.Select(i => new GetOrderByIdOrderItemResponse(
+                Id:i.Id,
+                ProductId:i.ProductId,
+                VariantId:i.VariantId,
+                ProductName:i.ProductName,
+                ProductSku:i.ProductSku,
+                UnitPrice:i.UnitPrice,
+                Quantity:i.Quantity,
+                TotalPrice:i.TotalPrice
+            )).ToList()
         ));
     }
 }

@@ -23,7 +23,7 @@ internal sealed class CategoryReadModelRepository(
     public IExecutable<CategoryReadModel> GetBySlugAsync(string slug, CancellationToken ct = default)
     {
         return _collection
-            .Find(c => c.Slug == slug)
+            .Find(c => c.Slug == slug && c.IsActive)
             .AsExecutable();
     }
 
@@ -57,6 +57,12 @@ internal sealed class CategoryReadModelRepository(
 
     public IExecutable<CategoryReadModel> GetFilteredCategories(bool? isActive, bool? showOnHome, bool? showOnMenu)
     {
-        return _collection.AsExecutable();
+        var filter = CategoryQueryFilterBuilder.BuildListFilter(isActive);
+        var sort = CategoryQueryFilterBuilder.BuildDefaultSort();
+
+        return _collection
+            .Find(filter)
+            .Sort(sort)
+            .AsExecutable();
     }
 }

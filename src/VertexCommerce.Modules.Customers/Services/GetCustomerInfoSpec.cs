@@ -14,6 +14,8 @@ public sealed class GetCustomerInfoSpec : BaseSpecification<Customer, CustomerIn
         Include(p => p.Addresses);
         Select(c => new CustomerInfoDto(
             PhoneNumber: c.PhoneNumber,
+            FirstName: c.FirstName,
+            LastName: c.LastName,
             ShippingAddress: MapAddress(c.GetDefaultShippingAddress()),
             BillingAddress: MapAddress(c.GetDefaultBillingAddress()))
         );

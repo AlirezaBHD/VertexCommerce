@@ -80,7 +80,7 @@ internal sealed class ProductReadModelRepository(IMongoDatabase database) : IPro
     public IExecutable<ProductReadModel> GetBySlugAsync(string slug)
     {
         var query = _collection.AsQueryable()
-            .Where(p => p.Slug == slug);
+            .Where(p => p.Slug == slug && p.IsActive);
 
         return query.AsExecutable();
     }
