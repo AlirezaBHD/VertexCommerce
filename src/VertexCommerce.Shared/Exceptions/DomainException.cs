@@ -2,7 +2,16 @@ namespace VertexCommerce.Shared.Exceptions;
 
 public abstract class DomainException : Exception
 {
+    public abstract int StatusCode { get; }
+    public abstract string ErrorCode { get; }
+    public Dictionary<string, object>? Extensions { get; init; }
+
     protected DomainException(string message) : base(message)
+    {
+    }
+
+    protected DomainException(string message, Exception innerException) 
+        : base(message, innerException)
     {
     }
 }

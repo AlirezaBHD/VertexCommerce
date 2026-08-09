@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Routing;
 using VertexCommerce.Modules.Orders.Features.CancelOrder;
 using VertexCommerce.Modules.Orders.Features.ConfirmOrder;
 using VertexCommerce.Modules.Orders.Features.CreateManualOrder;
-// using VertexCommerce.Modules.Orders.Features.CreateManualOrder;
 using VertexCommerce.Modules.Orders.Features.DeliverOrder;
 using VertexCommerce.Modules.Orders.Features.GetAllOrders;
 using VertexCommerce.Modules.Orders.Features.GetMyOrderById;
@@ -27,8 +26,7 @@ public static class OrderEndpoints
         var group = app.MapGroup("/api/orders")
             .WithTags("Orders");
 
-        var customerGroup = group.MapGroup("/");
-            // .RequireAuthorization();
+        var customerGroup = group.MapGroup("/").RequireAuthorization();
 
         customerGroup.MapGet("/my", GetMyOrders);
         customerGroup.MapGet("/my/{id:guid}", GetOrder);
@@ -36,8 +34,7 @@ public static class OrderEndpoints
         customerGroup.MapPost("/{id:guid}/payment/receipt", SubmitPaymentReceipt).DisableAntiforgery();
         customerGroup.MapPost("/{id:guid}/cancel", CancelOrder);
 
-        var adminGroup = group.MapGroup("/");
-            // .RequireAuthorization("Admin");
+        var adminGroup = group.MapGroup("/").RequireAuthorization("Admin");
 
         adminGroup.MapGet("/", GetAllOrders);
         adminGroup.MapGet("/{id:guid}", GetOrderById);
