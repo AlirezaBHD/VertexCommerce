@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using VertexCommerce.Modules.Catalog.Domain.Products;
+using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories.Documents;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Products;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Products.Documents;
 using VertexCommerce.Modules.Catalog.Persistence.Postgres;
@@ -54,7 +55,7 @@ internal sealed class ProductSyncService(
             return;
         }
 
-        var categoryPathCache = new Dictionary<Guid, string>();
+        var categoryPathCache = new Dictionary<Guid, List<CategoryBreadcrumb>>();
         var readModels = new List<ProductReadModel>();
 
         foreach (var product in products)

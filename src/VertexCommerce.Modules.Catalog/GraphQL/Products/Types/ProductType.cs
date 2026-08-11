@@ -1,3 +1,4 @@
+using VertexCommerce.Modules.Catalog.GraphQL.Categories.Types;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Products.Documents;
 
 namespace VertexCommerce.Modules.Catalog.GraphQL.Products.Types;
@@ -26,7 +27,8 @@ public sealed class ProductType : ObjectType<ProductReadModel>
 
         descriptor.Field(p => p.CategoryId).Type<NonNullType<UuidType>>();
         descriptor.Field(p => p.CategoryName).Type<NonNullType<StringType>>();
-        descriptor.Field(p => p.CategoryPath).Type<NonNullType<StringType>>();
+        descriptor.Field(p => p.Breadcrumb)
+            .Type<NonNullType<ListType<NonNullType<CategoryBreadcrumbType>>>>();
 
         descriptor.Field(p => p.Variants).Type<ListType<ProductVariantType>>();
         descriptor.Field(p => p.AvailableOptions).Ignore();

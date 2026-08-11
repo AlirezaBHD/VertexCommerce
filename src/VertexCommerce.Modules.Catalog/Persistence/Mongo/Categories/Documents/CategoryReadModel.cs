@@ -37,18 +37,11 @@ public sealed class CategoryReadModel
     [BsonElement("sortOrder")]
     public int SortOrder { get; set; }
 
-    // === Denormalized Path ===
-    [BsonElement("path")]
-    public string Path { get; set; } = string.Empty;
-    // e.g. "Electronics > Phones > Samsung"
-
-    [BsonElement("pathIds")]
-    public List<Guid> PathIds { get; set; } = [];
-    // e.g. [rootId, parentId, thisId]
-
     [BsonElement("depth")]
     public int Depth { get; set; }
-    // 0 = root, 1 = child, 2 = grandchild
+
+    [BsonElement("breadcrumb")]
+    public List<CategoryBreadcrumb> Breadcrumb { get; set; } = [];
 
     // === Children Summary ===
     [BsonElement("childCount")]
@@ -76,4 +69,16 @@ public sealed class CategoryReadModel
 
     [BsonElement("keywords")]
     public string? Keywords { get; set; }
+}
+
+public class CategoryBreadcrumb
+{
+    [BsonElement("id")]
+    public Guid Id { get; set; }
+
+    [BsonElement("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [BsonElement("slug")]
+    public string Slug { get; set; } = string.Empty;
 }

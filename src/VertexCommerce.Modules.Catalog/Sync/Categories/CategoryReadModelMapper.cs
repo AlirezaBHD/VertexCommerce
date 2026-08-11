@@ -10,8 +10,9 @@ internal static class CategoryReadModelMapper
         List<Category> allCategories,
         int productCount = 0)
     {
-        var (path, pathIds, depth) = BuildPath(category, allCategories);
+        var categoriesById = allCategories.ToDictionary(c => c.Id);
 
+        var (breadcrumb, depth) = BuildPath(category, categoriesById);
         var childCount = allCategories.Count(c => c.ParentId == category.Id);
 
         return new CategoryReadModel
@@ -31,8 +32,7 @@ internal static class CategoryReadModelMapper
             MetaTitle = category.Seo.MetaTitle,
             MetaDescription = category.Seo.MetaDescription,
             Keywords = category.Seo.Keywords,
-            Path = path,
-            PathIds = pathIds,
+            Breadcrumb = breadcrumb,
             Depth = depth,
             ChildCount = childCount,
             ProductCount = productCount,
@@ -41,31 +41,38 @@ internal static class CategoryReadModelMapper
         };
     }
 
-    private static (string Path, List<Guid> PathIds, int Depth) BuildPath(
+    private static (List<CategoryBreadcrumb> Breadcrumb, int Depth) BuildPath(
         Category category,
-        List<Category> allCategories)
+        IReadOnlyDictionary<Guid, Category> categoriesById)
     {
-        var pathNames = new List<string>();
-        var pathIds = new List<Guid>();
+        var breadcrumb = new List<CategoryBreadcrumb>();
 
         var current = category;
         while (current is not null)
         {
-            pathNames.Add(current.Name);
-            pathIds.Add(current.Id);
+            breadcrumb.Add(new CategoryBreadcrumb
+            {
+                Id = current.Id,
+                Name = current.Name,
+                Slug = current.Seo.Slug
+            });
 
-            current = current.ParentId.HasValue
-                ? allCategories.FirstOrDefault(c => c.Id == current.ParentId.Value)
-                : null;
+            if (current.ParentId.HasValue &&
+                categoriesById.TryGetValue(current.ParentId.Value, out var parent))
+            {
+                current = parent;
+            }
+            else
+            {
+                current = null;
+            }
         }
 
-        pathNames.Reverse();
-        pathIds.Reverse();
+        breadcrumb.Reverse();
 
         return (
-            Path: string.Join(" > ", pathNames),
-            PathIds: pathIds,
-            Depth: pathIds.Count - 1
+            Breadcrumb: breadcrumb,
+            Depth: breadcrumb.Count - 1
         );
     }
 }

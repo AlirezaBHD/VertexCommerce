@@ -1,6 +1,4 @@
 using HotChocolate;
-using MongoDB.Driver;
-using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories.Documents;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Products.Documents;
 using VertexCommerce.Shared.Contracts.Catalog;
 
@@ -22,4 +20,5 @@ public interface IProductReadModelRepository
     IExecutable<ProductReadModel> GetLatestProducts(int limit);
     IExecutable<ProductReadModel> GetBySlugAsync(string slug);
     IExecutable<ProductReadModel> GetAll();
+    Task<IReadOnlyList<ProductReadModel>> SearchAsync(string? searchTerm, int limit, CancellationToken ct = default);
 }

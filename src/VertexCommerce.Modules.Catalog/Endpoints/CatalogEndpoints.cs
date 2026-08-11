@@ -15,6 +15,8 @@ using VertexCommerce.Modules.Catalog.Features.Products.Commands.UpdateProduct;
 using VertexCommerce.Modules.Catalog.Features.Products.Commands.UpdateStock;
 using VertexCommerce.Modules.Catalog.Features.Products.Queries.GetCatalogAttributes;
 using VertexCommerce.Modules.Catalog.Features.Products.Queries.GetProductById;
+using VertexCommerce.Modules.Catalog.Features.Products.Queries.Lookups;
+using VertexCommerce.Modules.Catalog.Features.Categories.Queries.Lookups;
 using VertexCommerce.Shared.Extensions;
 
 namespace VertexCommerce.Modules.Catalog.Endpoints;
@@ -37,6 +39,7 @@ public static class CatalogEndpoints
         group.MapPatch("/products/{id:guid}/stock/remove", RemoveStock);
         group.MapPost("/products/{id:guid}/activate", ActivateProduct);
         group.MapPost("/products/{id:guid}/deactivate", DeactivateProduct);
+        group.MapGet("/products/lookup", ProductLookup);
 
         // Categories
         group.MapPost("/categories", CreateCategory);
@@ -44,6 +47,7 @@ public static class CatalogEndpoints
         group.MapPut("/categories/{id:guid}", UpdateCategory);
         group.MapDelete("/categories/{id:guid}", DeleteCategory);
         group.MapPatch("/categories/reorder", ReorderCategories);
+        group.MapGet("/categories/lookup", CategoryLookup);
 
         group.MapGet("/attributes", GetAttributes);
 
@@ -188,6 +192,20 @@ public static class CatalogEndpoints
             : result.Error.ToHttpResult();
     }
 
+    private static async Task<IResult> ProductLookup(
+        [FromQuery] string? q,
+        [FromQuery] int limit,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var query = new GetProductLookupQuery(q, limit);
+        var result = await sender.Send(query, ct);
+        
+        return result.IsSuccess
+            ? Results.Ok(result.Value)
+            : result.Error.ToHttpResult();
+    }
+
     #endregion
 
     #region Categories
@@ -281,6 +299,20 @@ public static class CatalogEndpoints
 
         return result.IsSuccess
             ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> CategoryLookup(
+        [FromQuery] string? q,
+        [FromQuery] int limit,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var query = new GetCategoryLookupQuery(q, limit);
+        var result = await sender.Send(query, ct);
+        
+        return result.IsSuccess
+            ? Results.Ok(result.Value)
             : result.Error.ToHttpResult();
     }
 

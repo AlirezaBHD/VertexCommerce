@@ -12,4 +12,5 @@ public interface ICategoryReadModelRepository
     Task UpsertAsync(CategoryReadModel model, CancellationToken ct = default);
     Task DeleteAsync(Guid id, CancellationToken ct = default);
     IExecutable<CategoryReadModel> GetFilteredCategories(bool? isActive, bool? showOnHome, bool? showOnMenu);
+    Task<IReadOnlyList<CategoryReadModel>> SearchAsync(string? searchTerm, int limit, CancellationToken ct = default);
 }

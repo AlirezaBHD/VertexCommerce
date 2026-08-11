@@ -1,5 +1,4 @@
 using HotChocolate;
-using HotChocolate.Data;
 using MongoDB.Driver;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories.Documents;
 
@@ -64,5 +63,23 @@ internal sealed class CategoryReadModelRepository(
             .Find(filter)
             .Sort(sort)
             .AsExecutable();
+    }
+
+    public async Task<IReadOnlyList<CategoryReadModel>> SearchAsync(string? searchTerm, int limit, CancellationToken ct = default)
+    {
+        var filter = Builders<CategoryReadModel>.Filter.Empty;
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var search = searchTerm.Trim();
+            var regex = new MongoDB.Bson.BsonRegularExpression(search, "i");
+            filter = Builders<CategoryReadModel>.Filter.Or(
+                Builders<CategoryReadModel>.Filter.Regex(c => c.Name, regex),
+                Builders<CategoryReadModel>.Filter.Regex(c => c.Slug, regex)
+            );
+        }
+
+        return await _collection.Find(filter)
+            .Limit(limit)
+            .ToListAsync(ct);
     }
 }

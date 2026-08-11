@@ -1,7 +1,5 @@
 using HotChocolate;
-using HotChocolate.Data;
 using MongoDB.Driver;
-using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories.Documents;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Products.Documents;
 using VertexCommerce.Shared.Contracts.Catalog;
 
@@ -123,5 +121,24 @@ internal sealed class ProductReadModelRepository(IMongoDatabase database) : IPro
             Attributes: variant.Attributes.Select(a =>
                 new ProductInfoAttribute(a.AttributeCode, a.OptionCode)).ToList()
         );
+    }
+
+    public async Task<IReadOnlyList<ProductReadModel>> SearchAsync(string? searchTerm, int limit, CancellationToken ct = default)
+    {
+        var filter = Builders<ProductReadModel>.Filter.Empty;
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var search = searchTerm.Trim();
+            var regex = new MongoDB.Bson.BsonRegularExpression(search, "i");
+            filter = Builders<ProductReadModel>.Filter.Or(
+                Builders<ProductReadModel>.Filter.Regex(p => p.Name, regex),
+                Builders<ProductReadModel>.Filter.Regex(p => p.Slug, regex),
+                Builders<ProductReadModel>.Filter.Regex(p => p.SearchText, regex)
+            );
+        }
+
+        return await _collection.Find(filter)
+            .Limit(limit)
+            .ToListAsync(ct);
     }
 }

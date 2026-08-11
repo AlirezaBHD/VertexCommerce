@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using MongoDB.Driver;
-using VertexCommerce.Modules.Catalog.Domain.Banners;
 using VertexCommerce.Modules.Catalog.Features.Content.Commands.CreateOrUpdateBanner;
 using VertexCommerce.Modules.Catalog.Features.Content.Commands.CreateOrUpdateHero;
 using VertexCommerce.Modules.Catalog.Features.Content.Commands.ReorderBanners;
@@ -14,12 +12,9 @@ using VertexCommerce.Modules.Catalog.Features.Content.Commands.SetActiveHero;
 using VertexCommerce.Modules.Catalog.Features.Content.Commands.UpdateAbout;
 using VertexCommerce.Modules.Catalog.Features.Content.Commands.UpdateContact;
 using VertexCommerce.Modules.Catalog.Features.Content.Queries;
-using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories.Documents;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Content;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Content.Documents;
-using VertexCommerce.Modules.Catalog.Persistence.Mongo.Products.Documents;
 using VertexCommerce.Modules.Catalog.Services;
-using VertexCommerce.Shared.CQRS;
 using VertexCommerce.Shared.Extensions;
 
 namespace VertexCommerce.Modules.Catalog.Endpoints;
@@ -80,18 +75,6 @@ public static class ContentEndpoints
         publicGroup.MapGet("/active", GetActiveBanners)
             .WithName("GetActiveBanners")
             .Produces<IReadOnlyList<BannerResponseDto>>();
-
-        // ── Product & Category Lookup ─────────────────────────────────────────
-
-        var lookupGroup = app.MapGroup("/api").WithTags("Lookup");
-
-        lookupGroup.MapGet("/products/lookup", ProductLookup)
-            .WithName("ProductLookup")
-            .Produces<IReadOnlyList<ProductLookupItem>>();
-
-        lookupGroup.MapGet("/categories/lookup", CategoryLookup)
-            .WithName("CategoryLookup")
-            .Produces<IReadOnlyList<CategoryLookupItem>>();
 
         // ── About ──────────────────────────────────────────────────────────────
 
@@ -256,77 +239,6 @@ public static class ContentEndpoints
         )).ToList();
 
         return Results.Ok(result.AsReadOnly());
-    }
-
-    // ── Lookup handlers ───────────────────────────────────────────────────────
-
-    private static async Task<IResult> ProductLookup(
-        [FromQuery] string? q,
-        [FromQuery] int limit,
-        [FromServices] IMongoDatabase database,
-        CancellationToken ct)
-    {
-        var collection = database.GetCollection<ProductReadModel>("products");
-
-        var filter = Builders<ProductReadModel>.Filter.Empty;
-        if (!string.IsNullOrWhiteSpace(q))
-        {
-            var search = q.Trim();
-            var regex = new MongoDB.Bson.BsonRegularExpression(search, "i");
-            filter = Builders<ProductReadModel>.Filter.Or(
-                Builders<ProductReadModel>.Filter.Regex(p => p.Name, regex),
-                Builders<ProductReadModel>.Filter.Regex(p => p.Slug, regex),
-                Builders<ProductReadModel>.Filter.Regex(p => p.SearchText, regex)
-            );
-        }
-
-        limit = Math.Clamp(limit, 1, 50);
-
-        var products = await collection.Find(filter)
-            .Project(p => new ProductLookupItem(
-                p.Id,
-                p.Name,
-                p.Slug,
-                p.Media.Count > 0 ? p.Media[0].Path : null
-            ))
-            .Limit(limit)
-            .ToListAsync(ct);
-
-        return Results.Ok(products);
-    }
-
-    private static async Task<IResult> CategoryLookup(
-        [FromQuery] string? q,
-        [FromQuery] int limit,
-        [FromServices] IMongoDatabase database,
-        CancellationToken ct)
-    {
-        var collection = database.GetCollection<CategoryReadModel>("categories");
-
-        var filter = Builders<CategoryReadModel>.Filter.Empty;
-        if (!string.IsNullOrWhiteSpace(q))
-        {
-            var search = q.Trim();
-            var regex = new MongoDB.Bson.BsonRegularExpression(search, "i");
-            filter = Builders<CategoryReadModel>.Filter.Or(
-                Builders<CategoryReadModel>.Filter.Regex(c => c.Name, regex),
-                Builders<CategoryReadModel>.Filter.Regex(c => c.Slug, regex)
-            );
-        }
-
-        limit = Math.Clamp(limit, 1, 50);
-
-        var categories = await collection.Find(filter)
-            .Project(c => new CategoryLookupItem(
-                c.Id,
-                c.Name,
-                c.Slug,
-                c.Path
-            ))
-            .Limit(limit)
-            .ToListAsync(ct);
-
-        return Results.Ok(categories);
     }
 
     // ── About handler ─────────────────────────────────────────────────────────

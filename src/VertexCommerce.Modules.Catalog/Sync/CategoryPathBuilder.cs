@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories.Documents;
 using VertexCommerce.Modules.Catalog.Persistence.Postgres;
 
 namespace VertexCommerce.Modules.Catalog.Sync;
@@ -12,9 +13,9 @@ internal sealed class CategoryPathBuilder
         _dbContext = dbContext;
     }
 
-    public async Task<string> BuildAsync(Guid categoryId, CancellationToken ct)
+    public async Task<List<CategoryBreadcrumb>> BuildAsync(Guid categoryId, CancellationToken ct)
     {
-        var path = new List<string>();
+        var breadcrumb = new List<CategoryBreadcrumb>();
         var currentId = (Guid?)categoryId;
         var maxDepth = 10;
 
@@ -22,14 +23,21 @@ internal sealed class CategoryPathBuilder
         {
             var category = await _dbContext.Categories
                 .AsNoTracking()
+                .Select(c => new { c.Id, c.Name, c.ParentId, Slug = c.Seo.Slug })
                 .FirstOrDefaultAsync(c => c.Id == currentId.Value, ct);
 
             if (category is null) break;
 
-            path.Insert(0, category.Name);
+            breadcrumb.Insert(0, new CategoryBreadcrumb
+            {
+                Id = category.Id,
+                Name = category.Name,
+                Slug = category.Slug
+            });
+            
             currentId = category.ParentId;
         }
 
-        return string.Join(" > ", path);
+        return breadcrumb;
     }
 }

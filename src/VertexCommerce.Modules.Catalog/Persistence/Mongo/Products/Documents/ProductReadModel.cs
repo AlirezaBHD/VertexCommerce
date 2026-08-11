@@ -1,5 +1,5 @@
-using HotChocolate.Data;
 using MongoDB.Bson.Serialization.Attributes;
+using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories.Documents;
 
 namespace VertexCommerce.Modules.Catalog.Persistence.Mongo.Products.Documents;
 
@@ -22,7 +22,7 @@ public sealed class ProductReadModel
     // ═══ Category ═══
     public Guid CategoryId { get; set; }
     public string CategoryName { get; set; } = default!;
-    public string? CategoryPath { get; set; }
+    public List<CategoryBreadcrumb> Breadcrumb { get; set; } = [];
 
     // ═══ Variants (Embedded) ═══
     public List<ProductVariantReadModel> Variants { get; set; } = [];

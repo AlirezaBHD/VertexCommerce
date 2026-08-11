@@ -55,16 +55,11 @@ public sealed class CategoryType : ObjectType<CategoryReadModel>
             .Field(c => c.SortOrder)
             .Type<NonNullType<IntType>>();
 
-        // === Denormalized Path ===
+        // === Breadcrumb ===
         descriptor
-            .Field(c => c.Path)
-            .Type<NonNullType<StringType>>()
-            .Description("Full category path: Electronics > Phones > Samsung");
-
-        descriptor
-            .Field(c => c.PathIds)
-            .Type<NonNullType<ListType<NonNullType<UuidType>>>>()
-            .Description("Ordered ancestor IDs from root to this category");
+            .Field(c => c.Breadcrumb)
+            .Type<NonNullType<ListType<NonNullType<CategoryBreadcrumbType>>>>()
+            .Description("Ordered breadcrumb from root to this category");
 
         descriptor
             .Field(c => c.Depth)
@@ -104,5 +99,25 @@ public sealed class CategoryType : ObjectType<CategoryReadModel>
         descriptor
             .Field(c => c.Keywords)
             .Type<StringType>();
+    }
+}
+
+public sealed class CategoryBreadcrumbType : ObjectType<CategoryBreadcrumb>
+{
+    protected override void Configure(IObjectTypeDescriptor<CategoryBreadcrumb> descriptor)
+    {
+        descriptor.Name("CategoryBreadcrumb");
+
+        descriptor
+            .Field(c => c.Id)
+            .Type<NonNullType<UuidType>>();
+
+        descriptor
+            .Field(c => c.Name)
+            .Type<NonNullType<StringType>>();
+
+        descriptor
+            .Field(c => c.Slug)
+            .Type<NonNullType<StringType>>();
     }
 }

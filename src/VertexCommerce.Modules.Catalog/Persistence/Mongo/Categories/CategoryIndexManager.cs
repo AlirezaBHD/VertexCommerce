@@ -33,10 +33,6 @@ internal sealed class CategoryIndexManager(IMongoDatabase database)
                 new CreateIndexOptions { Name = "IX_IsActive_SortOrder" }
             ),
 
-            new(
-                Builders<CategoryReadModel>.IndexKeys.Ascending(c => c.Path),
-                new CreateIndexOptions { Name = "IX_Path" }
-            ),
 
             new(
                 Builders<CategoryReadModel>.IndexKeys.Ascending(c => c.Depth),

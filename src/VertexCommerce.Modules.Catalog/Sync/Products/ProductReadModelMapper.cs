@@ -1,5 +1,6 @@
 using VertexCommerce.Modules.Catalog.Domain.Products;
 using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
+using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories.Documents;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Products.Documents;
 
 namespace VertexCommerce.Modules.Catalog.Sync.Products;
@@ -9,7 +10,7 @@ internal static class ProductReadModelMapper
     public static ProductReadModel Map(
         Product product,
         string categoryName,
-        string? categoryPath)
+        List<CategoryBreadcrumb> breadcrumb)
     {
         var variants = MapVariants(product.Variants);
         var activeVariants = variants.Where(v => v.IsActive).ToList();
@@ -33,7 +34,7 @@ internal static class ProductReadModelMapper
             IsActive = product.IsActive,
             CategoryId = product.CategoryId,
             CategoryName = categoryName,
-            CategoryPath = categoryPath,
+            Breadcrumb = breadcrumb,
             Variants = variants,
             AvailableOptions = availableOptions,
             Media = MapMedia(product.Media),

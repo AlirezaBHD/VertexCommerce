@@ -1,4 +1,4 @@
-namespace VertexCommerce.Modules.Catalog.Features.Content.Queries;
+namespace VertexCommerce.Modules.Catalog.Features.Products.Queries.Lookups;
 
 public sealed record ProductLookupItem(
     Guid Id,
