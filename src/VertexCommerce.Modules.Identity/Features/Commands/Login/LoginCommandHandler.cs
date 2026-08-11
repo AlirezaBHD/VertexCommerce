@@ -18,13 +18,13 @@ internal sealed class LoginCommandHandler(
         var user = await userRepository.GetByPhoneNumberAsync(command.PhoneNumber, ct);
 
         if (user is null)
-            return Result.Failure<AuthResponse>(Error.Unauthorized("Invalid email or password"));
+            return Result.Failure<AuthResponse>(Error.Unauthorized("شماره موبایل یا رمز عبور اشتباه است."));
 
         if (!user.IsActive)
-            return Result.Failure<AuthResponse>(Error.Unauthorized("Account is deactivated"));
+            return Result.Failure<AuthResponse>(Error.Unauthorized("حساب کاربری شما غیرفعال شده است."));
 
         if (!passwordHasher.Verify(command.Password, user.PasswordHash))
-            return Result.Failure<AuthResponse>(Error.Unauthorized("Invalid email or password"));
+            return Result.Failure<AuthResponse>(Error.Unauthorized("شماره موبایل یا رمز عبور اشتباه است."));
 
         var accessToken = jwtService.GenerateAccessToken(user);
         var refreshToken = jwtService.GenerateRefreshToken();
