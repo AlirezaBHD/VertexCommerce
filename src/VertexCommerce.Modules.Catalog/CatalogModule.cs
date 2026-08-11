@@ -69,7 +69,7 @@ public class CatalogModule : IModule
 
         services.AddSingleton<CategoryIndexManager>();
         services.AddScoped<ICategoryReadModelRepository, CategoryReadModelRepository>();
-        services.AddScoped<CategorySyncService>();
+        services.AddScoped<ICategorySyncService, CategorySyncService>();
 
         // Banner
         services.AddSingleton<BannerIndexManager>();

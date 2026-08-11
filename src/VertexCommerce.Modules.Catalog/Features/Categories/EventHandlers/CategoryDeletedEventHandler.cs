@@ -5,27 +5,18 @@ using VertexCommerce.Modules.Catalog.Sync.Categories;
 
 namespace VertexCommerce.Modules.Catalog.Features.Categories.EventHandlers;
 
-internal sealed class CategoryDeletedEventHandler
+internal sealed class CategoryDeletedEventHandler(
+    ICategorySyncService syncService,
+    ILogger<CategoryDeletedEventHandler> logger)
     : INotificationHandler<CategoryDeletedEvent>
 {
-    private readonly CategorySyncService _syncService;
-    private readonly ILogger<CategoryDeletedEventHandler> _logger;
-
-    public CategoryDeletedEventHandler(
-        CategorySyncService syncService,
-        ILogger<CategoryDeletedEventHandler> logger)
-    {
-        _syncService = syncService;
-        _logger = logger;
-    }
-
     public async Task Handle(
         CategoryDeletedEvent notification, CancellationToken ct)
     {
-        _logger.LogInformation(
+        logger.LogInformation(
             "Deleting category {CategoryId} from MongoDB",
             notification.CategoryId);
 
-        await _syncService.DeleteCategoryAsync(notification.CategoryId, ct);
+        await syncService.DeleteCategoryAsync(notification.CategoryId, ct);
     }
 }
