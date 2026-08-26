@@ -6,9 +6,7 @@ public sealed class UpdateContactCommandValidator : AbstractValidator<UpdateCont
 {
     public UpdateContactCommandValidator()
     {
-        RuleFor(x => x.Title).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.Email).NotEmpty().EmailAddress();
-        RuleFor(x => x.Phone).NotEmpty();
-        RuleFor(x => x.Address).NotEmpty();
+        RuleFor(x => x.Header).NotNull();
+        RuleFor(x => x.Location).NotNull();
     }
 }

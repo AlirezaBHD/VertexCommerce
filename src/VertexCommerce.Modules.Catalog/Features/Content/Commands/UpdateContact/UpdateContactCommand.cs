@@ -1,27 +1,24 @@
+using VertexCommerce.Modules.Catalog.Persistence.Mongo.Content.Documents;
 using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Catalog.Features.Content.Commands.UpdateContact;
 
 public sealed record UpdateContactRequest(
-    string Title,
-    string Subtitle,
-    string Description,
-    string Email,
-    string Phone,
-    string Address,
-    string? WorkingHours,
-    string? MapEmbedUrl,
-    List<SocialLinkDto>? SocialLinks);
+    ContactHeaderSection Header,
+    List<ContactPhoneItem>? Phones,
+    List<ContactEmailItem>? Emails,
+    ContactWorkingHoursSection? WorkingHours,
+    ContactLocationSection Location,
+    List<ContactStorePhotoItem>? Photos,
+    List<ContactSocialItem>? Socials,
+    List<ContactFaqItem>? Faqs);
 
 public sealed record UpdateContactCommand(
-    string Title,
-    string Subtitle,
-    string Description,
-    string Email,
-    string Phone,
-    string Address,
-    string? WorkingHours,
-    string? MapEmbedUrl,
-    List<SocialLinkDto>? SocialLinks) : ICommand;
-
-public sealed record SocialLinkDto(string Platform, string Label, string Url, string Icon);
+    ContactHeaderSection Header,
+    List<ContactPhoneItem>? Phones,
+    List<ContactEmailItem>? Emails,
+    ContactWorkingHoursSection? WorkingHours,
+    ContactLocationSection Location,
+    List<ContactStorePhotoItem>? Photos,
+    List<ContactSocialItem>? Socials,
+    List<ContactFaqItem>? Faqs) : ICommand;

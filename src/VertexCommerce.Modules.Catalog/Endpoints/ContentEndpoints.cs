@@ -271,15 +271,14 @@ public static class ContentEndpoints
         CancellationToken ct)
     {
         var command = new UpdateContactCommand(
-            request.Title,
-            request.Subtitle,
-            request.Description,
-            request.Email,
-            request.Phone,
-            request.Address,
+            request.Header,
+            request.Phones,
+            request.Emails,
             request.WorkingHours,
-            request.MapEmbedUrl,
-            request.SocialLinks);
+            request.Location,
+            request.Photos,
+            request.Socials,
+            request.Faqs);
 
         var result = await sender.Send(command, ct);
 

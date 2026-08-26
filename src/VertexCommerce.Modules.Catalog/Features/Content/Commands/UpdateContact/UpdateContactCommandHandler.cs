@@ -11,21 +11,15 @@ internal sealed class UpdateContactCommandHandler(IContentRepository contentRepo
     {
         var doc = new ContactDocument
         {
-            Title = command.Title,
-            Subtitle = command.Subtitle,
-            Description = command.Description,
-            Email = command.Email,
-            Phone = command.Phone,
-            Address = command.Address,
-            WorkingHours = command.WorkingHours,
-            MapEmbedUrl = command.MapEmbedUrl,
-            SocialLinks = (command.SocialLinks ?? new()).Select(s => new SocialLinkItem
-            {
-                Platform = s.Platform,
-                Label = s.Label,
-                Url = s.Url,
-                Icon = s.Icon,
-            }).ToList(),
+            Header = command.Header ?? new(),
+            Phones = command.Phones ?? new(),
+            Emails = command.Emails ?? new(),
+            WorkingHours = command.WorkingHours ?? new(),
+            Location = command.Location ?? new(),
+            Photos = command.Photos ?? new(),
+            Socials = command.Socials ?? new(),
+            Faqs = command.Faqs ?? new(),
+            UpdatedAt = DateTime.UtcNow,
         };
 
         await contentRepository.UpsertContactAsync(doc, ct);
