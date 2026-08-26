@@ -95,6 +95,15 @@ public class CatalogModule : IModule
         builder.AddType<HeroContentType>();
         builder.AddType<BannerType>();
         builder.AddType<AboutType>();
+        builder.AddType<AboutHeroSectionType>();
+        builder.AddType<AboutCommitmentsSectionType>();
+        builder.AddType<AboutCommitmentItemType>();
+        builder.AddType<AboutQualitySectionType>();
+        builder.AddType<AboutQualityFeatureItemType>();
+        builder.AddType<AboutProcessSectionType>();
+        builder.AddType<AboutProcessStepItemType>();
+        builder.AddType<AboutStorySectionType>();
+        builder.AddType<AboutCtaSectionType>();
         builder.AddType<ContactType>();
     }
 

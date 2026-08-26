@@ -14,6 +14,5 @@ public sealed record UpdateCategoryCommand(
     Guid? ParentId,
     bool IsActive,
     bool ShowOnHome,
-    bool IncludeInMenu,
-    int SortOrder
+    bool IncludeInMenu
 ) : ICommand;

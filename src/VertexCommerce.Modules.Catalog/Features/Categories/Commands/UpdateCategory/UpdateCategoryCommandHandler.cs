@@ -56,7 +56,7 @@ internal sealed class UpdateCategoryCommandHandler(
             isActive: command.IsActive,
             showOnHome: command.ShowOnHome,
             includeInMenu: command.IncludeInMenu,
-            sortOrder: command.SortOrder
+            sortOrder: category.SortOrder
         );
         
         await unitOfWork.SaveChangesAsync(ct);

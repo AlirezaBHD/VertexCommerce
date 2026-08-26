@@ -97,8 +97,11 @@ internal sealed class ContentRepository(IMongoDatabase database) : IContentRepos
     // ── About ─────────────────────────────────────────────────────────────────
 
     public async Task<AboutDocument?> GetAboutAsync(CancellationToken ct = default)
-        => await _about.Find(a => a.Id == Guid.Parse("00000000-0000-0000-0000-000000000001"))
+    {
+        var doc = await _about.Find(a => a.Id == Guid.Parse("00000000-0000-0000-0000-000000000001"))
             .FirstOrDefaultAsync(ct);
+        return doc ?? AboutDocument.CreateDefault();
+    }
 
     public async Task UpsertAboutAsync(AboutDocument about, CancellationToken ct = default)
     {

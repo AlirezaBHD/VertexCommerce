@@ -12,6 +12,5 @@ public sealed record UpdateCategoryRequest(
     Guid? ParentId,
     bool IsActive,
     bool ShowOnHome,
-    bool IncludeInMenu,
-    int SortOrder
+    bool IncludeInMenu
 );

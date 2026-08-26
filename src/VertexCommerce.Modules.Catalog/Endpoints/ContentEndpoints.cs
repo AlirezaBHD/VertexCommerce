@@ -249,14 +249,12 @@ public static class ContentEndpoints
         CancellationToken ct)
     {
         var command = new UpdateAboutCommand(
-            request.Title,
-            request.Subtitle,
-            request.Description,
-            request.Mission,
-            request.Vision,
-            request.Values,
-            request.Stats,
-            request.Team);
+            request.Hero,
+            request.Commitments,
+            request.Quality,
+            request.Process,
+            request.Story,
+            request.Cta);
 
         var result = await sender.Send(command, ct);
 

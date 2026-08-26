@@ -6,7 +6,6 @@ public sealed class UpdateAboutCommandValidator : AbstractValidator<UpdateAboutC
 {
     public UpdateAboutCommandValidator()
     {
-        RuleFor(x => x.Title).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.Description).NotEmpty().MaximumLength(5000);
+        // Validation rules are flexible to allow custom partial updates
     }
 }

@@ -266,8 +266,7 @@ public static class CatalogEndpoints
             ParentId: request.ParentId,
             IsActive: request.IsActive,
             ShowOnHome: request.ShowOnHome,
-            IncludeInMenu: request.IncludeInMenu,
-            SortOrder: request.SortOrder
+            IncludeInMenu: request.IncludeInMenu
         );
 
         var result = await sender.Send(command, ct);
