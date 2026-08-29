@@ -18,7 +18,7 @@ internal static class ProductReadModelMapper
         var prices = activeVariants.Select(v => v.Price).ToList();
         var minPrice = prices.Count > 0 ? prices.Min() : 0m;
         var maxPrice = prices.Count > 0 ? prices.Max() : 0m;
-        var totalStock = activeVariants.Sum(v => v.StockQuantity);
+        var totalStock = activeVariants.Sum(v => v.StockQuantity - v.ReservedQuantity);
 
         var availableOptions = BuildAvailableOptions(variants);
         var searchText = BuildSearchText(product, categoryName, variants);
@@ -58,6 +58,7 @@ internal static class ProductReadModelMapper
             Sku = v.Sku.Value,
             Price = v.Price.Amount,
             StockQuantity = v.StockQuantity,
+            ReservedQuantity = v.ReservedQuantity,
             IsActive = v.IsActive,
             SortOrder = v.SortOrder,
             Attributes = v.Attributes.Select(a => new ProductAttributeReadModel

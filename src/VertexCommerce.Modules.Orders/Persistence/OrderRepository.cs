@@ -77,6 +77,16 @@ public sealed class OrderRepository : IOrderRepository
             .ToListAsync(ct);
     }
 
+    public async Task<IReadOnlyList<Order>> GetExpiredOrdersAsync(DateTime before, CancellationToken ct = default)
+    {
+        return await _context.Orders
+            .Include(o => o.Items)
+            .Where(o => (o.Status == OrderStatus.Pending || o.Status == OrderStatus.AwaitingPayment) 
+                        && o.ExpiresAt != null 
+                        && o.ExpiresAt < before)
+            .ToListAsync(ct);
+    }
+
     public async Task<IReadOnlyList<Order>> GetByStatusAsync(OrderStatus status, CancellationToken ct = default)
     {
         return await _context.Orders

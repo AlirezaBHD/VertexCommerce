@@ -26,6 +26,8 @@ public class OrdersModule :IModule
         services.AddScoped<IPaymentSettingsRepository, PaymentSettingsRepository>();
         services.AddScoped<IOrdersUnitOfWork>(sp => sp.GetRequiredService<OrdersDbContext>());
 
+        services.AddHostedService<BackgroundServices.OrderExpirationBackgroundService>();
+
         services.AddMediatR(cfg =>
             cfg.RegisterServicesFromAssembly(typeof(OrdersModule).Assembly));
 

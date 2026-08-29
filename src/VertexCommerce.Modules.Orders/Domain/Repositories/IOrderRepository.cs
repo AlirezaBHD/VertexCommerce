@@ -16,4 +16,5 @@ public interface IOrderRepository : IRepository<Order, Guid>
     Task<PagedResult<TResult>> GetPaginatedAsync<TResult>(ISpecification<Order, TResult> spec, int skip = 0,
         int take = 10, CancellationToken ct = default);
     Task<TResult?> GetOrderByIdAsync<TResult>(ISpecification<Order, TResult> spec, CancellationToken ct = default);
+    Task<IReadOnlyList<Order>> GetExpiredOrdersAsync(DateTime before, CancellationToken ct = default);
 }

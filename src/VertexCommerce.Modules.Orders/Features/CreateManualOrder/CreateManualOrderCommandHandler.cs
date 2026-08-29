@@ -75,13 +75,11 @@ internal sealed class CreateManualOrderCommandHandler(
             order.SetShippingCost(Money.Create(command.ShippingCost));
         }
 
-        foreach (var item in order.Items)
+        var stockRequests = order.Items.Select(i => new StockDeductionRequest(i.VariantId, i.Quantity));
+        var deductResult = await stockService.DeductStocksAsync(stockRequests, ct);
+        if (deductResult.IsFailure)
         {
-            var deductResult = await stockService.DeductStockAsync(item.VariantId, item.Quantity, ct);
-            if (deductResult.IsFailure)
-            {
-                return Result.Failure<CreateManualOrderResponse>(deductResult.Error);
-            }
+            return Result.Failure<CreateManualOrderResponse>(deductResult.Error);
         }
 
         await orderRepository.AddAsync(order, ct);

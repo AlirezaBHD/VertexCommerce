@@ -23,7 +23,8 @@ public sealed class GetAllOrdersSpec : BaseSpecification<Order, AllOrdersRespons
             TotalAmount: o.TotalAmount.ToString(),
             TrackingNumber: o.TrackingNumber,
             CreatedAt: o.CreatedAt,
-            UpdatedAt: o.UpdatedAt
+            UpdatedAt: o.UpdatedAt,
+            ExpiresAt: o.ExpiresAt
         ));
     }
 }

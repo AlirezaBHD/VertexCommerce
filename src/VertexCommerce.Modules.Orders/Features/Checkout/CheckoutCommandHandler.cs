@@ -4,6 +4,7 @@ using VertexCommerce.Modules.Orders.Domain.ValueObjects;
 using VertexCommerce.Modules.Orders.Persistence;
 using VertexCommerce.Shared.Contracts.Baskets;
 using VertexCommerce.Shared.Contracts.Customers;
+using VertexCommerce.Shared.Contracts.Catalog;
 using VertexCommerce.Shared.Contracts.Identity;
 using VertexCommerce.Shared.CQRS;
 
@@ -15,7 +16,9 @@ public sealed class CheckoutCommandHandler(
     IOrdersUnitOfWork unitOfWork,
     ICurrentUser currentUser,
     ICustomerResolver customerResolver,
-    ICustomerService customerService)
+    ICustomerService customerService,
+    IProductService productService,
+    IStockService stockService)
     : ICommandHandler<CheckoutCommand, CheckoutResponse>
 {
     public async Task<Result<CheckoutResponse>> Handle(CheckoutCommand command, CancellationToken ct)
@@ -69,13 +72,28 @@ public sealed class CheckoutCommandHandler(
                 continue;
             }
 
-            var unitPrice = Money.Create(item.UnitPrice);
+            var variant = await productService.GetProductVariantInfoAsync(item.ProductId, item.VariantId, ct);
+            if (variant is null)
+            {
+                return Result.Failure<CheckoutResponse>(
+                    Error.NotFound("ProductVariant", item.VariantId.ToString()));
+            }
+
+            if (variant.StockQuantity < item.Quantity)
+            {
+                return Result.Failure<CheckoutResponse>(
+                    Error.Validation(
+                        "Stock.Insufficient",
+                        $"Insufficient stock for '{variant.Name}' ({variant.Sku}). Requested: {item.Quantity}, Available: {variant.StockQuantity}."));
+            }
+
+            var unitPrice = Money.Create(variant.Price);
 
             order.AddItem(
-                productId: item.ProductId,
-                variantId: item.VariantId,
-                productName: item.ProductName,
-                productSku: item.Sku,
+                productId: variant.ProductId,
+                variantId: variant.VariantId,
+                productName: variant.Name,
+                productSku: variant.Sku,
                 unitPrice: unitPrice,
                 quantity: item.Quantity
             );
@@ -87,6 +105,13 @@ public sealed class CheckoutCommandHandler(
                 Error.Validation("Order.EmptyItems", "Order has no valid items."));
         }
 
+        var stockRequests = order.Items.Select(i => new StockDeductionRequest(i.VariantId, i.Quantity));
+        var reserveResult = await stockService.ReserveStocksAsync(stockRequests, ct);
+        if (reserveResult.IsFailure)
+        {
+            return Result.Failure<CheckoutResponse>(reserveResult.Error);
+        }
+
         await orderRepository.AddAsync(order, ct);
         await unitOfWork.SaveChangesAsync(ct);
 
@@ -96,7 +121,8 @@ public sealed class CheckoutCommandHandler(
             order.Id,
             order.OrderNumber,
             order.TotalAmount.Amount,
-            order.TotalAmount.Currency
+            order.TotalAmount.Currency,
+            order.ExpiresAt
         ));
     }
 

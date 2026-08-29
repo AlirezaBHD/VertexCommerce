@@ -19,7 +19,8 @@ public sealed class GetMyOrdersSpec : BaseSpecification<Order, MyOrdersResponse>
             SubTotal: o.SubTotal.ToString(),
             TotalAmount: o.TotalAmount.ToString(),
             TrackingNumber: o.TrackingNumber,
-            ShippingAddress: o.ShippingAddress.ToStringSummary()
+            ShippingAddress: o.ShippingAddress.ToStringSummary(),
+            ExpiresAt: o.ExpiresAt
         ));
     }
 }

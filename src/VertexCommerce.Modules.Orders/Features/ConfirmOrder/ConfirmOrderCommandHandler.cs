@@ -21,12 +21,11 @@ internal sealed class ConfirmOrderCommandHandler(
         if (confirmResult.IsFailure)
             return confirmResult;
 
-        foreach (var item in order.Items)
-        {
-            var deductResult = await stockService.DeductStockAsync(item.VariantId, item.Quantity, ct);
-            if (deductResult.IsFailure)
-                return deductResult;
-        }
+        var stockRequests = order.Items.Select(i => new StockDeductionRequest(i.VariantId, i.Quantity));
+        var deductResult = await stockService.CommitStocksAsync(stockRequests, ct);
+        
+        if (deductResult.IsFailure)
+            return deductResult;
 
         await unitOfWork.SaveChangesAsync(ct);
         return Result.Success();

@@ -26,6 +26,7 @@ public sealed record MyOrderResponse(
     DateTime? ShippedAt,
     DateTime? DeliveredAt,
     DateTime? CancelledAt,
+    DateTime? ExpiresAt,
     IReadOnlyList<OrderItemResponse> Items
 );
 

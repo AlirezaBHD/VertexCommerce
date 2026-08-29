@@ -9,6 +9,8 @@ public sealed class ProductVariant : Entity<Guid>
     public Sku Sku { get; private set; } = null!;
     public Money Price { get; private set; } = null!;
     public int StockQuantity { get; private set; }
+    public int ReservedQuantity { get; private set; }
+    public int AvailableQuantity => StockQuantity - ReservedQuantity;
     public bool IsActive { get; private set; }
     public int SortOrder { get; private set; }
 
@@ -35,6 +37,7 @@ public sealed class ProductVariant : Entity<Guid>
             Sku = sku,
             Price = price,
             StockQuantity = stockQuantity,
+            ReservedQuantity = 0,
             IsActive = true,
             SortOrder = order};
 
@@ -71,9 +74,40 @@ public sealed class ProductVariant : Entity<Guid>
         SetUpdatedAt();
     }
 
+    public bool TryReserveStock(int quantity)
+    {
+        if (quantity <= 0 || AvailableQuantity < quantity)
+            return false;
+
+        ReservedQuantity += quantity;
+        SetUpdatedAt();
+        return true;
+    }
+
+    public void ReleaseReservedStock(int quantity)
+    {
+        if (quantity <= 0) return;
+        
+        ReservedQuantity -= quantity;
+        if (ReservedQuantity < 0) ReservedQuantity = 0;
+        
+        SetUpdatedAt();
+    }
+
+    public bool TryCommitReservedStock(int quantity)
+    {
+        if (quantity <= 0 || ReservedQuantity < quantity || StockQuantity < quantity)
+            return false;
+
+        ReservedQuantity -= quantity;
+        StockQuantity -= quantity;
+        SetUpdatedAt();
+        return true;
+    }
+
     public bool TryDeductStock(int quantity)
     {
-        if (quantity <= 0 || StockQuantity < quantity)
+        if (quantity <= 0 || AvailableQuantity < quantity)
             return false;
 
         StockQuantity -= quantity;

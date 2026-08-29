@@ -33,6 +33,7 @@ public sealed class GetMyOrderByIdSpec : BaseSpecification<Order, MyOrderRespons
             ShippedAt: o.ShippedAt,
             DeliveredAt: o.DeliveredAt,
             CancelledAt: o.CancelledAt,
+            ExpiresAt: o.ExpiresAt,
             Items: o.Items.Select(i => new OrderItemResponse(
                 Id: i.Id,
                 ProductId: i.ProductId,

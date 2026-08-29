@@ -10,5 +10,6 @@ public sealed record CheckoutResponse(
     Guid OrderId,
     string OrderNumber,
     decimal TotalAmount,
-    string Currency
+    string Currency,
+    DateTime? ExpiresAt
 );

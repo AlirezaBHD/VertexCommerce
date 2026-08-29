@@ -9,5 +9,6 @@ public sealed record AllOrdersResponse(
     string TotalAmount,
     string? TrackingNumber,
     DateTime? CreatedAt,
-    DateTime? UpdatedAt
+    DateTime? UpdatedAt,
+    DateTime? ExpiresAt
 );

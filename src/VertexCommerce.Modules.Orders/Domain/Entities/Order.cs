@@ -31,6 +31,7 @@ public sealed class Order : AggregateRoot<Guid>
     public DateTime? ShippedAt { get; private set; }
     public DateTime? DeliveredAt { get; private set; }
     public DateTime? CancelledAt { get; private set; }
+    public DateTime? ExpiresAt { get; private set; }
 
     private readonly List<OrderItem> _items = [];
     public IReadOnlyCollection<OrderItem> Items => _items.AsReadOnly();
@@ -53,7 +54,8 @@ public sealed class Order : AggregateRoot<Guid>
             status: OrderStatus.Pending,
             paymentStatus: PaymentStatus.Pending,
             currency: currency,
-            notes: notes);
+            notes: notes,
+            expiresAt: DateTime.UtcNow.AddMinutes(10));
     }
 
     public static Order CreateManual(
@@ -72,7 +74,8 @@ public sealed class Order : AggregateRoot<Guid>
             status: OrderStatus.Confirmed,
             paymentStatus: PaymentStatus.Paid,
             currency: currency,
-            notes: notes);
+            notes: notes,
+            expiresAt: null);
     }
 
     private static Order CreateOrder(
@@ -83,7 +86,8 @@ public sealed class Order : AggregateRoot<Guid>
         OrderStatus status,
         PaymentStatus paymentStatus,
         string currency,
-        string? notes)
+        string? notes,
+        DateTime? expiresAt)
     {
         return new Order
         {
@@ -101,7 +105,8 @@ public sealed class Order : AggregateRoot<Guid>
             Tax = Money.Zero(currency),
             TotalAmount = Money.Zero(currency),
             ConfirmedAt = status == OrderStatus.Confirmed ? DateTime.UtcNow : null,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            ExpiresAt = expiresAt
         };
     }
 
@@ -160,12 +165,16 @@ public sealed class Order : AggregateRoot<Guid>
     }
     public Result<string> SubmitPaymentReceipt(string receiptImagePath)
     {
-        if (Status != OrderStatus.AwaitingPayment)
+        if (Status != OrderStatus.AwaitingPayment && Status != OrderStatus.Pending)
             return Result.Failure<string>(Error.Validation($"Cannot submit payment for order with status {Status}"));
+            
+        if (ExpiresAt.HasValue && DateTime.UtcNow > ExpiresAt.Value)
+            return Result.Failure<string>(Error.Validation("Payment time expired"));
+            
         ReceiptImagePath = receiptImagePath;
         TransactionReference = GenerateTransactionReference();
         Status = OrderStatus.PaymentUnderReview;
-         return Result.Success(TransactionReference);
+        return Result.Success(TransactionReference);
     }
     
     public Result InitiatePayment()
@@ -175,6 +184,9 @@ public sealed class Order : AggregateRoot<Guid>
 
         if (!_items.Any())
             return Result.Failure(Error.Validation("Cannot initiate payment order without items"));
+
+        if (ExpiresAt.HasValue && DateTime.UtcNow > ExpiresAt.Value)
+            return Result.Failure(Error.Validation("Payment time expired"));
 
         Status = OrderStatus.AwaitingPayment;
         UpdatedAt = DateTime.UtcNow;
@@ -212,7 +224,7 @@ public sealed class Order : AggregateRoot<Guid>
 
     public Result Cancel(string reason)
     {
-        if (Status is not (OrderStatus.Pending or OrderStatus.Confirmed))
+        if (Status is not (OrderStatus.Pending or OrderStatus.AwaitingPayment or OrderStatus.Confirmed))
             return Result.Failure(Error.Validation($"Cannot cancel order with status {Status}"));
 
         if (string.IsNullOrWhiteSpace(reason))
@@ -220,6 +232,19 @@ public sealed class Order : AggregateRoot<Guid>
 
         Status = OrderStatus.Cancelled;
         CancellationReason = reason;
+        CancelledAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
+
+        return Result.Success();
+    }
+
+    public Result Expire()
+    {
+        if (Status is not (OrderStatus.Pending or OrderStatus.AwaitingPayment))
+            return Result.Failure(Error.Validation($"Cannot expire order with status {Status}"));
+
+        Status = OrderStatus.Cancelled;
+        CancellationReason = "Payment timeout expired";
         CancelledAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
 

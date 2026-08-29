@@ -8,4 +8,5 @@ public sealed record MyOrdersResponse(
     string SubTotal,
     string TotalAmount,
     string? TrackingNumber,
-    string ShippingAddress);
+    string ShippingAddress,
+    DateTime? ExpiresAt);

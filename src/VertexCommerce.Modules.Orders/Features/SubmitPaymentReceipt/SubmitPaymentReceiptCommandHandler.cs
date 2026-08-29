@@ -33,6 +33,12 @@ public sealed class SubmitPaymentReceiptCommandHandler(
                 Error.NotFound("Order for Customer", command.OrderId.ToString()));
         }
 
+        if (order.ExpiresAt.HasValue && DateTime.UtcNow > order.ExpiresAt.Value)
+        {
+            return Result.Failure<PaymentReceiptResponse>(
+                Error.Validation("Payment.Expired", "Payment time expired"));
+        }
+
         var receiptImagePath = await mediaService.SaveFileAsync(fileStream: command.ReceiptFile,
             fileName: Guid.NewGuid().ToString(),
             folder: "receipts", ct);

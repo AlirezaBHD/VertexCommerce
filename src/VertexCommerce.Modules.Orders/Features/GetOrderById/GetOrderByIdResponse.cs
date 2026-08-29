@@ -23,6 +23,7 @@ public sealed record GetOrderByIdResponse(
     DateTime? ShippedAt,
     DateTime? DeliveredAt,
     DateTime? CancelledAt,
+    DateTime? ExpiresAt,
     IReadOnlyList<GetOrderByIdOrderItemResponse> Items
 );
 
