@@ -19,6 +19,7 @@ using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.Admin
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminEditAddress;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminRemoveAddress;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminSetDefaultAddress;
+using VertexCommerce.Shared.Contracts.Identity;
 
 namespace VertexCommerce.Modules.Customers.Endpoints;
 
@@ -40,7 +41,7 @@ public static class CustomerEndpoints
 
         var adminGroup = app.MapGroup("/api/admin/customers")
             .WithTags("Customers")
-            .RequireAuthorization("Admin");
+            .RequireAuthorization(AppRoles.Admin);
 
         adminGroup.MapGet("/", GetCustomers);
         adminGroup.MapGet("/{id:guid}", GetCustomerAdmin);

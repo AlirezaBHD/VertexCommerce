@@ -80,8 +80,8 @@ public class IdentityModule : IModule
 
         services.AddAuthorization(options =>
         {
-            options.AddPolicy("Admin", policy =>
-                policy.RequireRole("Admin"));
+            options.AddPolicy(AppRoles.Admin, policy =>
+                policy.RequireRole(AppRoles.Admin));
         });
 
         services.AddMediatR(cfg =>

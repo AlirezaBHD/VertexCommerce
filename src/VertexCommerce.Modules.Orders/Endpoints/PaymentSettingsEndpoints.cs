@@ -9,6 +9,7 @@ using VertexCommerce.Modules.Orders.Features.PaymentSettings.GetPaymentSettingBy
 using VertexCommerce.Modules.Orders.Features.PaymentSettings.GetPaymentSettings;
 using VertexCommerce.Modules.Orders.Features.PaymentSettings.SetActivePaymentSettings;
 using VertexCommerce.Modules.Orders.Features.PaymentSettings.UpdatePaymentSettings;
+using VertexCommerce.Shared.Contracts.Identity;
 using VertexCommerce.Shared.Extensions;
 
 namespace VertexCommerce.Modules.Orders.Endpoints;
@@ -26,8 +27,8 @@ public static class PaymentSettingsEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         var adminGroup = app.MapGroup("/api/payment-settings")
-            .WithTags("PaymentSettings");
-            // .RequireAuthorization("Admin");
+            .WithTags("PaymentSettings")
+            .RequireAuthorization(AppRoles.Admin);
 
         adminGroup.MapGet("/", GetAll)
             .WithName("GetAllPaymentSettings")

@@ -15,6 +15,7 @@ using VertexCommerce.Modules.Orders.Features.InitiatePayment;
 using VertexCommerce.Modules.Orders.Features.ProcessOrder;
 using VertexCommerce.Modules.Orders.Features.ShipOrder;
 using VertexCommerce.Modules.Orders.Features.SubmitPaymentReceipt;
+using VertexCommerce.Shared.Contracts.Identity;
 using VertexCommerce.Shared.Extensions;
 
 namespace VertexCommerce.Modules.Orders.Endpoints;
@@ -34,7 +35,7 @@ public static class OrderEndpoints
         customerGroup.MapPost("/{id:guid}/payment/receipt", SubmitPaymentReceipt).DisableAntiforgery();
         customerGroup.MapPost("/{id:guid}/cancel", CancelOrder);
 
-        var adminGroup = group.MapGroup("/").RequireAuthorization("Admin");
+        var adminGroup = group.MapGroup("/").RequireAuthorization(AppRoles.Admin);
 
         adminGroup.MapGet("/", GetAllOrders);
         adminGroup.MapGet("/{id:guid}", GetOrderById);

@@ -17,6 +17,7 @@ using VertexCommerce.Modules.Catalog.Features.Products.Queries.GetCatalogAttribu
 using VertexCommerce.Modules.Catalog.Features.Products.Queries.GetProductById;
 using VertexCommerce.Modules.Catalog.Features.Products.Queries.Lookups;
 using VertexCommerce.Modules.Catalog.Features.Categories.Queries.Lookups;
+using VertexCommerce.Shared.Contracts.Identity;
 using VertexCommerce.Shared.Extensions;
 
 namespace VertexCommerce.Modules.Catalog.Endpoints;
@@ -27,7 +28,7 @@ public static class CatalogEndpoints
     {
         var group = app.MapGroup("/api/catalog")
             .WithTags("Catalog")
-            .RequireAuthorization("Admin");
+            .RequireAuthorization(AppRoles.Admin);
             
         // Products
         group.MapPost("/products", CreateProduct);

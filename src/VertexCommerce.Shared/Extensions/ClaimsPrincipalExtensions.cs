@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using VertexCommerce.Shared.Contracts.Identity;
 
 namespace VertexCommerce.Shared.Extensions;
 
@@ -26,7 +27,7 @@ public static class ClaimsPrincipalExtensions
 
         public bool IsAdmin()
         {
-            return user.IsInRole("Admin");
+            return user.IsInRole(AppRoles.Admin);
         }
     }
 }
