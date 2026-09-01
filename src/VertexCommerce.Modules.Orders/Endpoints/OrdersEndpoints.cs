@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Routing;
 using VertexCommerce.Modules.Orders.Features.CancelOrder;
 using VertexCommerce.Modules.Orders.Features.ConfirmOrder;
 using VertexCommerce.Modules.Orders.Features.CreateManualOrder;
+using VertexCommerce.Modules.Orders.Features.Dashboard.GetOrderStats;
+using VertexCommerce.Modules.Orders.Features.Dashboard.GetRecentOrders;
+using VertexCommerce.Modules.Orders.Features.Dashboard.GetSalesChart;
 using VertexCommerce.Modules.Orders.Features.DeliverOrder;
 using VertexCommerce.Modules.Orders.Features.GetAllOrders;
 using VertexCommerce.Modules.Orders.Features.GetMyOrderById;
@@ -44,6 +47,11 @@ public static class OrderEndpoints
         adminGroup.MapPost("/{id:guid}/process", ProcessOrder);
         adminGroup.MapPost("/{id:guid}/ship", ShipOrder);
         adminGroup.MapPost("/{id:guid}/deliver", DeliverOrder);
+
+        // Dashboard
+        adminGroup.MapGet("/stats", GetOrderStats);
+        adminGroup.MapGet("/recent", GetRecentOrders);
+        adminGroup.MapGet("/sales-chart", GetSalesChart);
 
         return app;
     }
@@ -212,6 +220,43 @@ public static class OrderEndpoints
 
         return result.IsSuccess
             ? Results.NoContent()
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> GetOrderStats(
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var result = await sender.Send(new GetOrderStatsQuery(), ct);
+
+        return result.IsSuccess
+            ? Results.Ok(result.Value)
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> GetRecentOrders(
+        [FromQuery] int count,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var query = new GetRecentOrdersQuery(count > 0 ? count : 5);
+        var result = await sender.Send(query, ct);
+
+        return result.IsSuccess
+            ? Results.Ok(result.Value)
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> GetSalesChart(
+        [FromQuery] DateTime from,
+        [FromQuery] DateTime to,
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var result = await sender.Send(new GetSalesChartQuery(from, to), ct);
+
+        return result.IsSuccess
+            ? Results.Ok(result.Value)
             : result.Error.ToHttpResult();
     }
 }

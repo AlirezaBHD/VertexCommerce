@@ -14,6 +14,7 @@ using VertexCommerce.Modules.Customers.Features.Customers.Commands.UpdateCustome
 using VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomer;
 using VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomerAdmin;
 using VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomers;
+using VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomerStats;
 using VertexCommerce.Shared.Extensions;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminAddAddress;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminEditAddress;
@@ -44,6 +45,7 @@ public static class CustomerEndpoints
             .RequireAuthorization(AppRoles.Admin);
 
         adminGroup.MapGet("/", GetCustomers);
+        adminGroup.MapGet("/stats", GetCustomerStats);
         adminGroup.MapGet("/{id:guid}", GetCustomerAdmin);
         adminGroup.MapPost("/", CreateCustomer);
         adminGroup.MapPut("/{id:guid}", UpdateCustomer);
@@ -72,6 +74,18 @@ public static class CustomerEndpoints
             Page = page,
             PageSize = pageSize
         };
+        var result = await sender.Send(query, ct);
+
+        return result.IsSuccess
+            ? Results.Ok(result.Value)
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> GetCustomerStats(
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var query = new GetCustomerStatsQuery();
         var result = await sender.Send(query, ct);
 
         return result.IsSuccess

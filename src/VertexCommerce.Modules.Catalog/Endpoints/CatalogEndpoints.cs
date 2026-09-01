@@ -17,6 +17,7 @@ using VertexCommerce.Modules.Catalog.Features.Products.Queries.GetCatalogAttribu
 using VertexCommerce.Modules.Catalog.Features.Products.Queries.GetProductById;
 using VertexCommerce.Modules.Catalog.Features.Products.Queries.Lookups;
 using VertexCommerce.Modules.Catalog.Features.Categories.Queries.Lookups;
+using VertexCommerce.Modules.Catalog.Features.Dashboard.GetProductStats;
 using VertexCommerce.Shared.Contracts.Identity;
 using VertexCommerce.Shared.Extensions;
 
@@ -41,6 +42,7 @@ public static class CatalogEndpoints
         group.MapPost("/products/{id:guid}/activate", ActivateProduct);
         group.MapPost("/products/{id:guid}/deactivate", DeactivateProduct);
         group.MapGet("/products/lookup", ProductLookup);
+        group.MapGet("/products/stats", GetProductStats);
 
         // Categories
         group.MapPost("/categories", CreateCategory);
@@ -202,6 +204,18 @@ public static class CatalogEndpoints
         var query = new GetProductLookupQuery(q, limit);
         var result = await sender.Send(query, ct);
         
+        return result.IsSuccess
+            ? Results.Ok(result.Value)
+            : result.Error.ToHttpResult();
+    }
+
+    private static async Task<IResult> GetProductStats(
+        [FromServices] ISender sender,
+        CancellationToken ct)
+    {
+        var query = new GetProductStatsQuery();
+        var result = await sender.Send(query, ct);
+
         return result.IsSuccess
             ? Results.Ok(result.Value)
             : result.Error.ToHttpResult();
