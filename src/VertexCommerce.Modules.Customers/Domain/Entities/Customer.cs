@@ -1,13 +1,14 @@
 using VertexCommerce.Shared.Domain;
+using VertexCommerce.Shared.Domain.Schema;
 
 namespace VertexCommerce.Modules.Customers.Domain.Entities;
 
 public sealed class Customer : AggregateRoot<Guid>
 {
     public Guid? UserId { get; private set; }
-    public string PhoneNumber { get; private set; } = default!;
-    public string FirstName { get; private set; } = default!;
-    public string LastName { get; private set; } = default!;
+    [StringField(20)] public string PhoneNumber { get; private set; } = default!;
+    [StringField(100)] public string FirstName { get; private set; } = default!;
+    [StringField(100)] public string LastName { get; private set; } = default!;
 
     private readonly List<CustomerAddress> _addresses = [];
     public IReadOnlyCollection<CustomerAddress> Addresses => _addresses.AsReadOnly();

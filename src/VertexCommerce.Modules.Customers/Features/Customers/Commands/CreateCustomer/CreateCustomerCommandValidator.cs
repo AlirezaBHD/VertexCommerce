@@ -1,4 +1,7 @@
 using FluentValidation;
+using VertexCommerce.Modules.Customers.Domain.Entities;
+using VertexCommerce.Shared.Domain;
+using VertexCommerce.Shared.Domain.Schema;
 
 namespace VertexCommerce.Modules.Customers.Features.Customers.Commands.CreateCustomer;
 
@@ -7,15 +10,14 @@ public sealed class CreateCustomerCommandValidator : AbstractValidator<CreateCus
     public CreateCustomerCommandValidator()
     {
         RuleFor(x => x.PhoneNumber)
-            .NotEmpty().WithMessage("Phone number is required.")
-            .MaximumLength(20).WithMessage("Phone number cannot exceed 20 characters.");
+            .HasSpec(StringField.Of<Customer>(c => c.PhoneNumber));
 
         RuleFor(x => x.FirstName)
-            .NotEmpty().WithMessage("First name is required.")
-            .MaximumLength(100).WithMessage("First name cannot exceed 100 characters.");
+            .HasSpec(StringField.Of<Customer>(c => c.FirstName));
 
         RuleFor(x => x.LastName)
-            .NotEmpty().WithMessage("Last name is required.")
-            .MaximumLength(100).WithMessage("Last name cannot exceed 100 characters.");
+            .HasSpec(StringField.Of<Customer>(c => c.LastName));
     }
 }
+
+

@@ -14,10 +14,6 @@ internal sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.HasIndex(c => c.UserId).IsUnique();
         builder.HasIndex(c => c.PhoneNumber);
 
-        builder.Property(c => c.PhoneNumber).HasMaxLength(20).IsRequired();
-        builder.Property(c => c.FirstName).HasMaxLength(100).IsRequired();
-        builder.Property(c => c.LastName).HasMaxLength(100).IsRequired();
-
         builder.HasMany(c => c.Addresses)
             .WithOne()
             .HasForeignKey(a => a.CustomerId)

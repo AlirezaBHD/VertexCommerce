@@ -1,4 +1,6 @@
 using FluentValidation;
+using VertexCommerce.Modules.Customers.Domain.Entities;
+using VertexCommerce.Shared.Domain.Schema;
 
 namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AddAddress;
 
@@ -6,11 +8,19 @@ public sealed class AddAddressCommandValidator : AbstractValidator<AddAddressCom
 {
     public AddAddressCommandValidator()
     {
-        // RuleFor(x => x.Street).NotEmpty().MaximumLength(200);
-        // RuleFor(x => x.City).NotEmpty().MaximumLength(100);
-        // RuleFor(x => x.State).NotEmpty().MaximumLength(100);
-        // RuleFor(x => x.Country).NotEmpty().MaximumLength(100);
-        // RuleFor(x => x.ZipCode).NotEmpty().MaximumLength(20);
-        // RuleFor(x => x.Label).MaximumLength(50);
+        RuleFor(x => x.Province)
+            .HasSpec(StringField.Of<CustomerAddress>(a => a.Province));
+
+        RuleFor(x => x.City)
+            .HasSpec(StringField.Of<CustomerAddress>(a => a.City));
+
+        RuleFor(x => x.PostalAddress)
+            .HasSpec(StringField.Of<CustomerAddress>(a => a.PostalAddress));
+
+        RuleFor(x => x.PostalCode)
+            .HasSpec(StringField.Of<CustomerAddress>(a => a.PostalCode));
+
+        RuleFor(x => x.Label)
+            .HasSpec(StringField.Of<CustomerAddress>(a => a.Label));
     }
 }

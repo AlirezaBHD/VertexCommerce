@@ -1,4 +1,6 @@
 using FluentValidation;
+using VertexCommerce.Modules.Customers.Domain.Entities;
+using VertexCommerce.Shared.Domain.Schema;
 
 namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminEditAddress;
 
@@ -13,19 +15,20 @@ public sealed class AdminEditAddressCommandValidator : AbstractValidator<AdminEd
             .NotEmpty();
 
         RuleFor(x => x.Province)
-            .NotEmpty()
-            .MaximumLength(100);
+            .HasSpec(StringField.Of<CustomerAddress>(a => a.Province));
 
         RuleFor(x => x.City)
-            .NotEmpty()
-            .MaximumLength(100);
+            .HasSpec(StringField.Of<CustomerAddress>(a => a.City));
 
         RuleFor(x => x.PostalAddress)
-            .NotEmpty()
-            .MaximumLength(500);
+            .HasSpec(StringField.Of<CustomerAddress>(a => a.PostalAddress));
 
         RuleFor(x => x.PostalCode)
-            .NotEmpty()
-            .MaximumLength(20);
+            .HasSpec(StringField.Of<CustomerAddress>(a => a.PostalCode));
+
+        RuleFor(x => x.Label)
+            .HasSpec(StringField.Of<CustomerAddress>(a => a.Label));
     }
 }
+
+

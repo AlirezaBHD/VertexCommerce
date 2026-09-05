@@ -1,17 +1,18 @@
 using VertexCommerce.Shared.Domain;
+using VertexCommerce.Shared.Domain.Schema;
 
 namespace VertexCommerce.Modules.Customers.Domain.Entities;
 
-    public sealed class CustomerAddress : Entity<Guid>
-    {
-        public Guid CustomerId { get; private set; }
-        public string Province { get; private set; } = default!;
-        public string City { get; private set; } = default!;
-        public string PostalAddress { get; private set; } = default!;
-        public string PostalCode { get; private set; } = default!;
-        public decimal Latitude { get; private set; }
-        public decimal Longitude { get; private set; }
-        public string? Label { get; private set; }
+public sealed class CustomerAddress : Entity<Guid>
+{
+    public Guid CustomerId { get; private set; }
+    [StringField(100)] public string Province { get; private set; } = default!;
+    [StringField(100)] public string City { get; private set; } = default!;
+    [StringField(500)] public string PostalAddress { get; private set; } = default!;
+    [StringField(10, FixedLength = true, Ascii = true)] public string PostalCode { get; private set; } = default!;
+    public decimal Latitude { get; private set; }
+    public decimal Longitude { get; private set; }
+    [StringField(50, AllowEmpty = true)] public string? Label { get; private set; }
 
     private CustomerAddress() { }
 
