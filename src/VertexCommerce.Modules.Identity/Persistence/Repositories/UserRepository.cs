@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using VertexCommerce.Modules.Identity.Domain.Entities;
 using VertexCommerce.Modules.Identity.Domain.Repositories;
 
-namespace VertexCommerce.Modules.Identity.Persistence;
+namespace VertexCommerce.Modules.Identity.Persistence.Repositories;
 
 internal sealed class UserRepository : IUserRepository
 {
