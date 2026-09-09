@@ -1,5 +1,6 @@
 using VertexCommerce.Modules.Customers.Domain.Entities;
 using VertexCommerce.Modules.Customers.Domain.Repositories;
+using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Shared;
 using VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomer;
 using VertexCommerce.Modules.Customers.Persistence;
 using VertexCommerce.Shared.Contracts.Customers;

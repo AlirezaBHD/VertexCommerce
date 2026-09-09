@@ -1,3 +1,4 @@
+using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Shared;
 using VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomer;
 using VertexCommerce.Shared.CQRS;
 

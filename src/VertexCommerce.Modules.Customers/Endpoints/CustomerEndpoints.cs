@@ -21,6 +21,7 @@ using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.Admin
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminEditAddress;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminRemoveAddress;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminSetDefaultAddress;
+using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Shared;
 using VertexCommerce.Shared.Contracts.Identity;
 
 namespace VertexCommerce.Modules.Customers.Endpoints;

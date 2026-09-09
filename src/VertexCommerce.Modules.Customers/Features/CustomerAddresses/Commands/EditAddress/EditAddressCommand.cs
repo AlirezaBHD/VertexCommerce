@@ -1,3 +1,4 @@
+using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Shared;
 using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.EditAddress;

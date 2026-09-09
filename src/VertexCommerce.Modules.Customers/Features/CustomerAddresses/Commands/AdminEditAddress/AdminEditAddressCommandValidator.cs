@@ -1,4 +1,5 @@
 using FluentValidation;
+using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Shared;
 
 namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminEditAddress;
 

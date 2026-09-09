@@ -1,4 +1,4 @@
-namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses;
+namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses.Shared;
 
 /// <summary>
 /// The address fields carried by every command that creates or edits an address.

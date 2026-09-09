@@ -1,4 +1,4 @@
-namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses;
+namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses.Shared;
 
 public sealed record AddressRequest(
     string Province,

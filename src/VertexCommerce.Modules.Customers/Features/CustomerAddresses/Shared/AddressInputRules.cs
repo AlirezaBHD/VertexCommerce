@@ -1,7 +1,7 @@
 using FluentValidation;
 using VertexCommerce.Modules.Customers.Domain.ValueObjects;
 
-namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses;
+namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses.Shared;
 
 /// <summary>
 /// The boundary validation for <see cref="IAddressInput"/>, sourced from the same specs that guard

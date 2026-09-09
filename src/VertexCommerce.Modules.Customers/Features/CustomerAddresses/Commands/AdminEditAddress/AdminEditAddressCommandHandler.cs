@@ -1,4 +1,5 @@
 using VertexCommerce.Modules.Customers.Domain.Repositories;
+using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Shared;
 using VertexCommerce.Modules.Customers.Persistence;
 using VertexCommerce.Shared.CQRS;
 

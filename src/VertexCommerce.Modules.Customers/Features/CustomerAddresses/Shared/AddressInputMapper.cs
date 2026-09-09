@@ -1,6 +1,6 @@
 using VertexCommerce.Modules.Customers.Domain.ValueObjects;
 
-namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses;
+namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses.Shared;
 
 /// <summary>
 /// Translates primitive command input into the domain's value objects. This is the single place

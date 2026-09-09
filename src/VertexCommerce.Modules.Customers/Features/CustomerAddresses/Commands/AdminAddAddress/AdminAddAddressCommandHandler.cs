@@ -1,6 +1,7 @@
 using VertexCommerce.Modules.Customers.Domain.Entities;
 using VertexCommerce.Modules.Customers.Domain.Repositories;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Queries.GetAddressById;
+using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Shared;
 using VertexCommerce.Modules.Customers.Persistence;
 using VertexCommerce.Shared.CQRS;
 
