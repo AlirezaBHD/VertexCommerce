@@ -2,7 +2,7 @@ using VertexCommerce.Modules.Customers.Domain.Entities;
 using VertexCommerce.Shared.Contracts.Customers;
 using VertexCommerce.Shared.Specifications;
 
-namespace VertexCommerce.Modules.Customers.Services;
+namespace VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomerInfo;
 
 public sealed class GetCustomerInfoSpec : BaseSpecification<Customer, CustomerInfoDto>
 {

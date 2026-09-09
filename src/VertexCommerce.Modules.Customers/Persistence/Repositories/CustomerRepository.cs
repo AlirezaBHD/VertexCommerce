@@ -111,14 +111,4 @@ internal sealed class CustomerRepository(CustomersDbContext context) : ICustomer
     {
         context.CustomerAddresses.Add(address);
     }
-
-    public async Task<CustomerInfoDto?> GetCustomerInfoAsync(GetCustomerInfoSpec spec, CancellationToken ct)
-    {
-        var query = context.Customers
-            .AsQueryable();
-
-        return await SpecificationEvaluator
-            .ApplySpecification(query, spec)
-            .FirstOrDefaultAsync(ct);
-    }
 }

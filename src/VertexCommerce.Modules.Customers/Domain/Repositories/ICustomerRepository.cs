@@ -22,5 +22,4 @@ public interface ICustomerRepository
     Task AddAsync(Customer customer, CancellationToken ct = default);
     void Update(Customer customer);
     void AddNewAddress(CustomerAddress address);
-    Task<CustomerInfoDto?> GetCustomerInfoAsync(GetCustomerInfoSpec spec, CancellationToken ct);
 }
