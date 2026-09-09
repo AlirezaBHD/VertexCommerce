@@ -1,6 +1,7 @@
 using VertexCommerce.Modules.Orders.Domain.Repositories;
 using VertexCommerce.Modules.Orders.Features.PaymentSettings.CreatePaymentSettings;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Orders.Domain.Errors;
 
 namespace VertexCommerce.Modules.Orders.Features.PaymentSettings.GetPaymentSettingById;
 
@@ -13,7 +14,7 @@ internal sealed class GetPaymentSettingByIdQueryHandler(IPaymentSettingsReposito
         var result = await repository.GetByIdAsync(query.Id, ct);
         if (result == null)
         {
-            return Result.Failure<PaymentSettingsResponse>(Error.NotFound("Payment setting", query.Id));
+            return Result.Failure<PaymentSettingsResponse>(PaymentSettingsErrors.NotFound(query.Id));
         }
         return Result.Success(
             result.ToResponse());

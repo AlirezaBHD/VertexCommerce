@@ -1,4 +1,5 @@
-using VertexCommerce.Modules.Orders.Domain.Repositories;
+using Microsoft.EntityFrameworkCore;
+using VertexCommerce.Modules.Orders.Persistence;
 using VertexCommerce.Shared.Contracts.Customers;
 using VertexCommerce.Shared.Contracts.Identity;
 using VertexCommerce.Shared.Contracts.Pagination;
@@ -6,8 +7,8 @@ using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Orders.Features.GetMyOrders;
 
-internal sealed class GetMyOrdersQueryHandler(
-    IOrderRepository orderRepository,
+public sealed class GetMyOrdersQueryHandler(
+    OrdersDbContext dbContext,
     ICurrentUser currentUser,
     ICustomerResolver customerResolver)
     : IQueryHandler<GetMyOrdersQuery, PagedResult<MyOrdersResponse>>
@@ -15,11 +16,35 @@ internal sealed class GetMyOrdersQueryHandler(
     public async Task<Result<PagedResult<MyOrdersResponse>>> Handle(GetMyOrdersQuery query, CancellationToken ct)
     {
         var customerId = await customerResolver.GetCustomerIdByUserIdAsync(currentUser.UserId, ct);
-        var spec = new GetMyOrdersSpec(customerId);
 
-        var orders = await orderRepository.GetPaginatedAsync
-            (spec, skip: query.Skip, take: query.Take, ct);
+        var dbQuery = dbContext.Orders
+            .AsNoTracking()
+            .Where(o => o.CustomerId == customerId);
 
-        return Result.Success(orders);
+        var count = await dbQuery.CountAsync(ct);
+
+        var result = await dbQuery
+            .OrderByDescending(o => o.CreatedAt)
+            .Skip(query.Skip)
+            .Take(query.Take)
+            .Select(o => new MyOrdersResponse(
+                o.Id,
+                o.OrderNumber,
+                o.Status.ToString(),
+                o.PaymentStatus.ToString(),
+                o.SubTotal.ToString(),
+                o.TotalAmount.ToString(),
+                o.TrackingNumber,
+                o.ShippingAddress.ToString(),
+                o.ExpiresAt
+            ))
+            .ToListAsync(ct);
+
+        return Result.Success(new PagedResult<MyOrdersResponse>(
+            Items: result,
+            HasNextPage: count > query.Skip * query.Take,
+            HasPreviousPage: query.Skip * query.Take - query.Take > 0,
+            TotalCount: count
+        ));
     }
 }

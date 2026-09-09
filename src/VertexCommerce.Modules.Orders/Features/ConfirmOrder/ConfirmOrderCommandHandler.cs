@@ -2,6 +2,7 @@ using VertexCommerce.Modules.Orders.Domain.Repositories;
 using VertexCommerce.Modules.Orders.Persistence;
 using VertexCommerce.Shared.Contracts.Catalog;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Orders.Domain.Errors;
 
 namespace VertexCommerce.Modules.Orders.Features.ConfirmOrder;
 
@@ -15,7 +16,7 @@ internal sealed class ConfirmOrderCommandHandler(
     {
         var order = await orderRepository.GetByIdAsync(command.OrderId, ct);
         if (order is null)
-            return Result.Failure(Error.NotFound("Order", command.OrderId));
+            return Result.Failure(OrderErrors.NotFound(command.OrderId));
 
         var confirmResult = order.Confirm();
         if (confirmResult.IsFailure)

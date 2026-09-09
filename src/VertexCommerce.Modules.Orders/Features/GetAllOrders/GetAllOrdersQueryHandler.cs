@@ -1,22 +1,47 @@
-using VertexCommerce.Modules.Orders.Domain.Repositories;
-using VertexCommerce.Shared.Contracts.Customers;
-using VertexCommerce.Shared.Contracts.Identity;
+using Microsoft.EntityFrameworkCore;
+using VertexCommerce.Modules.Orders.Persistence;
 using VertexCommerce.Shared.Contracts.Pagination;
 using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Orders.Features.GetAllOrders;
 
-internal sealed class GetAllOrdersQueryHandler(
-    IOrderRepository orderRepository)
+public sealed class GetAllOrdersQueryHandler(OrdersDbContext dbContext)
     : IQueryHandler<GetAllOrdersQuery, PagedResult<AllOrdersResponse>>
 {
     public async Task<Result<PagedResult<AllOrdersResponse>>> Handle(GetAllOrdersQuery query, CancellationToken ct)
     {
-        var spec = new GetAllOrdersSpec(query.CustomerId);
+        var dbQuery = dbContext.Orders.AsNoTracking();
 
-        var orders = await orderRepository.GetPaginatedAsync
-            (spec, skip: query.Skip, take: query.Take, ct);
+        if (query.CustomerId.HasValue)
+        {
+            dbQuery = dbQuery.Where(o => o.CustomerId == query.CustomerId.Value);
+        }
 
-        return Result.Success(orders);
+        var count = await dbQuery.CountAsync(ct);
+
+        var result = await dbQuery
+            .OrderByDescending(o => o.UpdatedAt ?? o.CreatedAt)
+            .Skip(query.Skip)
+            .Take(query.Take)
+            .Select(o => new AllOrdersResponse(
+                o.Id,
+                o.CustomerPhoneNumber,
+                o.OrderNumber,
+                o.Status.ToString(),
+                o.PaymentStatus.ToString(),
+                o.TotalAmount.ToString(),
+                o.TrackingNumber,
+                o.CreatedAt,
+                o.UpdatedAt,
+                o.ExpiresAt
+            ))
+            .ToListAsync(ct);
+
+        return Result.Success(new PagedResult<AllOrdersResponse>(
+            Items: result,
+            HasNextPage: count > query.Skip * query.Take,
+            HasPreviousPage: query.Skip * query.Take - query.Take > 0,
+            TotalCount: count
+        ));
     }
 }

@@ -10,7 +10,7 @@ public sealed class OrderItem : Entity<Guid>
     public Guid VariantId { get; private set; }
     public string ProductName { get; private set; } = string.Empty;
     public string? ProductSku { get; private set; }
-    public Money UnitPrice { get; private set; } = null!;
+    public Money UnitPrice { get; private set; }
     public int Quantity { get; private set; }
 
     public Money TotalPrice => UnitPrice.Multiply(Quantity);

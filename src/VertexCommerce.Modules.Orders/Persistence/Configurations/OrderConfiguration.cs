@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using VertexCommerce.Modules.Orders.Domain.Entities;
+using VertexCommerce.Modules.Orders.Domain.ValueObjects;
+using VertexCommerce.Shared.Persistence;
 
 namespace VertexCommerce.Modules.Orders.Persistence.Configurations;
 
@@ -34,36 +36,36 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(o => o.CancellationReason).HasMaxLength(500);
         builder.Property(o => o.TrackingNumber).HasMaxLength(100);
 
-        builder.OwnsOne(o => o.SubTotal, money =>
+        builder.ComplexProperty(o => o.SubTotal, money =>
         {
             money.Property(m => m.Amount).HasColumnName("SubTotal").HasPrecision(18, 2);
-            money.Property(m => m.Currency).HasColumnName("SubTotalCurrency").HasMaxLength(3);
+            money.Property(m => m.Currency).HasColumnName("SubTotalCurrency").HasSchema(Money.CurrencySchema);
         });
 
-        builder.OwnsOne(o => o.ShippingCost, money =>
+        builder.ComplexProperty(o => o.ShippingCost, money =>
         {
             money.Property(m => m.Amount).HasColumnName("ShippingCost").HasPrecision(18, 2);
-            money.Property(m => m.Currency).HasColumnName("ShippingCostCurrency").HasMaxLength(3);
+            money.Property(m => m.Currency).HasColumnName("ShippingCostCurrency").HasSchema(Money.CurrencySchema);
         });
 
-        builder.OwnsOne(o => o.Tax, money =>
+        builder.ComplexProperty(o => o.Tax, money =>
         {
             money.Property(m => m.Amount).HasColumnName("Tax").HasPrecision(18, 2);
-            money.Property(m => m.Currency).HasColumnName("TaxCurrency").HasMaxLength(3);
+            money.Property(m => m.Currency).HasColumnName("TaxCurrency").HasSchema(Money.CurrencySchema);
         });
 
-        builder.OwnsOne(o => o.TotalAmount, money =>
+        builder.ComplexProperty(o => o.TotalAmount, money =>
         {
             money.Property(m => m.Amount).HasColumnName("TotalAmount").HasPrecision(18, 2);
-            money.Property(m => m.Currency).HasColumnName("TotalAmountCurrency").HasMaxLength(3);
+            money.Property(m => m.Currency).HasColumnName("TotalAmountCurrency").HasSchema(Money.CurrencySchema);
         });
 
         builder.ComplexProperty(o => o.ShippingAddress, address =>
         {
-            address.Property(a => a.Province).HasColumnName("ShippingProvince").HasMaxLength(100);
-            address.Property(a => a.City).HasColumnName("ShippingCity").HasMaxLength(100);
-            address.Property(a => a.PostalAddress).HasColumnName("ShippingPostalAddress").HasMaxLength(500);
-            address.Property(a => a.PostalCode).HasColumnName("ShippingPostalCode").HasMaxLength(20);
+            address.Property(a => a.Province).HasColumnName("ShippingProvince").HasSchema(Address.ProvinceSchema);
+            address.Property(a => a.City).HasColumnName("ShippingCity").HasSchema(Address.CitySchema);
+            address.Property(a => a.PostalAddress).HasColumnName("ShippingPostalAddress").HasSchema(Address.PostalAddressSchema);
+            address.Property(a => a.PostalCode).HasColumnName("ShippingPostalCode").HasSchema(Address.PostalCodeSchema);
             address.Property(a => a.Latitude).HasColumnName("ShippingLatitude").HasPrecision(9, 6);
             address.Property(a => a.Longitude).HasColumnName("ShippingLongitude").HasPrecision(9, 6);
             address.Property(a => a.Label).HasColumnName("ShippingLabel").HasMaxLength(100);
@@ -71,10 +73,10 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.ComplexProperty(o => o.BillingAddress, address =>
         {
-            address.Property(a => a.Province).HasColumnName("BillingProvince").HasMaxLength(100);
-            address.Property(a => a.City).HasColumnName("BillingCity").HasMaxLength(100);
-            address.Property(a => a.PostalAddress).HasColumnName("BillingPostalAddress").HasMaxLength(500);
-            address.Property(a => a.PostalCode).HasColumnName("BillingPostalCode").HasMaxLength(20);
+            address.Property(a => a.Province).HasColumnName("BillingProvince").HasSchema(Address.ProvinceSchema);
+            address.Property(a => a.City).HasColumnName("BillingCity").HasSchema(Address.CitySchema);
+            address.Property(a => a.PostalAddress).HasColumnName("BillingPostalAddress").HasSchema(Address.PostalAddressSchema);
+            address.Property(a => a.PostalCode).HasColumnName("BillingPostalCode").HasSchema(Address.PostalCodeSchema);
             address.Property(a => a.Latitude).HasColumnName("BillingLatitude");
             address.Property(a => a.Longitude).HasColumnName("BillingLongitude");
             address.Property(a => a.Label).HasColumnName("BillingLabel").HasMaxLength(100);

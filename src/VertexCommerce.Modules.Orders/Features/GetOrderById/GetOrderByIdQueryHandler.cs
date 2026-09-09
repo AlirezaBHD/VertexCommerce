@@ -1,32 +1,68 @@
-using VertexCommerce.Modules.Orders.Domain.Repositories;
+using Microsoft.EntityFrameworkCore;
+using VertexCommerce.Modules.Orders.Persistence;
 using VertexCommerce.Shared.Contracts.Customers;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Orders.Domain.Errors;
 
 namespace VertexCommerce.Modules.Orders.Features.GetOrderById;
 
 internal sealed class GetOrderByIdQueryHandler(
-    IOrderRepository orderRepository,
+    OrdersDbContext dbContext,
     ICustomerService customerService)
     : IQueryHandler<GetOrderByIdQuery, GetOrderByIdResponse>
 {
     public async Task<Result<GetOrderByIdResponse>> Handle(GetOrderByIdQuery query, CancellationToken ct)
     {
-        var spec = new GetOrderByIdSpec(query.OrderId);
+        var orderResponse = await dbContext.Orders
+            .AsNoTracking()
+            .Where(o => o.Id == query.OrderId)
+            .Select(o => new GetOrderByIdResponse(
+                o.Id,
+                o.CustomerId,
+                null,
+                o.CustomerPhoneNumber,
+                o.OrderNumber,
+                o.Status.ToString(),
+                o.PaymentStatus.ToString(),
+                o.SubTotal.ToString(),
+                o.TotalAmount.ToString(),
+                o.ReceiptImagePath,
+                o.TrackingNumber,
+                o.ShippingAddress.ToString(),
+                o.CancellationReason,
+                o.CreatedAt,
+                o.UpdatedAt,
+                o.ConfirmedAt,
+                o.ProcessingAt,
+                o.ShippedAt,
+                o.DeliveredAt,
+                o.CancelledAt,
+                o.ExpiresAt,
+                o.Items.Select(i => new GetOrderByIdOrderItemResponse(
+                    i.Id,
+                    i.ProductId,
+                    i.VariantId,
+                    i.ProductName,
+                    i.ProductSku,
+                    i.UnitPrice,
+                    i.Quantity,
+                    i.TotalPrice
+                )).ToList()
+            ))
+            .FirstOrDefaultAsync(ct);
 
-        var orderResponse = await orderRepository.GetOrderByIdAsync(spec, ct);
-
-        if (orderResponse == null)
+        if (orderResponse is null)
         {
-            return Result.Failure<GetOrderByIdResponse>(Error.NotFound("Order", query.OrderId));
+            return Result.Failure<GetOrderByIdResponse>(OrderErrors.NotFound(query.OrderId));
         }
-        
+
         var customerInfo = await customerService.GetCustomerInfo(orderResponse.CustomerId, ct);
-        var customerName = customerInfo != null 
-            ? $"{customerInfo.FirstName} {customerInfo.LastName}".Trim() 
-            : null;
-            
-        var finalResponse = orderResponse with { CustomerName = customerName };
-        
+
+        var finalResponse = orderResponse with
+        {
+            CustomerName = customerInfo is not null ? $"{customerInfo.FirstName} {customerInfo.LastName}" : "Unknown"
+        };
+
         return Result.Success(finalResponse);
     }
 }

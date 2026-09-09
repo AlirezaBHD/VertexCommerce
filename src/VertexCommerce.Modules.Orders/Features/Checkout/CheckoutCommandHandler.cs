@@ -7,6 +7,7 @@ using VertexCommerce.Shared.Contracts.Customers;
 using VertexCommerce.Shared.Contracts.Catalog;
 using VertexCommerce.Shared.Contracts.Identity;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Orders.Domain.Errors;
 
 namespace VertexCommerce.Modules.Orders.Features.Checkout;
 
@@ -32,7 +33,7 @@ public sealed class CheckoutCommandHandler(
         if (basket is null || basket.Items.Count == 0)
         {
             return Result.Failure<CheckoutResponse>(
-                Error.Validation("Basket.Empty", "Basket is empty. Cannot checkout."));
+                OrderErrors.EmptyBasket);
         }
 
         var customer = await customerService.GetCustomerInfo(
@@ -42,7 +43,7 @@ public sealed class CheckoutCommandHandler(
         if (customer is null)
         {
             return Result.Failure<CheckoutResponse>(
-                Error.NotFound("Customer.NotFound", "Customer not found."));
+                OrderErrors.CustomerNotFound);
         }
 
         var shippingAddressResult = CreateShippingAddress(customer);
@@ -76,15 +77,13 @@ public sealed class CheckoutCommandHandler(
             if (variant is null)
             {
                 return Result.Failure<CheckoutResponse>(
-                    Error.NotFound("ProductVariant", item.VariantId.ToString()));
+                    OrderErrors.ProductVariantNotFound(item.VariantId.ToString()));
             }
 
             if (variant.StockQuantity < item.Quantity)
             {
                 return Result.Failure<CheckoutResponse>(
-                    Error.Validation(
-                        "Stock.Insufficient",
-                        $"Insufficient stock for '{variant.Name}' ({variant.Sku}). Requested: {item.Quantity}, Available: {variant.StockQuantity}."));
+                    OrderErrors.InsufficientStock(variant.Name, variant.Sku, item.Quantity, variant.StockQuantity));
             }
 
             var unitPrice = Money.Create(variant.Price);
@@ -102,7 +101,7 @@ public sealed class CheckoutCommandHandler(
         if (!order.Items.Any())
         {
             return Result.Failure<CheckoutResponse>(
-                Error.Validation("Order.EmptyItems", "Order has no valid items."));
+                OrderErrors.EmptyItems);
         }
 
         var stockRequests = order.Items.Select(i => new StockDeductionRequest(i.VariantId, i.Quantity));
@@ -132,7 +131,7 @@ public sealed class CheckoutCommandHandler(
         if (csa is null)
         {
             return Result.Failure<Address>(
-                Error.Validation("ShippingAddress.NotSet", "Shipping address is not set. Cannot checkout."));
+                OrderErrors.ShippingAddressNotSet);
         }
 
         var address = Address.Create(
@@ -153,7 +152,7 @@ public sealed class CheckoutCommandHandler(
         if (cba is null)
         {
             return Result.Failure<Address>(
-                Error.Validation("BillingAddress.NotSet", "Billing address is not set. Cannot checkout."));
+                OrderErrors.BillingAddressNotSet);
         }
 
         var address = Address.Create(

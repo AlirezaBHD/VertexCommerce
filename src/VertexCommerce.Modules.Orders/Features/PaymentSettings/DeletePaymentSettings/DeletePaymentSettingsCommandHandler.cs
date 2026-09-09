@@ -1,6 +1,7 @@
 using VertexCommerce.Modules.Orders.Domain.Repositories;
 using VertexCommerce.Modules.Orders.Persistence;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Orders.Domain.Errors;
 
 namespace VertexCommerce.Modules.Orders.Features.PaymentSettings.DeletePaymentSettings;
 
@@ -13,11 +14,10 @@ internal sealed class DeletePaymentSettingsCommandHandler(
     {
         var settings = await repository.GetByIdAsync(command.Id, ct);
         if (settings is null)
-            return Result.Failure(Error.NotFound("PaymentSettings", command.Id));
+            return Result.Failure(PaymentSettingsErrors.NotFound(command.Id));
 
         if (settings.IsActive)
-            return Result.Failure(Error.Validation("PaymentSettings.ActiveCannotDelete",
-                "Cannot delete the active payment settings. Set another one as active first."));
+            return Result.Failure(PaymentSettingsErrors.ActiveCannotDelete);
 
         repository.Delete(settings);
         await unitOfWork.SaveChangesAsync(ct);

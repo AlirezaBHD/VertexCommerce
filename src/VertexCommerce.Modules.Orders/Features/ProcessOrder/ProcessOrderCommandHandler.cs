@@ -1,6 +1,7 @@
 using VertexCommerce.Modules.Orders.Domain.Repositories;
 using VertexCommerce.Modules.Orders.Persistence;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Orders.Domain.Errors;
 
 namespace VertexCommerce.Modules.Orders.Features.ProcessOrder;
 
@@ -13,7 +14,7 @@ internal sealed class ProcessOrderCommandHandler(
     {
         var order = await orderRepository.GetByIdAsync(command.OrderId, ct);
         if (order is null)
-            return Result.Failure(Error.NotFound("Order", command.OrderId));
+            return Result.Failure(OrderErrors.NotFound(command.OrderId));
 
         var result = order.StartProcessing();
         if (result.IsFailure)

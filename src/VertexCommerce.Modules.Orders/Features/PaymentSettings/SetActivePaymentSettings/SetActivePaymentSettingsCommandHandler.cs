@@ -1,6 +1,7 @@
 using VertexCommerce.Modules.Orders.Domain.Repositories;
 using VertexCommerce.Modules.Orders.Persistence;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Orders.Domain.Errors;
 
 namespace VertexCommerce.Modules.Orders.Features.PaymentSettings.SetActivePaymentSettings;
 
@@ -13,7 +14,7 @@ internal sealed class SetActivePaymentSettingsCommandHandler(
     {
         var target = await repository.GetByIdAsync(command.Id, ct);
         if (target is null)
-            return Result.Failure(Error.NotFound("PaymentSettings", command.Id));
+            return Result.Failure(PaymentSettingsErrors.NotFound(command.Id));
 
         var current = await repository.GetActiveAsync(ct);
         if (current is not null && current.Id != command.Id)

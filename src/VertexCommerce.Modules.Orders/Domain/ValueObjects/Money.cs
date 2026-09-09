@@ -1,39 +1,29 @@
-using VertexCommerce.Shared.Domain;
+using VertexCommerce.Shared.Domain.Schema;
 
 namespace VertexCommerce.Modules.Orders.Domain.ValueObjects;
 
-public sealed class Money : ValueObject
+public readonly record struct Money
 {
-    public decimal Amount { get; private set; }
-    public string Currency { get; private set; }
+    public static StringFieldSchema CurrencySchema { get; } = new(maxLength: 3);
 
-    private Money()
-    {
-        Currency = string.Empty;
-    }
+    public decimal Amount { get; init; }
+    public string Currency { get; init; }
 
-    private Money(decimal amount, string currency)
-    {
-        Amount = amount;
-        Currency = currency;
-    }
-
-    public static Money Create(decimal amount, string currency = "USD")
+    public static Money Create(decimal amount, string? currency = "USD")
     {
         if (amount < 0)
         {
             throw new ArgumentException("Amount cannot be negative.", nameof(amount));
         }
 
-        if (string.IsNullOrWhiteSpace(currency))
+        return new Money
         {
-            throw new ArgumentException("Currency cannot be empty.", nameof(currency));
-        }
-
-        return new Money(amount, currency.ToUpperInvariant());
+            Amount = amount,
+            Currency = StringFieldGuard.Apply(currency?.ToUpperInvariant(), CurrencySchema, nameof(Currency))
+        };
     }
 
-    public static Money Zero(string currency = "USD") => new(0, currency);
+    public static Money Zero(string currency = "USD") => Create(0, currency);
 
     public Money Add(Money other)
     {
@@ -42,7 +32,7 @@ public sealed class Money : ValueObject
             throw new InvalidOperationException("Cannot add money with different currencies.");
         }
 
-        return new Money(Amount + other.Amount, Currency);
+        return new Money { Amount = Amount + other.Amount, Currency = Currency };
     }
 
     public Money Multiply(int quantity)
@@ -52,13 +42,7 @@ public sealed class Money : ValueObject
             throw new ArgumentException("Quantity cannot be negative.", nameof(quantity));
         }
 
-        return new Money(Amount * quantity, Currency);
-    }
-
-    protected override IEnumerable<object?> GetEqualityComponents()
-    {
-        yield return Amount;
-        yield return Currency;
+        return new Money { Amount = Amount * quantity, Currency = Currency };
     }
 
     public override string ToString() => $"{Amount:F2} {Currency}";

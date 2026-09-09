@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using VertexCommerce.Modules.Orders.Domain.Entities;
+using VertexCommerce.Modules.Orders.Domain.ValueObjects;
+using VertexCommerce.Shared.Persistence;
 
 namespace VertexCommerce.Modules.Orders.Persistence.Configurations;
 
@@ -34,10 +36,10 @@ public sealed class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
             .HasMaxLength(50);
 
         // Value Object: UnitPrice
-        builder.OwnsOne(i => i.UnitPrice, money =>
+        builder.ComplexProperty(i => i.UnitPrice, money =>
         {
             money.Property(m => m.Amount).HasColumnName("unit_price_amount").HasPrecision(18, 2).IsRequired();
-            money.Property(m => m.Currency).HasColumnName("unit_price_currency").HasMaxLength(3).IsRequired();
+            money.Property(m => m.Currency).HasColumnName("unit_price_currency").HasSchema(Money.CurrencySchema).IsRequired();
         });
 
         builder.Property(i => i.Quantity)

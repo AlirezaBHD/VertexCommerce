@@ -3,6 +3,7 @@ using VertexCommerce.Modules.Orders.Persistence;
 using VertexCommerce.Shared.Contracts.Customers;
 using VertexCommerce.Shared.Contracts.Identity;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Orders.Domain.Errors;
 
 namespace VertexCommerce.Modules.Orders.Features.InitiatePayment;
 
@@ -22,13 +23,13 @@ public sealed class InitiatePaymentCommandHandler(
         if (order is null)
         {
             return Result.Failure(
-                Error.NotFound("Order", command.OrderId.ToString()));
+                OrderErrors.NotFound(command.OrderId));
         }
 
         if (order.CustomerId != customerId)
         {
             return Result.Failure(
-                Error.NotFound("Order for Customer", command.OrderId.ToString()));
+                OrderErrors.NotFoundForCustomer(command.OrderId));
         }
 
         order.InitiatePayment();

@@ -3,6 +3,7 @@ using VertexCommerce.Modules.Orders.Persistence;
 using VertexCommerce.Shared.Contracts.Customers;
 using VertexCommerce.Shared.Contracts.Identity;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Orders.Domain.Errors;
 using VertexCommerce.Shared.Services;
 
 namespace VertexCommerce.Modules.Orders.Features.SubmitPaymentReceipt;
@@ -24,19 +25,19 @@ public sealed class SubmitPaymentReceiptCommandHandler(
         if (order is null)
         {
             return Result.Failure<PaymentReceiptResponse>(
-                Error.NotFound("Order", command.OrderId.ToString()));
+                OrderErrors.NotFound(command.OrderId));
         }
 
         if (order.CustomerId != customerId)
         {
             return Result.Failure<PaymentReceiptResponse>(
-                Error.NotFound("Order for Customer", command.OrderId.ToString()));
+                OrderErrors.NotFoundForCustomer(command.OrderId));
         }
 
         if (order.ExpiresAt.HasValue && DateTime.UtcNow > order.ExpiresAt.Value)
         {
             return Result.Failure<PaymentReceiptResponse>(
-                Error.Validation("Payment.Expired", "Payment time expired"));
+                OrderErrors.PaymentExpired);
         }
 
         var receiptImagePath = await mediaService.SaveFileAsync(fileStream: command.ReceiptFile,

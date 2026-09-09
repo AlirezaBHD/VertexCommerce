@@ -34,7 +34,7 @@ public sealed class Order : AggregateRoot<Guid>
     public DateTime? ExpiresAt { get; private set; }
 
     private readonly List<OrderItem> _items = [];
-    public IReadOnlyCollection<OrderItem> Items => _items.AsReadOnly();
+    public IReadOnlyCollection<OrderItem> Items => _items;
 
     private Order() { }
 
@@ -118,7 +118,7 @@ public sealed class Order : AggregateRoot<Guid>
         Money unitPrice,
         int quantity)
     {
-        ArgumentNullException.ThrowIfNull(unitPrice);
+        
 
         var item = OrderItem.Create(
             orderId: Id,

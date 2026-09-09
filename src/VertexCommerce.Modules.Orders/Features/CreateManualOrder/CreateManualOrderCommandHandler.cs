@@ -5,6 +5,7 @@ using VertexCommerce.Modules.Orders.Persistence;
 using VertexCommerce.Shared.Contracts.Catalog;
 using VertexCommerce.Shared.Contracts.Customers;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Orders.Domain.Errors;
 
 namespace VertexCommerce.Modules.Orders.Features.CreateManualOrder;
 
@@ -24,7 +25,7 @@ internal sealed class CreateManualOrderCommandHandler(
         if (customer is null)
         {
             return Result.Failure<CreateManualOrderResponse>(
-                Error.NotFound("Customer", command.CustomerId));
+                OrderErrors.CustomerNotFound);
         }
 
         var shippingAddress = CreateAddress(command.ShippingAddress);
@@ -43,7 +44,7 @@ internal sealed class CreateManualOrderCommandHandler(
             if (variant is null)
             {
                 return Result.Failure<CreateManualOrderResponse>(
-                    Error.NotFound("ProductVariant", item.VariantId));
+                    OrderErrors.ProductVariantNotFound(item.VariantId.ToString()));
             }
 
             if (item.Quantity > variant.StockQuantity)
@@ -67,7 +68,7 @@ internal sealed class CreateManualOrderCommandHandler(
         if (!order.Items.Any())
         {
             return Result.Failure<CreateManualOrderResponse>(
-                Error.Validation("Order.EmptyItems", "Order has no valid items."));
+                OrderErrors.EmptyItems);
         }
 
         if (command.ShippingCost > 0)

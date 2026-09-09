@@ -31,35 +31,7 @@ public sealed class OrderRepository : IOrderRepository
             .ToListAsync(ct);
     }
 
-    public async Task<PagedResult<TResult>> GetPaginatedAsync<TResult>(ISpecification<Order, TResult> spec,
-        int skip = 0, int take = 10,
-        CancellationToken ct = default)
-    {
-        var baseQuery = _context.Orders.AsQueryable();
 
-        var query = SpecificationEvaluator
-            .ApplySpecification(baseQuery, spec);
-
-        var count = await query.CountAsync(ct);
-        var result = await query.Skip(skip).Take(take).ToListAsync(ct);
-
-        return new PagedResult<TResult>
-        (
-            Items: result,
-            HasNextPage: count > skip * take,
-            HasPreviousPage: skip * take - take > 0,
-            TotalCount: count
-        );
-    }
-
-    public async Task<TResult?> GetOrderByIdAsync<TResult>(ISpecification<Order, TResult> spec, CancellationToken ct = default)
-    {
-        var query = _context.Orders.AsQueryable();
-        var order = await SpecificationEvaluator
-            .ApplySpecification(query, spec).FirstOrDefaultAsync(ct);
-
-        return order;
-    }
 
     public async Task<Order?> GetByOrderNumberAsync(string orderNumber, CancellationToken ct = default)
     {

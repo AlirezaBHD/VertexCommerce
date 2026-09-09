@@ -2,6 +2,7 @@ using VertexCommerce.Modules.Orders.Domain.Repositories;
 using VertexCommerce.Modules.Orders.Features.PaymentSettings.CreatePaymentSettings;
 using VertexCommerce.Modules.Orders.Features.PaymentSettings;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Orders.Domain.Errors;
 
 namespace VertexCommerce.Modules.Orders.Features.PaymentSettings.GetPaymentSettings;
 
@@ -26,7 +27,7 @@ internal sealed class GetActivePaymentSettingsQueryHandler(IPaymentSettingsRepos
         var active = await repository.GetActiveAsync(ct);
         if (active is null)
             return Result.Failure<PaymentSettingsResponse>(
-                Error.NotFound("PaymentSettings.Active", "No active payment settings found."));
+                PaymentSettingsErrors.NoActiveSettings);
 
         return Result.Success(active.ToResponse());
     }

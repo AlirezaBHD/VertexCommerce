@@ -3,6 +3,7 @@ using VertexCommerce.Modules.Orders.Features.PaymentSettings.CreatePaymentSettin
 using VertexCommerce.Modules.Orders.Features.PaymentSettings;
 using VertexCommerce.Modules.Orders.Persistence;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Orders.Domain.Errors;
 
 namespace VertexCommerce.Modules.Orders.Features.PaymentSettings.UpdatePaymentSettings;
 
@@ -15,7 +16,7 @@ internal sealed class UpdatePaymentSettingsCommandHandler(
     {
         var settings = await repository.GetByIdAsync(command.Id, ct);
         if (settings is null)
-            return Result.Failure<PaymentSettingsResponse>(Error.NotFound("PaymentSettings", command.Id));
+            return Result.Failure<PaymentSettingsResponse>(PaymentSettingsErrors.NotFound(command.Id));
 
         settings.Update(
             bankName: command.BankName,
