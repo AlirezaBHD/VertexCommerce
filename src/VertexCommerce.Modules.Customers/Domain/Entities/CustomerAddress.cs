@@ -1,74 +1,47 @@
+using VertexCommerce.Modules.Customers.Domain.ValueObjects;
 using VertexCommerce.Shared.Domain;
-using VertexCommerce.Shared.Domain.Schema;
 
 namespace VertexCommerce.Modules.Customers.Domain.Entities;
 
+/// <summary>
+/// A customer's saved address. The entity exists to give the address an identity that can be
+/// referenced as a default and linked from an order; the address data itself, and every rule
+/// governing it, lives in <see cref="ValueObjects.Address"/>.
+/// </summary>
 public sealed class CustomerAddress : Entity<Guid>
 {
     public Guid CustomerId { get; private set; }
-    [StringField(100)] public string Province { get; private set; } = default!;
-    [StringField(100)] public string City { get; private set; } = default!;
-    [StringField(500)] public string PostalAddress { get; private set; } = default!;
-    [StringField(10, FixedLength = true, Ascii = true)] public string PostalCode { get; private set; } = default!;
-    public decimal Latitude { get; private set; }
-    public decimal Longitude { get; private set; }
-    [StringField(50, AllowEmpty = true)] public string? Label { get; private set; }
+    public Address Address { get; private set; } = default!;
 
-    private CustomerAddress() { }
+    /// <summary>The customer's own name for this entry, such as "خانه". Absent when unnamed.</summary>
+    public AddressLabel? Label { get; private set; }
 
-    public static CustomerAddress Create(
-        Guid customerId,
-        string province,
-        string city,
-        string postalAddress,
-        string postalCode,
-        decimal latitude,
-        decimal longitude,
-        string? label = null)
+    private CustomerAddress()
     {
-        if (latitude is < -90 or > 90)
-            throw new ArgumentOutOfRangeException(nameof(latitude));
-        if (longitude is < -180 or > 180)
-            throw new ArgumentOutOfRangeException(nameof(longitude));
+    }
 
+    public static CustomerAddress Create(Guid customerId, Address address, AddressLabel? label = null)
+    {
         return new CustomerAddress
         {
             Id = Guid.NewGuid(),
             CustomerId = customerId,
-            Province = province,
-            City = city,
-            PostalAddress = postalAddress,
-            PostalCode = postalCode,
-            Latitude = latitude,
-            Longitude = longitude,
+            Address = address,
             Label = label,
             CreatedAt = DateTime.UtcNow
         };
     }
 
-    public void Update(
-        string province,
-        string city,
-        string postalAddress,
-        string postalCode,
-        decimal latitude,
-        decimal longitude,
-        string? label)
+    public void Relocate(Address address, AddressLabel? label = null)
     {
-        if (latitude is < -90 or > 90)
-            throw new ArgumentOutOfRangeException(nameof(latitude));
-        if (longitude is < -180 or > 180)
-            throw new ArgumentOutOfRangeException(nameof(longitude));
-
-        Province = province;
-        City = city;
-        PostalAddress = postalAddress;
-        PostalCode = postalCode;
-        Latitude = latitude;
-        Longitude = longitude;
+        Address = address;
         Label = label;
-        UpdatedAt = DateTime.UtcNow;
+        SetUpdatedAt();
     }
 
-    public string FullAddress => $"{Province}، {City}، {PostalAddress} — {PostalCode}";
+    public void UpdateLabel(AddressLabel? label)
+    {
+        Label = label;
+        SetUpdatedAt();
+    }
 }
