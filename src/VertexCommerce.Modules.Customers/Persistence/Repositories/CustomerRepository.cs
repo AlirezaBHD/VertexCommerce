@@ -7,7 +7,7 @@ using VertexCommerce.Shared.Contracts.Customers;
 using VertexCommerce.Shared.Contracts.Pagination;
 using VertexCommerce.Shared.Specifications;
 
-namespace VertexCommerce.Modules.Customers.Persistence;
+namespace VertexCommerce.Modules.Customers.Persistence.Repositories;
 
 internal sealed class CustomerRepository(CustomersDbContext context) : ICustomerRepository
 {

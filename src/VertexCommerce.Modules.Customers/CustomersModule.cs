@@ -8,6 +8,7 @@ using VertexCommerce.Modules.Customers.Domain.Repositories;
 using VertexCommerce.Modules.Customers.Endpoints;
 using VertexCommerce.Modules.Customers.Infrastructure.Services;
 using VertexCommerce.Modules.Customers.Persistence;
+using VertexCommerce.Modules.Customers.Persistence.Repositories;
 using VertexCommerce.Modules.Customers.Services;
 using VertexCommerce.Shared.Contracts;
 using VertexCommerce.Shared.Contracts.Customers;

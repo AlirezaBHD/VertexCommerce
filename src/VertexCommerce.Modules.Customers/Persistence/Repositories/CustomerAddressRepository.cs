@@ -3,7 +3,7 @@ using VertexCommerce.Modules.Customers.Domain.Entities;
 using VertexCommerce.Modules.Customers.Domain.Repositories;
 using VertexCommerce.Shared.Specifications;
 
-namespace VertexCommerce.Modules.Customers.Persistence;
+namespace VertexCommerce.Modules.Customers.Persistence.Repositories;
 
 internal sealed class CustomerAddressRepository(CustomersDbContext context) : ICustomerAddressRepository
 {
