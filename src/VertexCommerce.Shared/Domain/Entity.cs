@@ -29,7 +29,7 @@ public abstract class Entity<TId> : IEquatable<Entity<TId>>
     
     public void Restore()
     {
-        IsDeleted = true;
+        IsDeleted = false;
     }
     
     public bool Equals(Entity<TId>? other)
