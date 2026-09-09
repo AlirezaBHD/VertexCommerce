@@ -5,7 +5,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Domain\Events\" />
       <Folder Include="Features\Queries\" />
     </ItemGroup>
     <PropertyGroup>

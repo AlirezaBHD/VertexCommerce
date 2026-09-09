@@ -1,4 +1,5 @@
 using VertexCommerce.Modules.Identity.Domain.Enums;
+using VertexCommerce.Modules.Identity.Domain.ValueObjects;
 using VertexCommerce.Shared.Domain;
 using VertexCommerce.Shared.IntegrationEvents;
 
@@ -6,24 +7,24 @@ namespace VertexCommerce.Modules.Identity.Domain.Entities;
 
 public sealed class User : AggregateRoot<Guid>
 {
-    public string PhoneNumber { get; private set; } = default!;
+    public PhoneNumber PhoneNumber { get; private set; }
     public string PasswordHash { get; private set; } = default!;
-    public string FirstName { get; private set; } = default!;
-    public string LastName { get; private set; } = default!;
+    public FirstName FirstName { get; private set; }
+    public LastName LastName { get; private set; }
     public UserRole Role { get; private set; }
     public bool IsActive { get; private set; }
     public DateTime? LastLoginAt { get; private set; }
 
     private readonly List<RefreshToken> _refreshTokens = [];
-    public IReadOnlyCollection<RefreshToken> RefreshTokens => _refreshTokens.AsReadOnly();
+    public IReadOnlyCollection<RefreshToken> RefreshTokens => _refreshTokens;
 
     private User() { }
 
     public static User Create(
-        string phoneNumber,
+        PhoneNumber phoneNumber,
         string passwordHash,
-        string firstName,
-        string lastName,
+        FirstName firstName,
+        LastName lastName,
         UserRole role = UserRole.User)
     {
         var user = new User
@@ -38,14 +39,14 @@ public sealed class User : AggregateRoot<Guid>
             CreatedAt = DateTime.UtcNow
         };
         
-        user.AddDomainEvent(new UserCreatedEvent(user.Id,  phoneNumber, firstName, lastName));
+        user.AddDomainEvent(new UserCreatedEvent(user.Id,  phoneNumber.Value, firstName.Value, lastName.Value));
         
         return user;
     }
 
-    public string FullName => $"{FirstName} {LastName}";
+    public string FullName => $"{FirstName.Value} {LastName.Value}";
 
-    public void UpdateProfile(string firstName, string lastName)
+    public void UpdateProfile(FirstName firstName, LastName lastName)
     {
         FirstName = firstName;
         LastName = lastName;

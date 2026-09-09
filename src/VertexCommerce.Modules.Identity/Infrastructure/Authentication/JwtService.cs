@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using VertexCommerce.Modules.Identity.Domain.Entities;
 
-namespace VertexCommerce.Modules.Identity.Services;
+namespace VertexCommerce.Modules.Identity.Infrastructure.Authentication;
 
 public sealed class JwtSettings
 {
@@ -35,9 +35,9 @@ internal sealed class JwtService : IJwtService
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.PhoneNumber),
-            new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName),
-            new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName),
+            new Claim(JwtRegisteredClaimNames.Email, user.PhoneNumber.Value),
+            new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName.Value),
+            new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName.Value),
             new Claim(ClaimTypes.Role, user.Role.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };

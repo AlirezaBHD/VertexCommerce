@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 
-namespace VertexCommerce.Modules.Identity.Services;
+namespace VertexCommerce.Modules.Identity.Infrastructure.Authentication;
 
 internal sealed class OtpService(ILogger<OtpService> logger) : IOtpService
 {

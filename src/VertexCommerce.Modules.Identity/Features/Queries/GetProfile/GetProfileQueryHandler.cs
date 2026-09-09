@@ -1,6 +1,7 @@
 using VertexCommerce.Modules.Identity.Domain.Repositories;
 using VertexCommerce.Shared.Contracts.Identity;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Identity.Domain.Errors;
 
 namespace VertexCommerce.Modules.Identity.Features.Queries.GetProfile;
 
@@ -14,14 +15,14 @@ internal sealed class GetProfileQueryHandler(IUserRepository userRepository, ICu
 
         if (user is null)
         {
-            return Result.Failure<ProfileResponse>(Error.NotFound("User", userId));
+            return Result.Failure<ProfileResponse>(IdentityErrors.UserNotFound(userId));
         }
 
         return Result.Success(new ProfileResponse(
             user.Id,
-            user.PhoneNumber,
-            user.FirstName,
-            user.LastName,
+            user.PhoneNumber.Value,
+            user.FirstName.Value,
+            user.LastName.Value,
             user.FullName,
             user.Role.ToString(),
             user.CreatedAt,

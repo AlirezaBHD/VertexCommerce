@@ -1,6 +1,6 @@
 using VertexCommerce.Modules.Identity.Domain.Entities;
 
-namespace VertexCommerce.Modules.Identity.Services;
+namespace VertexCommerce.Modules.Identity.Infrastructure.Authentication;
 
 public interface IJwtService
 {

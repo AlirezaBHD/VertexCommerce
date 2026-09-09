@@ -1,9 +1,13 @@
 using Microsoft.Extensions.Caching.Memory;
 using VertexCommerce.Modules.Identity.Domain.Entities;
+using VertexCommerce.Modules.Identity.Domain.ValueObjects;
 using VertexCommerce.Modules.Identity.Domain.Repositories;
 using VertexCommerce.Modules.Identity.Persistence;
-using VertexCommerce.Modules.Identity.Services;
+using VertexCommerce.Modules.Identity.Infrastructure.Authentication;
+using VertexCommerce.Modules.Identity.Infrastructure.Cryptography;
+using VertexCommerce.Modules.Identity.Infrastructure.Identity;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Identity.Domain.Errors;
 
 namespace VertexCommerce.Modules.Identity.Features.Commands.Registration.CompleteRegistration;
 
@@ -20,21 +24,21 @@ internal sealed class CompleteRegistrationCommandHandler(
         if (!cache.TryGetValue($"reg:{command.RegistrationToken}", out PendingRegistrationCache? pending) ||
             pending is null)
         {
-            return Result.Failure<AuthResponse>(Error.Conflict("Token is expired."));
+            return Result.Failure<AuthResponse>(IdentityErrors.TokenExpired);
         }
 
         if (!pending.IsPhoneVerified)
         {
-            return Result.Failure<AuthResponse>(Error.Conflict("You need to verify OPT first."));
+            return Result.Failure<AuthResponse>(IdentityErrors.OptNotVerified);
         }
 
         var passwordHash = passwordHasher.Hash(command.Password);
 
         var user = User.Create(
-            phoneNumber: pending.PhoneNumber,
+            phoneNumber: PhoneNumber.Create(pending.PhoneNumber),
             passwordHash: passwordHash,
-            firstName: command.FirstName,
-            lastName: command.LastName
+            firstName: FirstName.Create(command.FirstName),
+            lastName: LastName.Create(command.LastName)
         );
         cache.Remove($"reg:{command.RegistrationToken}");
 
@@ -50,7 +54,7 @@ internal sealed class CompleteRegistrationCommandHandler(
 
         return Result.Success(new AuthResponse(
             UserId: user.Id,
-            PhoneNumber: user.PhoneNumber,
+            PhoneNumber: user.PhoneNumber.Value,
             FullName: user.FullName,
             Role: user.Role.ToString(),
             AccessToken: accessToken,

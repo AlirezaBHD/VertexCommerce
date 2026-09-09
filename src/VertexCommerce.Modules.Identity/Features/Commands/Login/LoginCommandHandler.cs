@@ -1,7 +1,10 @@
+using VertexCommerce.Modules.Identity.Domain.Errors;
 using VertexCommerce.Modules.Identity.Domain.Repositories;
 using VertexCommerce.Modules.Identity.Features.Commands.Registration.CompleteRegistration;
 using VertexCommerce.Modules.Identity.Persistence;
-using VertexCommerce.Modules.Identity.Services;
+using VertexCommerce.Modules.Identity.Infrastructure.Authentication;
+using VertexCommerce.Modules.Identity.Infrastructure.Cryptography;
+using VertexCommerce.Modules.Identity.Infrastructure.Identity;
 using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Identity.Features.Commands.Login;
@@ -18,13 +21,13 @@ internal sealed class LoginCommandHandler(
         var user = await userRepository.GetByPhoneNumberAsync(command.PhoneNumber, ct);
 
         if (user is null)
-            return Result.Failure<AuthResponse>(Error.Unauthorized("شماره موبایل یا رمز عبور اشتباه است."));
+            return Result.Failure<AuthResponse>(IdentityErrors.InvalidCredentials);
 
         if (!user.IsActive)
-            return Result.Failure<AuthResponse>(Error.Unauthorized("حساب کاربری شما غیرفعال شده است."));
+            return Result.Failure<AuthResponse>(IdentityErrors.AccountInactive);
 
         if (!passwordHasher.Verify(command.Password, user.PasswordHash))
-            return Result.Failure<AuthResponse>(Error.Unauthorized("شماره موبایل یا رمز عبور اشتباه است."));
+            return Result.Failure<AuthResponse>(IdentityErrors.InvalidCredentials);
 
         var accessToken = jwtService.GenerateAccessToken(user);
         var refreshToken = jwtService.GenerateRefreshToken();
@@ -37,7 +40,7 @@ internal sealed class LoginCommandHandler(
 
         return Result.Success(new AuthResponse(
             user.Id,
-            user.PhoneNumber,
+            user.PhoneNumber.Value,
             user.FullName,
             user.Role.ToString(),
             accessToken,

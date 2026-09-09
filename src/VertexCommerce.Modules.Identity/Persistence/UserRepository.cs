@@ -24,7 +24,7 @@ internal sealed class UserRepository : IUserRepository
     {
         return await _context.Users
             .Include(u => u.RefreshTokens)
-            .FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber, ct);
+            .FirstOrDefaultAsync(u => u.PhoneNumber.Value == phoneNumber, ct);
     }
 
     public async Task<User?> GetByRefreshTokenAsync(string refreshToken, CancellationToken ct = default)
@@ -46,6 +46,6 @@ internal sealed class UserRepository : IUserRepository
 
     public async Task<bool> PhoneExistsAsync(string phoneNumber, CancellationToken ct)
     {
-        return await _context.Users.AnyAsync(u => u.PhoneNumber == phoneNumber, ct);
+        return await _context.Users.AnyAsync(u => u.PhoneNumber.Value == phoneNumber, ct);
     }
 }

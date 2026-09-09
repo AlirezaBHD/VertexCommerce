@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 
-namespace VertexCommerce.Modules.Identity.Services;
+namespace VertexCommerce.Modules.Identity.Infrastructure.Cryptography;
 
 internal sealed class PasswordHasher : IPasswordHasher
 {

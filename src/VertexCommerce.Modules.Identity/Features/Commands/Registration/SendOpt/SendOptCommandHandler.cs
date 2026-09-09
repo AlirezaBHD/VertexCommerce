@@ -1,7 +1,10 @@
 using Microsoft.Extensions.Caching.Memory;
 using VertexCommerce.Modules.Identity.Domain.Repositories;
-using VertexCommerce.Modules.Identity.Services;
+using VertexCommerce.Modules.Identity.Infrastructure.Authentication;
+using VertexCommerce.Modules.Identity.Infrastructure.Cryptography;
+using VertexCommerce.Modules.Identity.Infrastructure.Identity;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Identity.Domain.Errors;
 
 namespace VertexCommerce.Modules.Identity.Features.Commands.Registration.SendOpt;
 
@@ -19,7 +22,7 @@ internal sealed class SendOptCommandHandler(
         var phoneExists = await userRepository.PhoneExistsAsync(phoneNumber, ct);
         if (phoneExists)
         {
-            return Result.Failure<RegistrationTokenResponse>(Error.Conflict("Phone number already registered"));
+            return Result.Failure<RegistrationTokenResponse>(IdentityErrors.PhoneAlreadyRegistered);
         }
 
         var otp = otpService.GenerateOtpAsync(phoneNumber, ct);

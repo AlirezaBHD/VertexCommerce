@@ -2,7 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using VertexCommerce.Shared.Contracts.Identity;
 
-namespace VertexCommerce.Modules.Identity.Services;
+namespace VertexCommerce.Modules.Identity.Infrastructure.Identity;
 
 internal class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentUser
 {

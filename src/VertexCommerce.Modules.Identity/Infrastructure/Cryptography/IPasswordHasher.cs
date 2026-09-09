@@ -1,4 +1,4 @@
-namespace VertexCommerce.Modules.Identity.Services;
+namespace VertexCommerce.Modules.Identity.Infrastructure.Cryptography;
 
 public interface IPasswordHasher
 {
