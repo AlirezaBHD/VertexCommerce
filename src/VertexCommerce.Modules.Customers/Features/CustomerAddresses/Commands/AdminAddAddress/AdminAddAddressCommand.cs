@@ -12,4 +12,4 @@ public sealed record AdminAddAddressCommand(
     decimal Latitude,
     decimal Longitude,
     string? Label = null
-) : ICommand<AddressResponse>;
+) : ICommand<AddressResponse>, IAddressInput;

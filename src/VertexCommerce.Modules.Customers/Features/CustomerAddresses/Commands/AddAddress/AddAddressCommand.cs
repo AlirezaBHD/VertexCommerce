@@ -11,4 +11,4 @@ public sealed record AddAddressCommand(
     decimal Latitude,
     decimal Longitude,
     string? Label = null
-) : ICommand<AddressSummaryResponse>;
+) : ICommand<AddressSummaryResponse>, IAddressInput;

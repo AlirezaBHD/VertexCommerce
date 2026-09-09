@@ -28,7 +28,7 @@ internal sealed class SetDefaultBillingAddressCommandHandler(
 
         if (address is null)
         {
-            return Result.Failure(Error.NotFound("Address", userId));
+            return Result.Failure(Error.NotFound("Address", command.AddressId));
         }
         
         customer.SetDefaultBillingAddress(address.Id);

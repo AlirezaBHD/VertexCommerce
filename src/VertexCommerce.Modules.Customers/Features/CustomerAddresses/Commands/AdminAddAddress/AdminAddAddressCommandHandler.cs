@@ -8,7 +8,6 @@ namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.A
 
 internal sealed class AdminAddAddressCommandHandler(
     ICustomerRepository customerRepository,
-    ICustomerAddressRepository addressRepository,
     ICustomerUnitOfWork unitOfWork)
     : ICommandHandler<AdminAddAddressCommand, AddressResponse>
 {
@@ -21,32 +20,22 @@ internal sealed class AdminAddAddressCommandHandler(
             return Result.Failure<AddressResponse>(Error.NotFound("Customer", command.CustomerId));
         }
 
+        if (!customer.CanAddAddress)
+        {
+            return Result.Failure<AddressResponse>(Error.Validation(
+                "Customer.TooManyAddresses",
+                $"A customer cannot have more than {Customer.MaxAddresses} addresses."));
+        }
+
         var address = CustomerAddress.Create(
             customerId: customer.Id,
-            province: command.Province,
-            city: command.City,
-            postalAddress: command.PostalAddress,
-            postalCode: command.PostalCode,
-            latitude: command.Latitude,
-            longitude: command.Longitude,
-            label: command.Label
-        );
+            address: command.ToAddress(),
+            label: command.ToLabel());
 
         customer.AddAddress(address);
-        await addressRepository.AddAsync(address, ct);
+        customerRepository.AddNewAddress(address);
         await unitOfWork.SaveChangesAsync(ct);
 
-        return Result.Success(new AddressResponse(
-            Id: address.Id,
-            CustomerId: address.CustomerId,
-            Province: address.Province,
-            City: address.City,
-            PostalAddress: address.PostalAddress,
-            PostalCode: address.PostalCode,
-            Latitude: address.Latitude,
-            Longitude: address.Longitude,
-            Label: address.Label,
-            CreatedAt: address.CreatedAt
-        ));
+        return Result.Success(AddressResponse.From(address));
     }
 }

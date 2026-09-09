@@ -7,11 +7,6 @@ internal class CustomerResolver(ICustomerRepository repository) : ICustomerResol
 {
     public async Task<Guid> GetCustomerIdByUserIdAsync(Guid userId, CancellationToken ct)
     {
-        var customerId = await repository.GetIdByUserIdAsync(userId, ct);
-
-        if (customerId == Guid.Empty)
-            throw new Exception($"Customer not found for userId: {userId}");
-
-        return customerId;
+        return await repository.GetIdByUserIdAsync(userId, ct);
     }
 }

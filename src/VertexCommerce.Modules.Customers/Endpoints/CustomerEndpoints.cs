@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using VertexCommerce.Modules.Customers.Features.CustomerAddresses;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AddAddress;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.EditAddress;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.RemoveAddress;
@@ -201,7 +202,7 @@ public static class CustomerEndpoints
     }
 
     private static async Task<IResult> AddAddress(
-        [FromBody] AddAddressRequest request,
+        [FromBody] AddressRequest request,
         [FromServices] ISender sender,
         CancellationToken ct)
     {
@@ -224,7 +225,7 @@ public static class CustomerEndpoints
 
     private static async Task<IResult> EditAddress(
         Guid id,
-        [FromBody] AddAddressRequest request,
+        [FromBody] AddressRequest request,
         [FromServices] ISender sender,
         CancellationToken ct)
     {
@@ -248,7 +249,7 @@ public static class CustomerEndpoints
 
     private static async Task<IResult> AdminAddAddress(
         Guid id,
-        [FromBody] AddAddressRequest request,
+        [FromBody] AddressRequest request,
         [FromServices] ISender sender,
         CancellationToken ct)
     {
@@ -273,7 +274,7 @@ public static class CustomerEndpoints
     private static async Task<IResult> AdminEditAddress(
         Guid id,
         Guid addressId,
-        [FromBody] AddAddressRequest request,
+        [FromBody] AddressRequest request,
         [FromServices] ISender sender,
         CancellationToken ct)
     {

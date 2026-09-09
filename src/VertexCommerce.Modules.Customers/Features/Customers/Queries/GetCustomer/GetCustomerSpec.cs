@@ -13,24 +13,15 @@ public sealed class GetCustomerSpec : BaseSpecification<Customer, CustomerRespon
         Select(c => new CustomerResponse(
             Id: c.Id,
             UserId: c.UserId,
-            PhoneNumber: c.PhoneNumber,
-            FirstName: c.FirstName,
-            LastName: c.LastName,
+            PhoneNumber: c.PhoneNumber.Value,
+            FirstName: c.FirstName.Value,
+            LastName: c.LastName.Value,
             Addresses: MapAddresses(c.Addresses),
             DefaultShippingAddressId: c.DefaultShippingAddressId,
             DefaultBillingAddressId: c.DefaultBillingAddressId
         ));
     }
-    
-    private static List<AddressSummaryResponse> MapAddresses(IEnumerable<CustomerAddress> variants) =>
-        variants.Select(a => new AddressSummaryResponse(
-            Id: a.Id,
-            Province: a.Province,
-            City: a.City,
-            PostalAddress: a.PostalAddress,
-            PostalCode: a.PostalCode,
-            Latitude: a.Latitude,
-            Longitude: a.Longitude,
-            Label: a.Label)
-        ).ToList();
+
+    private static List<AddressSummaryResponse> MapAddresses(IEnumerable<CustomerAddress> addresses) =>
+        addresses.Select(AddressSummaryResponse.From).ToList();
 }

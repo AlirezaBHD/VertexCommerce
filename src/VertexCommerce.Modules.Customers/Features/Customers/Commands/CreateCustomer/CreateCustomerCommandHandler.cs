@@ -1,5 +1,6 @@
 using VertexCommerce.Modules.Customers.Domain.Entities;
 using VertexCommerce.Modules.Customers.Domain.Repositories;
+using VertexCommerce.Modules.Customers.Domain.ValueObjects;
 using VertexCommerce.Modules.Customers.Persistence;
 using VertexCommerce.Shared.CQRS;
 
@@ -14,7 +15,9 @@ internal sealed class CreateCustomerCommandHandler(
         CreateCustomerCommand command,
         CancellationToken ct)
     {
-        var existing = await customerRepository.GetByPhoneNumberAsync(command.PhoneNumber, ct);
+        var phoneNumber = PhoneNumber.Create(command.PhoneNumber);
+
+        var existing = await customerRepository.GetByPhoneNumberAsync(phoneNumber, ct);
         if (existing is not null)
         {
             return Result.Failure<CreateCustomerResponse>(
@@ -23,17 +26,17 @@ internal sealed class CreateCustomerCommandHandler(
 
         var customer = Customer.Create(
             userId: null,
-            phoneNumber: command.PhoneNumber,
-            firstName: command.FirstName,
-            lastName: command.LastName);
+            phoneNumber: phoneNumber,
+            firstName: FirstName.Create(command.FirstName),
+            lastName: LastName.Create(command.LastName));
 
         await customerRepository.AddAsync(customer, ct);
         await unitOfWork.SaveChangesAsync(ct);
 
         return Result.Success(new CreateCustomerResponse(
             customer.Id,
-            customer.PhoneNumber,
-            customer.FirstName,
-            customer.LastName));
+            customer.PhoneNumber.Value,
+            customer.FirstName.Value,
+            customer.LastName.Value));
     }
 }

@@ -24,8 +24,7 @@ internal sealed class GetAddressByIdQueryHandler(
         
         var spec = new GetAddressByIdSpec(addressId: query.AddressId,  customerId: customerId);
         
-        var address = await addressRepository.GetAsync
-            (spec:spec, ct);
+        var address = await addressRepository.GetAsync(spec, ct);
 
         if (address is null)
         {

@@ -1,3 +1,4 @@
+using VertexCommerce.Modules.Customers.Domain.Entities;
 using VertexCommerce.Modules.Customers.Domain.Repositories;
 using VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomer;
 using VertexCommerce.Modules.Customers.Persistence;
@@ -9,7 +10,6 @@ namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.A
 
 internal sealed class AddAddressCommandHandler(
     ICustomerRepository customerRepository,
-    ICustomerAddressRepository addressRepository,
     ICurrentUser currentUser,
     ICustomerResolver customerResolver,
     ICustomerUnitOfWork unitOfWork)
@@ -26,34 +26,22 @@ internal sealed class AddAddressCommandHandler(
             return Result.Failure<AddressSummaryResponse>(Error.NotFound("Customer", userId));
         }
 
-        if (customer.Addresses.Count >= 3)
+        if (!customer.CanAddAddress)
         {
-            return Result.Failure<AddressSummaryResponse>(Error.Validation("Can't have more than 3 addresses"));
+            return Result.Failure<AddressSummaryResponse>(Error.Validation(
+                "Customer.TooManyAddresses",
+                $"A customer cannot have more than {Customer.MaxAddresses} addresses."));
         }
 
-        var address = Domain.Entities.CustomerAddress.Create(
+        var address = CustomerAddress.Create(
             customerId: customer.Id,
-            province: command.Province,
-            city: command.City,
-            postalAddress: command.PostalAddress,
-            postalCode: command.PostalCode,
-            latitude: command.Latitude,
-            longitude: command.Longitude,
-            label: command.Label
-        );
+            address: command.ToAddress(),
+            label: command.ToLabel());
+
         customer.AddAddress(address);
-        await addressRepository.AddAsync(address, ct);
+        customerRepository.AddNewAddress(address);
         await unitOfWork.SaveChangesAsync(ct);
 
-        return Result.Success(new AddressSummaryResponse(
-            address.Id,
-            Province: address.Province,
-            City: address.City,
-            PostalAddress: address.PostalAddress,
-            PostalCode: address.PostalCode,
-            Latitude: address.Latitude,
-            Longitude: address.Longitude,
-            Label: address.Label
-        ));
+        return Result.Success(AddressSummaryResponse.From(address));
     }
 }

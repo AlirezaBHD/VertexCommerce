@@ -15,28 +15,18 @@ public sealed class GetCustomerAdminSpec : BaseSpecification<Customer, CustomerA
         Select(c => new CustomerAdminDetailResponse(
             Id: c.Id,
             UserId: c.UserId,
-            PhoneNumber: c.PhoneNumber,
-            FirstName: c.FirstName,
-            LastName: c.LastName,
+            PhoneNumber: c.PhoneNumber.Value,
+            FirstName: c.FirstName.Value,
+            LastName: c.LastName.Value,
             FullName: c.FullName,
             DefaultShippingAddressId: c.DefaultShippingAddressId,
             DefaultBillingAddressId: c.DefaultBillingAddressId,
-            Addresses: c.Addresses
-                .Select(a => new AddressResponse(
-                    Id: a.Id,
-                    CustomerId: a.CustomerId,
-                    Province: a.Province,
-                    City: a.City,
-                    PostalAddress: a.PostalAddress,
-                    PostalCode: a.PostalCode,
-                    Latitude: a.Latitude,
-                    Longitude: a.Longitude,
-                    CreatedAt:a.CreatedAt,
-                    Label: a.Label
-                ))
-                .ToList(),
+            Addresses: MapAddresses(c.Addresses),
             CreatedAt: c.CreatedAt,
             UpdatedAt: c.UpdatedAt
         ));
     }
+
+    private static List<AddressResponse> MapAddresses(IEnumerable<CustomerAddress> addresses) =>
+        addresses.Select(AddressResponse.From).ToList();
 }

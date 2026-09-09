@@ -10,4 +10,4 @@ public sealed record EditAddressCommand(
     string PostalCode,
     decimal Latitude,
     decimal Longitude,
-    string? Label = null) : ICommand;
+    string? Label = null) : ICommand, IAddressInput;

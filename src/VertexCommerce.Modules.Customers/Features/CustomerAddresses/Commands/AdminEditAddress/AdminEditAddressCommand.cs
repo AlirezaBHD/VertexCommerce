@@ -12,4 +12,4 @@ public sealed record AdminEditAddressCommand(
     decimal Latitude,
     decimal Longitude,
     string? Label = null
-) : ICommand;
+) : ICommand, IAddressInput;

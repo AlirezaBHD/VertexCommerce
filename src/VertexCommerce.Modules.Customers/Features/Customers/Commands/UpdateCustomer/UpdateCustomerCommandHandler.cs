@@ -1,4 +1,5 @@
 using VertexCommerce.Modules.Customers.Domain.Repositories;
+using VertexCommerce.Modules.Customers.Domain.ValueObjects;
 using VertexCommerce.Modules.Customers.Persistence;
 using VertexCommerce.Shared.CQRS;
 
@@ -21,9 +22,10 @@ internal sealed class UpdateCustomerCommandHandler(
                 Error.NotFound("Customer", command.CustomerId));
         }
 
-        var phoneNumber = command.PhoneNumber.Trim();
+        // Normalization now happens inside the value object, so comparing the two is enough.
+        var phoneNumber = PhoneNumber.Create(command.PhoneNumber);
 
-        if (!string.Equals(customer.PhoneNumber, phoneNumber, StringComparison.Ordinal))
+        if (customer.PhoneNumber != phoneNumber)
         {
             var existing = await customerRepository.GetByPhoneNumberAsync(phoneNumber, ct);
             if (existing is not null)
@@ -35,16 +37,16 @@ internal sealed class UpdateCustomerCommandHandler(
 
         customer.UpdateProfile(
             phoneNumber: phoneNumber,
-            firstName: command.FirstName.Trim(),
-            lastName: command.LastName.Trim());
+            firstName: FirstName.Create(command.FirstName),
+            lastName: LastName.Create(command.LastName));
 
         customerRepository.Update(customer);
         await unitOfWork.SaveChangesAsync(ct);
 
         return Result.Success(new UpdateCustomerResponse(
             customer.Id,
-            customer.PhoneNumber,
-            customer.FirstName,
-            customer.LastName));
+            customer.PhoneNumber.Value,
+            customer.FirstName.Value,
+            customer.LastName.Value));
     }
 }

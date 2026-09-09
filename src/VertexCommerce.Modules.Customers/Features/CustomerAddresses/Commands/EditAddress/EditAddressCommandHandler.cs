@@ -1,5 +1,4 @@
 using VertexCommerce.Modules.Customers.Domain.Repositories;
-using VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomer;
 using VertexCommerce.Modules.Customers.Persistence;
 using VertexCommerce.Shared.Contracts.Customers;
 using VertexCommerce.Shared.Contracts.Identity;
@@ -10,7 +9,7 @@ namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.E
 internal sealed class EditAddressCommandHandler(
     ICustomerRepository customerRepository,
     ICustomerUnitOfWork unitOfWork,
-    ICurrentUser  currentUser,
+    ICurrentUser currentUser,
     ICustomerResolver customerResolver)
     : ICommandHandler<EditAddressCommand>
 {
@@ -22,24 +21,17 @@ internal sealed class EditAddressCommandHandler(
 
         if (customer is null)
         {
-            return Result.Failure<AddressSummaryResponse>(Error.NotFound("Customer", userId));
+            return Result.Failure(Error.NotFound("Customer", userId));
         }
 
-        var address = customer.Addresses.FirstOrDefault(address => address.Id == command.AddressId);
+        var address = customer.FindAddress(command.AddressId);
 
         if (address is null)
         {
-            return Result.Failure<AddressSummaryResponse>(Error.NotFound("Address", command.AddressId));
+            return Result.Failure(Error.NotFound("Address", command.AddressId));
         }
 
-        address.Update(
-            province: command.Province,
-            city: command.City,
-            postalAddress: command.PostalAddress,
-            postalCode: command.PostalCode,
-            latitude: command.Latitude,
-            longitude: command.Longitude,
-            label: command.Label);
+        address.Relocate(command.ToAddress(), command.ToLabel());
 
         await unitOfWork.SaveChangesAsync(ct);
 

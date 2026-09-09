@@ -5,7 +5,6 @@ using VertexCommerce.Shared.CQRS;
 namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminRemoveAddress;
 
 internal sealed class AdminRemoveAddressCommandHandler(
-    ICustomerAddressRepository addressRepository,
     ICustomerRepository customerRepository,
     ICustomerUnitOfWork unitOfWork)
     : ICommandHandler<AdminRemoveAddressCommand>
@@ -19,7 +18,7 @@ internal sealed class AdminRemoveAddressCommandHandler(
             return Result.Failure(Error.NotFound("Customer", command.CustomerId));
         }
 
-        var address = await addressRepository.GetAsync(addressId: command.AddressId, customerId: command.CustomerId, ct);
+        var address = customer.FindAddress(command.AddressId);
 
         if (address is null)
         {

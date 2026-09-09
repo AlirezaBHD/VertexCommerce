@@ -18,21 +18,14 @@ internal sealed class AdminEditAddressCommandHandler(
             return Result.Failure(Error.NotFound("Customer", command.CustomerId));
         }
 
-        var address = customer.Addresses.FirstOrDefault(a => a.Id == command.AddressId);
+        var address = customer.FindAddress(command.AddressId);
 
         if (address is null)
         {
             return Result.Failure(Error.NotFound("Address", command.AddressId));
         }
 
-        address.Update(
-            province: command.Province,
-            city: command.City,
-            postalAddress: command.PostalAddress,
-            postalCode: command.PostalCode,
-            latitude: command.Latitude,
-            longitude: command.Longitude,
-            label: command.Label);
+        address.Relocate(command.ToAddress(), command.ToLabel());
 
         await unitOfWork.SaveChangesAsync(ct);
 
