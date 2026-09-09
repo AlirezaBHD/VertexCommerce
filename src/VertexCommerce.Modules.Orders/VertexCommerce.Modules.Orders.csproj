@@ -3,6 +3,10 @@
     <ItemGroup>
       <ProjectReference Include="..\VertexCommerce.Shared\VertexCommerce.Shared.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="HotChocolate.Types" />
+    </ItemGroup>
     <PropertyGroup>
         <NuGetAudit>false</NuGetAudit>
     </PropertyGroup>

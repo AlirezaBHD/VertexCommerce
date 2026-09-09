@@ -1,10 +1,11 @@
+using HotChocolate.Types;
 using HotChocolate;
-using VertexCommerce.Api.GraphQL.Orders.Types;
+using VertexCommerce.Modules.Orders.GraphQL.Orders.Types;
 using VertexCommerce.Modules.Orders.Domain.Repositories;
 
-namespace VertexCommerce.Api.GraphQL.Orders;
+namespace VertexCommerce.Modules.Orders.GraphQL.Orders;
 
-[ExtendObjectType(typeof(Query))]
+[ExtendObjectType("Query")]
 public sealed class OrderQueries{
     public async Task<OrderType?> GetOrderById(
         [Service] IOrderRepository orderRepository,
@@ -36,9 +37,9 @@ public sealed class OrderQueries{
     private static OrderType MapToOrderType(Modules.Orders.Domain.Entities.Order order) => new()
     {
         Id = order.Id,
-        OrderNumber = order.OrderNumber,
+        OrderNumber = order.OrderNumber.Value,
         CustomerId = order.CustomerId,
-        CustomerEmail = order.CustomerPhoneNumber,
+        CustomerEmail = order.CustomerPhoneNumber.Value,
         Status = order.Status,
         PaymentStatus = order.PaymentStatus,
         SubTotal = order.SubTotal.Amount,
