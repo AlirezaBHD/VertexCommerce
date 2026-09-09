@@ -3,6 +3,7 @@ using VertexCommerce.Modules.Customers.Persistence;
 using VertexCommerce.Shared.Contracts.Customers;
 using VertexCommerce.Shared.Contracts.Identity;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Customers.Domain.Errors;
 
 namespace VertexCommerce.Modules.Customers.Features.Customers.Commands.SetDefaultBillingAddress;
 
@@ -21,14 +22,14 @@ internal sealed class SetDefaultBillingAddressCommandHandler(
 
         if (customer is null)
         {
-            return Result.Failure(Error.NotFound("Customer", userId));
+            return Result.Failure(CustomerErrors.NotFound(userId));
         }
 
         var address = customer.Addresses.FirstOrDefault(a => a.Id == command.AddressId);
 
         if (address is null)
         {
-            return Result.Failure(Error.NotFound("Address", command.AddressId));
+            return Result.Failure(CustomerErrors.AddressNotFound(command.AddressId));
         }
         
         customer.SetDefaultBillingAddress(address.Id);

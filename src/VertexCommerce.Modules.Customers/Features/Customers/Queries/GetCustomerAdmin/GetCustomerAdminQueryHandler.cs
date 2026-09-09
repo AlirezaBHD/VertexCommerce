@@ -1,5 +1,6 @@
 using VertexCommerce.Modules.Customers.Domain.Repositories;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Customers.Domain.Errors;
 
 namespace VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomerAdmin;
 
@@ -17,7 +18,7 @@ internal sealed class GetCustomerAdminQueryHandler(ICustomerRepository customerR
         if (customer is null)
         {
             return Result.Failure<CustomerAdminDetailResponse>(
-                Error.NotFound("Customer", query.CustomerId));
+                CustomerErrors.NotFound(query.CustomerId));
         }
 
         return Result.Success(customer);

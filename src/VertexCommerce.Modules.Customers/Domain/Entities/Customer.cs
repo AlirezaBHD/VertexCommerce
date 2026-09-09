@@ -1,6 +1,5 @@
 using VertexCommerce.Modules.Customers.Domain.ValueObjects;
 using VertexCommerce.Shared.Domain;
-using VertexCommerce.Shared.Domain.Schema;
 using VertexCommerce.Shared.Exceptions;
 
 namespace VertexCommerce.Modules.Customers.Domain.Entities;
@@ -10,9 +9,9 @@ public sealed class Customer : AggregateRoot<Guid>
     public const int MaxAddresses = 3;
 
     public Guid? UserId { get; private set; }
-    public PhoneNumber PhoneNumber { get; private set; } = default!;
-    public FirstName FirstName { get; private set; } = default!;
-    public LastName LastName { get; private set; } = default!;
+    public PhoneNumber PhoneNumber { get; private set; }
+    public FirstName FirstName { get; private set; }
+    public LastName LastName { get; private set; }
 
     private readonly List<CustomerAddress> _addresses = [];
     public IReadOnlyCollection<CustomerAddress> Addresses => _addresses;

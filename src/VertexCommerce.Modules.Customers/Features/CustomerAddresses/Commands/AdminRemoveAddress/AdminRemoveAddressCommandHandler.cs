@@ -1,6 +1,7 @@
 using VertexCommerce.Modules.Customers.Domain.Repositories;
 using VertexCommerce.Modules.Customers.Persistence;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Customers.Domain.Errors;
 
 namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminRemoveAddress;
 
@@ -15,14 +16,14 @@ internal sealed class AdminRemoveAddressCommandHandler(
 
         if (customer is null)
         {
-            return Result.Failure(Error.NotFound("Customer", command.CustomerId));
+            return Result.Failure(CustomerErrors.NotFound(command.CustomerId));
         }
 
         var address = customer.FindAddress(command.AddressId);
 
         if (address is null)
         {
-            return Result.Failure(Error.NotFound("Address", command.AddressId));
+            return Result.Failure(CustomerErrors.AddressNotFound(command.AddressId));
         }
 
         customer.RemoveAddress(command.AddressId);

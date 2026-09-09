@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using VertexCommerce.Modules.Customers.Features.CustomerAddresses;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AddAddress;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.EditAddress;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.RemoveAddress;

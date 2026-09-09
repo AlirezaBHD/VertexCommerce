@@ -2,6 +2,7 @@ using VertexCommerce.Modules.Customers.Domain.Repositories;
 using VertexCommerce.Shared.Contracts.Customers;
 using VertexCommerce.Shared.Contracts.Identity;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Customers.Domain.Errors;
 
 namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses.Queries.GetAddressById;
 
@@ -19,7 +20,7 @@ internal sealed class GetAddressByIdQueryHandler(
 
         if (customerId == Guid.Empty)
         {
-            return Result.Failure<AddressResponse>(Error.NotFound("Customer", userId));
+            return Result.Failure<AddressResponse>(CustomerErrors.NotFound(userId));
         }
         
         var spec = new GetAddressByIdSpec(addressId: query.AddressId,  customerId: customerId);
@@ -28,7 +29,7 @@ internal sealed class GetAddressByIdQueryHandler(
 
         if (address is null)
         {
-            return Result.Failure<AddressResponse>(Error.NotFound("Address", query.AddressId));
+            return Result.Failure<AddressResponse>(CustomerErrors.AddressNotFound(query.AddressId));
 
         }
         

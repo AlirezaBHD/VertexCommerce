@@ -4,6 +4,7 @@ using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Queries.GetAdd
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Shared;
 using VertexCommerce.Modules.Customers.Persistence;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Customers.Domain.Errors;
 
 namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminAddAddress;
 
@@ -18,14 +19,12 @@ internal sealed class AdminAddAddressCommandHandler(
 
         if (customer is null)
         {
-            return Result.Failure<AddressResponse>(Error.NotFound("Customer", command.CustomerId));
+            return Result.Failure<AddressResponse>(CustomerErrors.NotFound(command.CustomerId));
         }
 
         if (!customer.CanAddAddress)
         {
-            return Result.Failure<AddressResponse>(Error.Validation(
-                "Customer.TooManyAddresses",
-                $"A customer cannot have more than {Customer.MaxAddresses} addresses."));
+            return Result.Failure<AddressResponse>(CustomerErrors.TooManyAddresses);
         }
 
         var address = CustomerAddress.Create(

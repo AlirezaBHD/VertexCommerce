@@ -2,6 +2,7 @@ using VertexCommerce.Modules.Customers.Domain.Repositories;
 using VertexCommerce.Modules.Customers.Domain.ValueObjects;
 using VertexCommerce.Modules.Customers.Persistence;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Customers.Domain.Errors;
 
 namespace VertexCommerce.Modules.Customers.Features.Customers.Commands.UpdateCustomer;
 
@@ -19,7 +20,7 @@ internal sealed class UpdateCustomerCommandHandler(
         if (customer is null)
         {
             return Result.Failure<UpdateCustomerResponse>(
-                Error.NotFound("Customer", command.CustomerId));
+                CustomerErrors.NotFound(command.CustomerId));
         }
 
         // Normalization now happens inside the value object, so comparing the two is enough.
@@ -31,7 +32,7 @@ internal sealed class UpdateCustomerCommandHandler(
             if (existing is not null)
             {
                 return Result.Failure<UpdateCustomerResponse>(
-                    Error.Validation("Customer.PhoneExists", "A customer with this phone number already exists."));
+                    CustomerErrors.PhoneExists);
             }
         }
 

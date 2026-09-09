@@ -6,6 +6,7 @@ using VertexCommerce.Modules.Customers.Persistence;
 using VertexCommerce.Shared.Contracts.Customers;
 using VertexCommerce.Shared.Contracts.Identity;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Customers.Domain.Errors;
 
 namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AddAddress;
 
@@ -24,14 +25,12 @@ internal sealed class AddAddressCommandHandler(
 
         if (customer is null)
         {
-            return Result.Failure<AddressSummaryResponse>(Error.NotFound("Customer", userId));
+            return Result.Failure<AddressSummaryResponse>(CustomerErrors.NotFound(userId));
         }
 
         if (!customer.CanAddAddress)
         {
-            return Result.Failure<AddressSummaryResponse>(Error.Validation(
-                "Customer.TooManyAddresses",
-                $"A customer cannot have more than {Customer.MaxAddresses} addresses."));
+            return Result.Failure<AddressSummaryResponse>(CustomerErrors.TooManyAddresses);
         }
 
         var address = CustomerAddress.Create(

@@ -1,6 +1,7 @@
 using VertexCommerce.Modules.Customers.Domain.Repositories;
 using VertexCommerce.Modules.Customers.Persistence;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Customers.Domain.Errors;
 
 namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminSetDefaultAddress;
 
@@ -15,14 +16,14 @@ internal sealed class AdminSetDefaultAddressCommandHandler(
 
         if (customer is null)
         {
-            return Result.Failure(Error.NotFound("Customer", command.CustomerId));
+            return Result.Failure(CustomerErrors.NotFound(command.CustomerId));
         }
 
         var address = customer.Addresses.FirstOrDefault(a => a.Id == command.AddressId);
 
         if (address is null)
         {
-            return Result.Failure(Error.NotFound("Address", command.AddressId));
+            return Result.Failure(CustomerErrors.AddressNotFound(command.AddressId));
         }
 
         customer.SetDefaultShippingAddress(address.Id);

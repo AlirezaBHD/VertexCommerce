@@ -3,6 +3,7 @@ using VertexCommerce.Modules.Customers.Domain.Repositories;
 using VertexCommerce.Modules.Customers.Domain.ValueObjects;
 using VertexCommerce.Modules.Customers.Persistence;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Customers.Domain.Errors;
 
 namespace VertexCommerce.Modules.Customers.Features.Customers.Commands.CreateCustomer;
 
@@ -21,7 +22,7 @@ internal sealed class CreateCustomerCommandHandler(
         if (existing is not null)
         {
             return Result.Failure<CreateCustomerResponse>(
-                Error.Validation("Customer.PhoneExists", "A customer with this phone number already exists."));
+                CustomerErrors.PhoneExists);
         }
 
         var customer = Customer.Create(

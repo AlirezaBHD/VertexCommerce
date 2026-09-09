@@ -2,6 +2,7 @@ using VertexCommerce.Modules.Customers.Domain.Repositories;
 using VertexCommerce.Shared.Contracts.Customers;
 using VertexCommerce.Shared.Contracts.Identity;
 using VertexCommerce.Shared.CQRS;
+using VertexCommerce.Modules.Customers.Domain.Errors;
 
 namespace VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomer;
 
@@ -17,7 +18,7 @@ internal sealed class GetCustomerQueryHandler(ICustomerRepository customerReposi
 
         if (customer is null)
         {
-            return Result.Failure<CustomerResponse>(Error.NotFound("Customer", userId));
+            return Result.Failure<CustomerResponse>(CustomerErrors.NotFound(userId));
         }
 
         return Result.Success(customer);
