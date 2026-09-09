@@ -7,9 +7,9 @@ namespace VertexCommerce.Modules.Orders.Domain.Entities;
 
 public sealed class Order : AggregateRoot<Guid>
 {
-    public string OrderNumber { get; private set; } = default!;
+    public OrderNumber OrderNumber { get; private set; }
     public Guid CustomerId { get; private set; }
-    public string CustomerPhoneNumber { get; private set; } = default!;
+    public PhoneNumber CustomerPhoneNumber { get; private set; }
     public OrderStatus Status { get; private set; }
     public PaymentStatus PaymentStatus { get; private set; }
     public string? ReceiptImagePath { get; private set; }
@@ -24,7 +24,7 @@ public sealed class Order : AggregateRoot<Guid>
 
     public string? Notes { get; private set; }
     public string? CancellationReason { get; private set; }
-    public string? TrackingNumber { get; private set; }
+    public TrackingNumber? TrackingNumber { get; private set; }
 
     public DateTime? ConfirmedAt { get; private set; }
     public DateTime? ProcessingAt { get; private set; }
@@ -40,7 +40,7 @@ public sealed class Order : AggregateRoot<Guid>
 
     public static Order Create(
         Guid customerId,
-        string customerPhoneNumber,
+        PhoneNumber customerPhoneNumber,
         Address shippingAddress,
         Address billingAddress,
         string currency = "USD",
@@ -60,7 +60,7 @@ public sealed class Order : AggregateRoot<Guid>
 
     public static Order CreateManual(
         Guid customerId,
-        string customerPhoneNumber,
+        PhoneNumber customerPhoneNumber,
         Address shippingAddress,
         Address billingAddress,
         string currency = "USD",
@@ -80,7 +80,7 @@ public sealed class Order : AggregateRoot<Guid>
 
     private static Order CreateOrder(
         Guid customerId,
-        string customerPhoneNumber,
+        PhoneNumber customerPhoneNumber,
         Address shippingAddress,
         Address billingAddress,
         OrderStatus status,
@@ -92,7 +92,7 @@ public sealed class Order : AggregateRoot<Guid>
         return new Order
         {
             Id = Guid.NewGuid(),
-            OrderNumber = GenerateOrderNumber(),
+            OrderNumber = OrderNumber.Create(GenerateOrderNumber()),
             CustomerId = customerId,
             CustomerPhoneNumber = customerPhoneNumber,
             Status = status,
@@ -194,12 +194,12 @@ public sealed class Order : AggregateRoot<Guid>
         return Result.Success();
     }
     
-    public Result Ship(string trackingNumber)
+    public Result Ship(TrackingNumber trackingNumber)
     {
         if (Status != OrderStatus.Processing)
             return Result.Failure(Error.Validation($"Cannot ship order with status {Status}"));
 
-        if (string.IsNullOrWhiteSpace(trackingNumber))
+        if (string.IsNullOrWhiteSpace(trackingNumber.Value))
             return Result.Failure(Error.Validation("Tracking number is required"));
 
         Status = OrderStatus.Shipped;

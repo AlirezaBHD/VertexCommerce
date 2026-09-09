@@ -29,12 +29,12 @@ public sealed class GetMyOrdersQueryHandler(
             .Take(query.Take)
             .Select(o => new MyOrdersResponse(
                 o.Id,
-                o.OrderNumber,
+                o.OrderNumber.Value,
                 o.Status.ToString(),
                 o.PaymentStatus.ToString(),
                 o.SubTotal.ToString(),
                 o.TotalAmount.ToString(),
-                o.TrackingNumber,
+                o.TrackingNumber == null ? null : o.TrackingNumber.Value.Value,
                 o.ShippingAddress.ToString(),
                 o.ExpiresAt
             ))

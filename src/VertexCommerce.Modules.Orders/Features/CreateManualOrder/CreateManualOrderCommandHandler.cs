@@ -33,7 +33,7 @@ internal sealed class CreateManualOrderCommandHandler(
 
         var order = Order.CreateManual(
             customerId: command.CustomerId,
-            customerPhoneNumber: customer.PhoneNumber,
+            customerPhoneNumber: PhoneNumber.Create(customer.PhoneNumber),
             shippingAddress: shippingAddress,
             billingAddress: billingAddress,
             notes: command.Notes);
@@ -88,20 +88,13 @@ internal sealed class CreateManualOrderCommandHandler(
 
         return Result.Success(new CreateManualOrderResponse(
             order.Id,
-            order.OrderNumber,
+            order.OrderNumber.Value,
             order.TotalAmount.Amount,
             order.TotalAmount.Currency));
     }
 
     private static Address CreateAddress(ManualOrderAddressDto dto)
     {
-        return Address.Create(
-            province: dto.Province,
-            city: dto.City,
-            postalAddress: dto.PostalAddress,
-            postalCode: dto.PostalCode,
-            latitude: dto.Latitude,
-            longitude: dto.Longitude,
-            label: dto.Label);
+        return Address.Create(Province.Create(dto.Province), City.Create(dto.City), PostalAddress.Create(dto.PostalAddress), PostalCode.Create(dto.PostalCode), GeoLocation.Create(dto.Latitude, dto.Longitude), AddressLabel.CreateOrNull(dto.Label));
     }
 }

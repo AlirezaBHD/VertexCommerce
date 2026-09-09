@@ -42,6 +42,8 @@ public static class StringFieldSchemaMappingExtensions
     /// type, which is how an optional string-backed value object has to be mapped until EF Core
     /// supports optional complex types.
     /// </summary>
+    public static ComplexTypePropertyBuilder<TValueObject> HasSchema<TValueObject>(this ComplexTypePropertyBuilder<TValueObject> property, StringFieldSchema schema) { ArgumentNullException.ThrowIfNull(schema); return property.HasMaxLength(schema.MaxLength).IsUnicode(schema.IsUnicode).IsFixedLength(schema.IsFixedLength); }
+
     public static PropertyBuilder<TValueObject> HasSchema<TValueObject>(
         this PropertyBuilder<TValueObject> property, StringFieldSchema schema)
     {

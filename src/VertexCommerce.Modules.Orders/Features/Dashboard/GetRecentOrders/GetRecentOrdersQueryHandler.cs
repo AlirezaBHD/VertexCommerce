@@ -16,8 +16,8 @@ internal sealed class GetRecentOrdersQueryHandler(
             .Take(query.Count)
             .Select(o => new RecentOrderResponse(
                 o.Id,
-                o.OrderNumber,
-                o.CustomerPhoneNumber,
+                o.OrderNumber.Value,
+                o.CustomerPhoneNumber.Value,
                 o.Status.ToString(),
                 o.TotalAmount.Amount.ToString("F2"),
                 o.CreatedAt))

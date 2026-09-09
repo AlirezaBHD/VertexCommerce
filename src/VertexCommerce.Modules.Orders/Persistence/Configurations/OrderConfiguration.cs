@@ -13,16 +13,16 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.ToTable("Orders");
         builder.HasKey(o => o.Id);
 
-        builder.Property(o => o.OrderNumber)
-            .HasMaxLength(50)
-            .IsRequired();
+        builder.ComplexProperty(o => o.OrderNumber, orderNumber => {
+            orderNumber.Property(p => p.Value).HasColumnName("OrderNumber").HasSchema(OrderNumber.Schema);
+        });
 
-        builder.HasIndex(o => o.OrderNumber).IsUnique();
+        builder.HasIndex("OrderNumber.Value").IsUnique();
         builder.HasIndex(o => o.CustomerId);
 
-        builder.Property(o => o.CustomerPhoneNumber)
-            .HasMaxLength(256)
-            .IsRequired();
+        builder.ComplexProperty(o => o.CustomerPhoneNumber, phoneNumber => {
+            phoneNumber.Property(p => p.Value).HasColumnName("CustomerPhoneNumber").HasSchema(PhoneNumber.Schema);
+        });
 
         builder.Property(o => o.Status)
             .HasConversion<string>()
@@ -34,7 +34,13 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.Property(o => o.Notes).HasMaxLength(1000);
         builder.Property(o => o.CancellationReason).HasMaxLength(500);
-        builder.Property(o => o.TrackingNumber).HasMaxLength(100);
+
+        builder.Property(o => o.TrackingNumber)
+            .HasConversion(
+                t => t.HasValue ? t.Value.Value : null,
+                v => string.IsNullOrEmpty(v) ? null : TrackingNumber.Create(v))
+            .HasColumnName("TrackingNumber")
+            .HasSchema(TrackingNumber.Schema);
 
         builder.ComplexProperty(o => o.SubTotal, money =>
         {
@@ -62,24 +68,42 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.ComplexProperty(o => o.ShippingAddress, address =>
         {
-            address.Property(a => a.Province).HasColumnName("ShippingProvince").HasSchema(Address.ProvinceSchema);
-            address.Property(a => a.City).HasColumnName("ShippingCity").HasSchema(Address.CitySchema);
-            address.Property(a => a.PostalAddress).HasColumnName("ShippingPostalAddress").HasSchema(Address.PostalAddressSchema);
-            address.Property(a => a.PostalCode).HasColumnName("ShippingPostalCode").HasSchema(Address.PostalCodeSchema);
-            address.Property(a => a.Latitude).HasColumnName("ShippingLatitude").HasPrecision(9, 6);
-            address.Property(a => a.Longitude).HasColumnName("ShippingLongitude").HasPrecision(9, 6);
-            address.Property(a => a.Label).HasColumnName("ShippingLabel").HasMaxLength(100);
+            address.ComplexProperty(a => a.Province, p => { p.Property(x => x.Value).HasColumnName("ShippingProvince").HasSchema(Province.Schema); });
+            address.ComplexProperty(a => a.City, c => { c.Property(x => x.Value).HasColumnName("ShippingCity").HasSchema(City.Schema); });
+            address.ComplexProperty(a => a.PostalAddress, pa => { pa.Property(x => x.Value).HasColumnName("ShippingPostalAddress").HasSchema(PostalAddress.Schema); });
+            address.ComplexProperty(a => a.PostalCode, pc => { pc.Property(x => x.Value).HasColumnName("ShippingPostalCode").HasSchema(PostalCode.Schema); });
+            address.ComplexProperty(a => a.Location, l =>
+            {
+                l.Property(x => x.Latitude).HasColumnName("ShippingLatitude").HasPrecision(9, 6);
+                l.Property(x => x.Longitude).HasColumnName("ShippingLongitude").HasPrecision(9, 6);
+            });
+            // Label is nullable
+            address.Property(a => a.Label)
+                .HasConversion(
+                    label => label.HasValue ? label.Value.Value : null,
+                    value => string.IsNullOrEmpty(value) ? null : AddressLabel.CreateOrNull(value))
+                .HasColumnName("ShippingLabel")
+                .HasSchema(AddressLabel.Schema);
         });
 
         builder.ComplexProperty(o => o.BillingAddress, address =>
         {
-            address.Property(a => a.Province).HasColumnName("BillingProvince").HasSchema(Address.ProvinceSchema);
-            address.Property(a => a.City).HasColumnName("BillingCity").HasSchema(Address.CitySchema);
-            address.Property(a => a.PostalAddress).HasColumnName("BillingPostalAddress").HasSchema(Address.PostalAddressSchema);
-            address.Property(a => a.PostalCode).HasColumnName("BillingPostalCode").HasSchema(Address.PostalCodeSchema);
-            address.Property(a => a.Latitude).HasColumnName("BillingLatitude");
-            address.Property(a => a.Longitude).HasColumnName("BillingLongitude");
-            address.Property(a => a.Label).HasColumnName("BillingLabel").HasMaxLength(100);
+            address.ComplexProperty(a => a.Province, p => { p.Property(x => x.Value).HasColumnName("BillingProvince").HasSchema(Province.Schema); });
+            address.ComplexProperty(a => a.City, c => { c.Property(x => x.Value).HasColumnName("BillingCity").HasSchema(City.Schema); });
+            address.ComplexProperty(a => a.PostalAddress, pa => { pa.Property(x => x.Value).HasColumnName("BillingPostalAddress").HasSchema(PostalAddress.Schema); });
+            address.ComplexProperty(a => a.PostalCode, pc => { pc.Property(x => x.Value).HasColumnName("BillingPostalCode").HasSchema(PostalCode.Schema); });
+            address.ComplexProperty(a => a.Location, l =>
+            {
+                l.Property(x => x.Latitude).HasColumnName("BillingLatitude").HasPrecision(9, 6);
+                l.Property(x => x.Longitude).HasColumnName("BillingLongitude").HasPrecision(9, 6);
+            });
+            // Label is nullable
+            address.Property(a => a.Label)
+                .HasConversion(
+                    label => label.HasValue ? label.Value.Value : null,
+                    value => string.IsNullOrEmpty(value) ? null : AddressLabel.CreateOrNull(value))
+                .HasColumnName("BillingLabel")
+                .HasSchema(AddressLabel.Schema);
         });
 
         builder.Property(o => o.ConfirmedAt);

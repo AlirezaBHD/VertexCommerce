@@ -60,7 +60,7 @@ public sealed class CheckoutCommandHandler(
 
         var order = Order.Create(
             customerId: customerId,
-            customerPhoneNumber: customer.PhoneNumber,
+            customerPhoneNumber: PhoneNumber.Create(customer.PhoneNumber),
             shippingAddress: shippingAddressResult.Value,
             billingAddress: billingAddressResult.Value,
             notes: command.Notes
@@ -118,7 +118,7 @@ public sealed class CheckoutCommandHandler(
 
         return Result.Success(new CheckoutResponse(
             order.Id,
-            order.OrderNumber,
+            order.OrderNumber.Value,
             order.TotalAmount.Amount,
             order.TotalAmount.Currency,
             order.ExpiresAt
@@ -134,14 +134,7 @@ public sealed class CheckoutCommandHandler(
                 OrderErrors.ShippingAddressNotSet);
         }
 
-        var address = Address.Create(
-            province: csa.Province,
-            city: csa.City,
-            postalAddress: csa.PostalAddress,
-            postalCode: csa.PostalCode,
-            latitude: csa.Latitude,
-            longitude: csa.Longitude,
-            label: csa.Label);
+        var address = Address.Create(Province.Create(csa.Province), City.Create(csa.City), PostalAddress.Create(csa.PostalAddress), PostalCode.Create(csa.PostalCode), GeoLocation.Create(csa.Latitude, csa.Longitude), AddressLabel.CreateOrNull(csa.Label));
 
         return Result.Success(address);
     }
@@ -155,14 +148,7 @@ public sealed class CheckoutCommandHandler(
                 OrderErrors.BillingAddressNotSet);
         }
 
-        var address = Address.Create(
-            province: cba.Province,
-            city: cba.City,
-            postalAddress: cba.PostalAddress,
-            postalCode: cba.PostalCode,
-            latitude: cba.Latitude,
-            longitude: cba.Longitude,
-            label: cba.Label);
+        var address = Address.Create(Province.Create(cba.Province), City.Create(cba.City), PostalAddress.Create(cba.PostalAddress), PostalCode.Create(cba.PostalCode), GeoLocation.Create(cba.Latitude, cba.Longitude), AddressLabel.CreateOrNull(cba.Label));
 
         return Result.Success(address);
     }

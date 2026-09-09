@@ -1,3 +1,4 @@
+using VertexCommerce.Modules.Orders.Domain.ValueObjects;
 using VertexCommerce.Modules.Orders.Domain.Repositories;
 using VertexCommerce.Modules.Orders.Persistence;
 using VertexCommerce.Shared.CQRS;
@@ -24,7 +25,7 @@ internal sealed class ShipOrderCommandHandler : ICommandHandler<ShipOrderCommand
         if (order is null)
             return Result.Failure(OrderErrors.NotFound(command.OrderId));
 
-        var result = order.Ship(command.TrackingNumber);
+        var result = order.Ship(TrackingNumber.Create(command.TrackingNumber));
         if (result.IsFailure)
             return result;
 

@@ -25,12 +25,12 @@ public sealed class GetAllOrdersQueryHandler(OrdersDbContext dbContext)
             .Take(query.Take)
             .Select(o => new AllOrdersResponse(
                 o.Id,
-                o.CustomerPhoneNumber,
-                o.OrderNumber,
+                o.CustomerPhoneNumber.Value,
+                o.OrderNumber.Value,
                 o.Status.ToString(),
                 o.PaymentStatus.ToString(),
                 o.TotalAmount.ToString(),
-                o.TrackingNumber,
+                o.TrackingNumber == null ? null : o.TrackingNumber.Value.Value,
                 o.CreatedAt,
                 o.UpdatedAt,
                 o.ExpiresAt

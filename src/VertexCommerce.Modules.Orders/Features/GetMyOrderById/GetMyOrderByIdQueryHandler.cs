@@ -22,8 +22,8 @@ public sealed class GetMyOrderByIdQueryHandler(
             .Where(o => o.CustomerId == customerId && o.Id == query.OrderId)
             .Select(o => new MyOrderResponse(
                 o.Id,
-                o.OrderNumber,
-                o.CustomerPhoneNumber,
+                o.OrderNumber.Value,
+                o.CustomerPhoneNumber.Value,
                 o.Status.ToString(),
                 o.PaymentStatus.ToString(),
                 o.ReceiptImagePath,
@@ -37,7 +37,7 @@ public sealed class GetMyOrderByIdQueryHandler(
                 o.TotalAmount.Currency,
                 o.Notes,
                 o.CancellationReason,
-                o.TrackingNumber,
+                o.TrackingNumber == null ? null : o.TrackingNumber.Value.Value,
                 o.CreatedAt,
                 o.ConfirmedAt,
                 o.ProcessingAt,

@@ -37,7 +37,7 @@ public sealed class OrderRepository : IOrderRepository
     {
         return await _context.Orders
             .Include(o => o.Items)
-            .FirstOrDefaultAsync(o => o.OrderNumber == orderNumber, ct);
+            .FirstOrDefaultAsync(o => o.OrderNumber.Value == orderNumber, ct);
     }
 
     public async Task<IReadOnlyList<Order>> GetByCustomerIdAsync(Guid customerId, CancellationToken ct = default)

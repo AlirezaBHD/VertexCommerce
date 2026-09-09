@@ -1,38 +1,45 @@
-using VertexCommerce.Shared.Domain.Schema;
-
 namespace VertexCommerce.Modules.Orders.Domain.ValueObjects;
 
 public readonly record struct Address
 {
-    public static StringFieldSchema ProvinceSchema { get; } = new(maxLength: 100);
-    public static StringFieldSchema CitySchema { get; } = new(maxLength: 100);
-    public static StringFieldSchema PostalAddressSchema { get; } = new(maxLength: 500);
-    public static StringFieldSchema PostalCodeSchema { get; } = new(maxLength: 20);
+    public Province Province { get; init; }
+    public City City { get; init; }
+    public PostalAddress PostalAddress { get; init; }
+    public PostalCode PostalCode { get; init; }
+    public GeoLocation Location { get; init; }
+    public AddressLabel? Label { get; init; }
 
-    public string Province { get; init; }
-    public string City { get; init; }
-    public string PostalAddress { get; init; }
-    public string PostalCode { get; init; }
-    public decimal Latitude { get; init; }
-    public decimal Longitude { get; init; }
-    public string? Label { get; init; }
-
-    public static Address Create(string? province, string? city, string? postalAddress, string? postalCode, decimal latitude,
-        decimal longitude, string? label)
+    public static Address Create(
+        Province province,
+        City city,
+        PostalAddress postalAddress,
+        PostalCode postalCode,
+        GeoLocation location,
+        AddressLabel? label = null)
     {
         return new Address
         {
-            Province = StringFieldGuard.Apply(province, ProvinceSchema, nameof(Province)),
-            City = StringFieldGuard.Apply(city, CitySchema, nameof(City)),
-            PostalAddress = StringFieldGuard.Apply(postalAddress, PostalAddressSchema, nameof(PostalAddress)),
-            PostalCode = StringFieldGuard.Apply(postalCode, PostalCodeSchema, nameof(PostalCode)),
-            Latitude = latitude,
-            Longitude = longitude,
-            Label = label?.Trim()
+            Province = province,
+            City = city,
+            PostalAddress = postalAddress,
+            PostalCode = postalCode,
+            Location = location,
+            Label = label
         };
     }
 
-    public override string ToString() => $"{Province} - {City} - {PostalAddress} - {PostalCode}";
-    public string ToStringSummary() => 
-        $"{Province} - {City} - {(PostalAddress.Length > 10 ? PostalAddress[..10] + "..." : PostalAddress)}";
+    public override string ToString()
+    {
+        return Province.Value + " - " + City.Value + " - " + PostalAddress.Value + " - " + PostalCode.Value;
+    }
+
+    public string ToStringSummary()
+    {
+        string pAddress = PostalAddress.Value;
+        if (pAddress.Length > 10)
+        {
+            pAddress = pAddress.Substring(0, 10) + "...";
+        }
+        return Province.Value + " - " + City.Value + " - " + pAddress;
+    }
 }
