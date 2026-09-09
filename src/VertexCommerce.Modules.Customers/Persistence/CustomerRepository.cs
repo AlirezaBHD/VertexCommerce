@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using VertexCommerce.Modules.Customers.Domain.Entities;
 using VertexCommerce.Modules.Customers.Domain.Repositories;
+using VertexCommerce.Modules.Customers.Domain.ValueObjects;
 using VertexCommerce.Modules.Customers.Services;
 using VertexCommerce.Shared.Contracts.Customers;
 using VertexCommerce.Shared.Contracts.Pagination;
@@ -35,12 +36,12 @@ internal sealed class CustomerRepository(CustomersDbContext context) : ICustomer
             .FirstOrDefaultAsync(c => c.UserId == userId, ct);
     }
 
-    public async Task<Customer?> GetByPhoneNumberAsync(string phoneNumber, CancellationToken ct = default)
+    public async Task<Customer?> GetByPhoneNumberAsync(PhoneNumber phoneNumber, CancellationToken ct = default)
     {
-        var normalized = phoneNumber.Trim();
+        var value = phoneNumber.Value;
         return await context.Customers
             .Include(c => c.Addresses)
-            .FirstOrDefaultAsync(c => c.PhoneNumber == normalized, ct);
+            .FirstOrDefaultAsync(c => c.PhoneNumber.Value == value, ct);
     }
 
     public async Task<IReadOnlyList<Customer>> SearchAsync(string? searchTerm, int limit = 20,
@@ -52,9 +53,9 @@ internal sealed class CustomerRepository(CustomersDbContext context) : ICustomer
         {
             var term = searchTerm.Trim();
             query = query.Where(c =>
-                c.PhoneNumber.Contains(term) ||
-                c.FirstName.Contains(term) ||
-                c.LastName.Contains(term));
+                c.PhoneNumber.Value.Contains(term) ||
+                c.FirstName.Value.Contains(term) ||
+                c.LastName.Value.Contains(term));
         }
 
         return await query
@@ -77,7 +78,7 @@ internal sealed class CustomerRepository(CustomersDbContext context) : ICustomer
 
         return new PagedResult<TResult>(
             Items: result,
-            HasNextPage: count > (skip + 1) * take,
+            HasNextPage: count > skip + take,
             HasPreviousPage: skip > 0,
             TotalCount: count
         );
@@ -104,6 +105,11 @@ internal sealed class CustomerRepository(CustomersDbContext context) : ICustomer
     public void Update(Customer customer)
     {
         context.Customers.Update(customer);
+    }
+
+    public void AddNewAddress(CustomerAddress address)
+    {
+        context.CustomerAddresses.Add(address);
     }
 
     public async Task<CustomerInfoDto?> GetCustomerInfoAsync(GetCustomerInfoSpec spec, CancellationToken ct)
