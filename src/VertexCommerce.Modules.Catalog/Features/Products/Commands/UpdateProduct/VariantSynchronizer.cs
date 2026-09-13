@@ -1,5 +1,5 @@
 // using VertexCommerce.Modules.Catalog.Domain.Products;
-// using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
+// using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
 //
 // namespace VertexCommerce.Modules.Catalog.Features.Products.Commands.UpdateProduct;
 //

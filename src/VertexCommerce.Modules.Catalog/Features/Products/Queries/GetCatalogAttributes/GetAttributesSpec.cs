@@ -9,16 +9,16 @@ public sealed class GetAttributesSpec : BaseSpecification<CatalogAttribute, Cata
     {
         Include(a => a.Options);
         Select(a => new CatalogAttributesResponse(
-            Code: a.Code,
-            DefaultName: a.DefaultName,
+            Code: a.Code.Value,
+            DefaultName: a.DefaultName.Value,
             Options: MapOptions(a.Options)
         ));
     }
 
     private static List<CatalogAttributeOptionResponse> MapOptions(IEnumerable<CatalogAttributeOption> options) =>
         options.Select(o => new CatalogAttributeOptionResponse(
-            o.Code,
-            o.DefaultName,
-            o.MediaPath
+            o.Code.Value,
+            o.DefaultName.Value,
+            o.MediaPath.HasValue ? o.MediaPath.Value.Value : null
             )).ToList();
 }

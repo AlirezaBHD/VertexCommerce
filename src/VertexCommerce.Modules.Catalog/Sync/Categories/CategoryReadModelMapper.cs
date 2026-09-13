@@ -18,20 +18,20 @@ internal static class CategoryReadModelMapper
         return new CategoryReadModel
         {
             Id = category.Id,
-            Name = category.Name,
-            Description = category.Description,
+            Name = category.Name.Value,
+            Description = category.Description.Value,
             ParentId = category.ParentId,
-            IconPath = category.IconPath,
-            CoverImagePath = category.CoverImagePath,
-            ImageAltText = category.ImageAltText,
+            IconPath = category.IconPath?.Value,
+            CoverImagePath = category.CoverImagePath.Value,
+            ImageAltText = category.ImageAltText?.Value,
             IsActive = category.IsActive,
             ShowOnHome = category.ShowOnHome,
             IncludeInMenu = category.IncludeInMenu,
             SortOrder = category.SortOrder,
-            Slug = category.Seo.Slug,
-            MetaTitle = category.Seo.MetaTitle,
-            MetaDescription = category.Seo.MetaDescription,
-            Keywords = category.Seo.Keywords,
+            Slug = category.Seo.Slug.Value,
+            MetaTitle = category.Seo.MetaTitle?.Value ?? string.Empty,
+            MetaDescription = category.Seo.MetaDescription?.Value ?? string.Empty,
+            Keywords = category.Seo.Keywords?.Value ?? string.Empty,
             Breadcrumb = breadcrumb,
             Depth = depth,
             ChildCount = childCount,
@@ -53,8 +53,8 @@ internal static class CategoryReadModelMapper
             breadcrumb.Add(new CategoryBreadcrumb
             {
                 Id = current.Id,
-                Name = current.Name,
-                Slug = current.Seo.Slug
+                Name = current.Name.Value,
+                Slug = current.Seo.Slug.Value
             });
 
             if (current.ParentId.HasValue &&

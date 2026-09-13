@@ -1,4 +1,4 @@
-using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
+using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
 using VertexCommerce.Shared.Domain;
 
 namespace VertexCommerce.Modules.Catalog.Domain.Products;
@@ -6,8 +6,8 @@ namespace VertexCommerce.Modules.Catalog.Domain.Products;
 public sealed class ProductVariant : Entity<Guid>
 {
     public Guid ProductId { get; private set; }
-    public Sku Sku { get; private set; } = null!;
-    public Money Price { get; private set; } = null!;
+    public Sku Sku { get; private set; }
+    public Money Price { get; private set; }
     public int StockQuantity { get; private set; }
     public int ReservedQuantity { get; private set; }
     public int AvailableQuantity => StockQuantity - ReservedQuantity;
@@ -15,7 +15,7 @@ public sealed class ProductVariant : Entity<Guid>
     public int SortOrder { get; private set; }
 
     private readonly List<ProductAttribute> _attributes = [];
-    public IReadOnlyList<ProductAttribute> Attributes => _attributes.AsReadOnly();
+    public IReadOnlyList<ProductAttribute> Attributes => _attributes;
 
     private ProductVariant() { }
 

@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using VertexCommerce.Modules.Catalog.Domain.Products;
+using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
+using VertexCommerce.Shared.Persistence;
 
 namespace VertexCommerce.Modules.Catalog.Persistence.Postgres.Configurations;
 
@@ -16,24 +18,16 @@ public sealed class CatalogAttributeConfiguration : IEntityTypeConfiguration<Cat
             .HasColumnName("id")
             .ValueGeneratedNever();
 
-        builder.Property(a => a.Code)
-            .HasColumnName("code")
-            .HasMaxLength(100)
-            .IsRequired();
+        builder.ComplexProperty(a => a.Code, code => code.Property(x => x.Value).HasColumnName("code").HasSchema(AttributeCode.Schema).IsRequired());
         
         builder.HasMany(a => a.Options)
             .WithOne()
             .HasForeignKey(o => o.AttributeId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Property(a => a.DefaultName)
-            .HasColumnName("default_name")
-            .HasMaxLength(100)
-            .IsRequired();
+        builder.ComplexProperty(a => a.DefaultName, name => name.Property(x => x.Value).HasColumnName("default_name").HasSchema(AttributeName.Schema).IsRequired());
 
-        builder.Property(a => a.Type)
-            .HasColumnName("type")
-            .HasMaxLength(50);
+        builder.Property(a => a.Type).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : AttributeType.CreateOrNull(v)).HasColumnName("type").HasSchema(AttributeType.Schema);
 
         builder.Property(a => a.CreatedAt)
             .HasColumnName("created_at")

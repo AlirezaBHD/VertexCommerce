@@ -1,6 +1,6 @@
 using VertexCommerce.Modules.Catalog.Domain.Categories;
 using VertexCommerce.Modules.Catalog.Domain.Products;
-using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
+using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
 using VertexCommerce.Modules.Catalog.Persistence.Postgres;
 using VertexCommerce.Shared.CQRS;
 
@@ -20,17 +20,17 @@ internal sealed class CreateProductCommandHandler(
 
         if (await productRepository.SlugExistsAsync(command.SeoMetadata.Slug, ct))
             return Result.Failure<CreateProductResponse>(
-                Error.Conflict($"Product Slug '{command.SeoMetadata.Slug}' already exists."));
+                Error.Conflict($"Product Slug '{Slug.Create(command.SeoMetadata.Slug)}' already exists."));
 
         var seoMetadata = SeoMetadata.Create(
-            command.SeoMetadata.Slug,
-            command.SeoMetadata.MetaTitle,
-            command.SeoMetadata.MetaDescription,
-            command.SeoMetadata.Keywords);
+            Slug.Create(command.SeoMetadata.Slug),
+            MetaTitle.CreateOrNull(command.SeoMetadata.MetaTitle),
+            MetaDescription.CreateOrNull(command.SeoMetadata.MetaDescription),
+            SeoKeywords.CreateOrNull(command.SeoMetadata.Keywords));
 
         var product = Product.Create(
-            command.Name,
-            command.Description,
+            ProductName.Create(command.Name),
+            ProductDescription.CreateOrNull(command.Description),
             command.CategoryId,
             seoMetadata
         );
@@ -39,10 +39,8 @@ internal sealed class CreateProductCommandHandler(
         {
             var mediaList = command.Media
                 .Select(m => 
-                    ProductMedia.Create(
-                        m.Path, MediaType.Image,
-                        m.SortOrder, m.AltText, 
-                        m.AssociatedAttributeCode, m.AssociatedOptionCode))
+                    ProductMedia.Create(ImagePath.Create(m.Path), MediaType.Image,
+                        m.SortOrder, AltText.CreateOrNull(m.AltText), m.AssociatedAttributeCode != null ? AttributeCode.Create(m.AssociatedAttributeCode) : null, m.AssociatedOptionCode != null ? OptionCode.Create(m.AssociatedOptionCode) : null))
                 .ToList();
             product.SetMedia(mediaList);
         }
@@ -54,10 +52,10 @@ internal sealed class CreateProductCommandHandler(
             foreach (var v in command.Variants)
             {
                 var attributes = v.Attributes
-                    .Select(a => ProductAttribute.Create(a.AttributeCode, a.OptionCode))
+                    .Select(a => ProductAttribute.Create(AttributeCode.Create(a.AttributeCode), OptionCode.Create(a.OptionCode)))
                     .ToList();
 
-                var price = Money.Create(v.Price, v.Currency ?? "USD");
+                var price = Money.Create(v.Price, Currency.Create(v.Currency ?? "USD"));
                 var sku = Sku.Generate();
 
                 var variant = ProductVariant.Create(

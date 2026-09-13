@@ -1,4 +1,4 @@
-using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
+using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
 using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Catalog.Features.Products.Commands.UpdateProduct;

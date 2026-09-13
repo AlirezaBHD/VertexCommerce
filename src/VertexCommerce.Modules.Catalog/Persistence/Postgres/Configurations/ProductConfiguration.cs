@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using VertexCommerce.Modules.Catalog.Domain.Products;
+using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
+using VertexCommerce.Shared.Persistence;
 
 namespace VertexCommerce.Modules.Catalog.Persistence.Postgres.Configurations;
 
@@ -16,14 +18,9 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasColumnName("id")
             .ValueGeneratedNever();
 
-        builder.Property(p => p.Name)
-            .HasColumnName("name")
-            .HasMaxLength(200)
-            .IsRequired();
+        builder.ComplexProperty(p => p.Name, name => name.Property(x => x.Value).HasColumnName("name").HasSchema(ProductName.Schema).IsRequired());
 
-        builder.Property(p => p.Description)
-            .HasColumnName("description")
-            .HasMaxLength(2000);
+        builder.Property(p => p.Description).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : ProductDescription.Create(v)).HasColumnName("description").HasSchema(ProductDescription.Schema);
 
         builder.Property(p => p.IsActive)
             .HasColumnName("is_active")
@@ -40,39 +37,23 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.UpdatedAt)
             .HasColumnName("updated_at");
 
-        builder.OwnsOne(p => p.Seo, seo =>
+        builder.ComplexProperty(p => p.Seo, seo =>
         {
-            seo.Property(s => s.Slug)
-                .HasColumnName("seo_slug")
-                .HasMaxLength(200)
-                .IsRequired();
-
-            seo.Property(s => s.MetaTitle)
-                .HasColumnName("seo_meta_title")
-                .HasMaxLength(60)
-                .IsRequired();
-
-            seo.Property(s => s.MetaDescription)
-                .HasColumnName("seo_meta_description")
-                .HasMaxLength(160)
-                .IsRequired();
-
-            seo.Property(s => s.Keywords)
-                .HasColumnName("seo_keywords")
-                .HasMaxLength(500);
-
-            seo.HasIndex(s => s.Slug).IsUnique();
+            seo.ComplexProperty(s => s.Slug, slug => slug.Property(x => x.Value).HasColumnName("slug").HasSchema(Slug.Schema).IsRequired());
+            seo.Property(s => s.MetaTitle).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : MetaTitle.CreateOrNull(v)).HasColumnName("meta_title").HasSchema(MetaTitle.Schema);
+            seo.Property(s => s.MetaDescription).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : MetaDescription.CreateOrNull(v)).HasColumnName("meta_description").HasSchema(MetaDescription.Schema);
+            seo.Property(s => s.Keywords).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : SeoKeywords.CreateOrNull(v)).HasColumnName("keywords").HasSchema(SeoKeywords.Schema);
         });
 
         builder.OwnsMany(p => p.Media, mb =>
         {
             mb.ToJson();
-            mb.Property(m => m.Path).HasJsonPropertyName("media_path").IsRequired();
+            mb.Property(m => m.Path).HasConversion(x => x.Value, v => ImagePath.Create(v)).HasJsonPropertyName("media_path").IsRequired();
             mb.Property(m => m.Type).HasJsonPropertyName("media_type").IsRequired();
             mb.Property(m => m.SortOrder).HasJsonPropertyName("sort_order").IsRequired();
-            mb.Property(m => m.AltText).HasJsonPropertyName("alt_text");
-            mb.Property(m => m.AssociatedAttributeCode).HasJsonPropertyName("associated_attribute_code");
-            mb.Property(m => m.AssociatedOptionCode).HasJsonPropertyName("associated_option_code");
+            mb.Property(m => m.AltText).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : AltText.CreateOrNull(v)).HasJsonPropertyName("alt_text");
+            mb.Property(m => m.AssociatedAttributeCode).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : AttributeCode.Create(v)).HasJsonPropertyName("associated_attribute_code");
+            mb.Property(m => m.AssociatedOptionCode).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : OptionCode.Create(v)).HasJsonPropertyName("associated_option_code");
         });
 
         builder.HasOne(p => p.Category)

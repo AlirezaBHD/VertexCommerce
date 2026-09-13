@@ -55,7 +55,7 @@ public sealed class CategoryRepository(CatalogDbContext context) : ICategoryRepo
 
     public async Task<bool> NameExistsAsync(string name, Guid? excludeId = null, CancellationToken ct = default)
     {
-        var query = context.Categories.Where(c => c.Name == name);
+        var query = context.Categories.Where(c => c.Name.Value == name);
 
         if (excludeId.HasValue)
         {
@@ -91,7 +91,7 @@ public sealed class CategoryRepository(CatalogDbContext context) : ICategoryRepo
 
     public async Task<bool> SlugExistsAsync(string slug, Guid? excludeId, CancellationToken ct)
     {
-        var query = context.Categories.Where(c => c.Seo.Slug == slug);
+        var query = context.Categories.Where(c => c.Seo.Slug.Value == slug);
 
         if (excludeId.HasValue)
         {

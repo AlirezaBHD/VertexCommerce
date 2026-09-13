@@ -29,7 +29,7 @@ internal sealed class ProductSyncService(
         var categoryPath = await categoryPathBuilder.BuildAsync(product.CategoryId, ct);
         var readModel = ProductReadModelMapper.Map(
             product,
-            product.Category?.Name ?? "Unknown",
+            product.Category?.Name.Value ?? "Unknown",
             categoryPath);
 
         await readModelRepository.UpsertAsync(readModel, ct);
@@ -68,7 +68,7 @@ internal sealed class ProductSyncService(
 
             readModels.Add(ProductReadModelMapper.Map(
                 product,
-                product.Category?.Name ?? "Unknown",
+                product.Category?.Name.Value ?? "Unknown",
                 path));
         }
 
@@ -82,7 +82,7 @@ internal sealed class ProductSyncService(
         var products = await LoadCategoryProducts(categoryId, ct);
         var category = await dbContext.Categories.FindAsync([categoryId], ct);
         var categoryPath = await categoryPathBuilder.BuildAsync(categoryId, ct);
-        var categoryName = category?.Name ?? "Unknown";
+        var categoryName = category?.Name.Value ?? "Unknown";
 
         var readModels = products
             .Select(p => ProductReadModelMapper.Map(p, categoryName, categoryPath))

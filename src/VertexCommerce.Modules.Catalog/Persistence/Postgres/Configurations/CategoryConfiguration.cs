@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using VertexCommerce.Modules.Catalog.Domain.Categories;
+using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
+using VertexCommerce.Shared.Persistence;
 
 namespace VertexCommerce.Modules.Catalog.Persistence.Postgres.Configurations;
 
@@ -16,27 +18,15 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
             .HasColumnName("id")
             .ValueGeneratedNever();
 
-        builder.Property(c => c.Name)
-            .HasColumnName("name")
-            .HasMaxLength(100)
-            .IsRequired();
+        builder.ComplexProperty(c => c.Name, name => name.Property(x => x.Value).HasColumnName("name").HasSchema(CategoryName.Schema).IsRequired());
 
-        builder.Property(c => c.Description)
-            .HasColumnName("description")
-            .HasMaxLength(500);
+        builder.ComplexProperty(c => c.Description, desc => desc.Property(x => x.Value).HasColumnName("description").HasSchema(CategoryDescription.Schema));
         
-        builder.Property(c => c.IconPath)
-            .HasColumnName("icon_path")
-            .HasMaxLength(255);
+        builder.Property(c => c.IconPath).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : ImagePath.CreateOrNull(v)).HasColumnName("icon_path").HasSchema(ImagePath.Schema);
         
-        builder.Property(c => c.CoverImagePath)
-            .HasColumnName("cover_image_path")
-            .HasMaxLength(255)
-            .IsRequired();
+        builder.ComplexProperty(c => c.CoverImagePath, p => p.Property(x => x.Value).HasColumnName("cover_image_path").HasSchema(ImagePath.Schema).IsRequired());
 
-        builder.Property(c => c.ImageAltText)
-            .HasColumnName("image_alt_text")
-            .HasMaxLength(200);
+        builder.Property(c => c.ImageAltText).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : AltText.CreateOrNull(v)).HasColumnName("image_alt_text").HasSchema(AltText.Schema);
 
         builder.Property(c => c.IsActive)
             .HasColumnName("is_active")

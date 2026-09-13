@@ -1,5 +1,5 @@
 using VertexCommerce.Modules.Catalog.Domain.Categories;
-using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
+using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
 using VertexCommerce.Modules.Catalog.Features.Categories.Queries.GetCategoryById.DTOs;
 using VertexCommerce.Modules.Catalog.Features.Products.Queries.GetProductById.DTOs;
 using VertexCommerce.Shared.Specifications;
@@ -15,12 +15,12 @@ public sealed class GetCategoryByIdSpec : BaseSpecification<Category, CategoryDt
         // Include(c => c.Seo);
 
         Select(p => new CategoryDto(
-            Name: p.Name,
-            Description: p.Description,
+            Name: p.Name.Value,
+            Description: p.Description.Value,
             Seo: MapSeoMetadata(p.Seo),
-            IconPath: p.IconPath,
-            CoverImagePath: p.CoverImagePath,
-            ImageAltText: p.ImageAltText,
+            IconPath: p.IconPath.HasValue ? p.IconPath.Value.Value : null,
+            CoverImagePath: p.CoverImagePath.Value,
+            ImageAltText: p.ImageAltText.HasValue ? p.ImageAltText.Value.Value : null,
             ParentId: p.ParentId,
             IsActive: p.IsActive,
             ShowOnHome: p.ShowOnHome,
@@ -30,5 +30,5 @@ public sealed class GetCategoryByIdSpec : BaseSpecification<Category, CategoryDt
     }
 
     private static SeoMetadataResponse MapSeoMetadata(SeoMetadata seo) =>
-        new(seo.Slug, seo.MetaTitle, seo.MetaDescription, seo.Keywords);
+        new(seo.Slug.Value, seo.MetaTitle.HasValue ? seo.MetaTitle.Value.Value : string.Empty, seo.MetaDescription.HasValue ? seo.MetaDescription.Value.Value : string.Empty, seo.Keywords.HasValue ? seo.Keywords.Value.Value : null);
 }

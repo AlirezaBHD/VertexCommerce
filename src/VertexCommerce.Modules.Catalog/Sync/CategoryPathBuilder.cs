@@ -23,7 +23,7 @@ internal sealed class CategoryPathBuilder
         {
             var category = await _dbContext.Categories
                 .AsNoTracking()
-                .Select(c => new { c.Id, c.Name, c.ParentId, Slug = c.Seo.Slug })
+                .Select(c => new { c.Id, c.Name, c.ParentId, Slug = c.Seo.Slug.Value })
                 .FirstOrDefaultAsync(c => c.Id == currentId.Value, ct);
 
             if (category is null) break;
@@ -31,7 +31,7 @@ internal sealed class CategoryPathBuilder
             breadcrumb.Insert(0, new CategoryBreadcrumb
             {
                 Id = category.Id,
-                Name = category.Name,
+                Name = category.Name.Value,
                 Slug = category.Slug
             });
             

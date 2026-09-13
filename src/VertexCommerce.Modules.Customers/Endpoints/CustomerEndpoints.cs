@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using VertexCommerce.Shared.Extensions;
+using VertexCommerce.Shared.Contracts.Identity;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AddAddress;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.EditAddress;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.RemoveAddress;
@@ -15,13 +17,11 @@ using VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomer;
 using VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomerAdmin;
 using VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomers;
 using VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomerStats;
-using VertexCommerce.Shared.Extensions;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminAddAddress;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminEditAddress;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminRemoveAddress;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Commands.AdminSetDefaultAddress;
 using VertexCommerce.Modules.Customers.Features.CustomerAddresses.Shared;
-using VertexCommerce.Shared.Contracts.Identity;
 
 namespace VertexCommerce.Modules.Customers.Endpoints;
 

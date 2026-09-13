@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using VertexCommerce.Modules.Catalog.Domain.Products;
+using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
+using VertexCommerce.Shared.Persistence;
 
 namespace VertexCommerce.Modules.Catalog.Persistence.Postgres.Configurations;
 
@@ -20,19 +22,11 @@ public sealed class CatalogAttributeOptionConfiguration : IEntityTypeConfigurati
             .HasColumnName("attribute_id")
             .IsRequired();
 
-        builder.Property(a => a.Code)
-            .HasColumnName("code")
-            .HasMaxLength(100)
-            .IsRequired();
+        builder.ComplexProperty(a => a.Code, code => code.Property(x => x.Value).HasColumnName("code").HasSchema(OptionCode.Schema).IsRequired());
 
-        builder.Property(a => a.DefaultName)
-            .HasColumnName("default_name")
-            .HasMaxLength(100)
-            .IsRequired();
+        builder.ComplexProperty(a => a.DefaultName, name => name.Property(x => x.Value).HasColumnName("default_name").HasSchema(OptionValue.Schema).IsRequired());
 
-        builder.Property(a => a.MediaPath)
-            .HasColumnName("media_path")
-            .HasMaxLength(100);
+        builder.Property(a => a.MediaPath).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : ImagePath.CreateOrNull(v)).HasColumnName("media_path").HasSchema(ImagePath.Schema);
 
         builder.Property(a => a.CreatedAt)
             .HasColumnName("created_at")

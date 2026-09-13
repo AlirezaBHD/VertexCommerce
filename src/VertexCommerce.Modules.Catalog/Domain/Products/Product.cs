@@ -1,24 +1,24 @@
 using VertexCommerce.Modules.Catalog.Domain.Categories;
 using VertexCommerce.Modules.Catalog.Domain.Products.Events;
-using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
+using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
 using VertexCommerce.Shared.Domain;
 
 namespace VertexCommerce.Modules.Catalog.Domain.Products;
 
 public sealed class Product : AggregateRoot<Guid>
 {
-    public string Name { get; private set; } = string.Empty;
-    public string? Description { get; private set; }
+    public ProductName Name { get; private set; }
+    public ProductDescription? Description { get; private set; }
     public bool IsActive { get; private set; }
     public Guid CategoryId { get; private set; }
     public Category? Category { get; private set; }
-    public SeoMetadata Seo { get; private set; } = null!;
+    public SeoMetadata Seo { get; private set; }
     
     private readonly List<ProductVariant> _variants = [];
-    public IReadOnlyCollection<ProductVariant> Variants => _variants.AsReadOnly();
+    public IReadOnlyCollection<ProductVariant> Variants => _variants;
     
     private readonly List<ProductMedia> _media = [];
-    public IReadOnlyCollection<ProductMedia> Media => _media.AsReadOnly();
+    public IReadOnlyCollection<ProductMedia> Media => _media;
 
     private Product()
     {
@@ -27,12 +27,12 @@ public sealed class Product : AggregateRoot<Guid>
     #region Core Operations
 
     public static Product Create(
-        string name,
-        string? description,
+        ProductName name,
+        ProductDescription? description,
         Guid categoryId,
         SeoMetadata seo)
     {
-        if (string.IsNullOrWhiteSpace(name))
+        if (string.IsNullOrWhiteSpace(name.Value))
         {
             throw new ArgumentException("Product name cannot be empty.", nameof(name));
         }
@@ -40,8 +40,8 @@ public sealed class Product : AggregateRoot<Guid>
         var product = new Product
         {
             Id = Guid.NewGuid(),
-            Name = name.Trim(),
-            Description = description?.Trim(),
+            Name = name,
+            Description = description,
             CategoryId = categoryId,
             Seo = seo,
             IsActive = true
@@ -49,26 +49,26 @@ public sealed class Product : AggregateRoot<Guid>
 
         product.AddDomainEvent(new ProductCreatedEvent(
             product.Id,
-            product.Name
+            product.Name.Value
         ));
 
         return product;
     }
 
-    public void Update(string name, string? description, Guid categoryId, SeoMetadata seoMetadata)
+    public void Update(ProductName name, ProductDescription? description, Guid categoryId, SeoMetadata seoMetadata)
     {
-        if (string.IsNullOrWhiteSpace(name))
+        if (string.IsNullOrWhiteSpace(name.Value))
         {
             throw new ArgumentException("Product name cannot be empty.", nameof(name));
         }
 
-        Name = name.Trim();
-        Description = description?.Trim();
+        Name = name;
+        Description = description;
         CategoryId = categoryId;
         Seo = seoMetadata;
         SetUpdatedAt();
 
-        AddDomainEvent(new ProductUpdatedEvent(Id, Name));
+        AddDomainEvent(new ProductUpdatedEvent(Id, Name.Value));
     }
 
     public void Delete()
@@ -147,7 +147,7 @@ public sealed class Product : AggregateRoot<Guid>
 
     public void RemoveMedia(string path)
     {
-        var media = _media.FirstOrDefault(m => m.Path == path);
+        var media = _media.FirstOrDefault(m => m.Path.Value == path);
         if (media is not null)
         {
             _media.Remove(media);

@@ -1,4 +1,4 @@
-﻿using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories;
+using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories;
 using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Catalog.Features.Categories.Queries.Lookups;

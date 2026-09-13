@@ -1,5 +1,5 @@
 using VertexCommerce.Modules.Catalog.Domain.Categories;
-using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
+using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
 using VertexCommerce.Modules.Catalog.Persistence.Postgres;
 using VertexCommerce.Shared.CQRS;
 
@@ -38,22 +38,22 @@ public sealed class CreateCategoryCommandHandler : ICommandHandler<CreateCategor
         var slugExists = await _categoryRepository.SlugExistsAsync(command.Name, null, ct);
         if (slugExists)
         {
-            return Result.Failure<Guid>(Error.Conflict($"Category with slug '{command.Seo.Slug}' already exists."));
+            return Result.Failure<Guid>(Error.Conflict($"Category with slug '{Slug.Create(command.Seo.Slug)}' already exists."));
         }
 
         var seo = SeoMetadata.Create(
-            slug: command.Seo.Slug,
-            metaTitle: command.Seo.MetaTitle,
-            metaDescription: command.Seo.MetaDescription,
-            keywords: command.Seo.Keywords);
+            slug: Slug.Create(command.Seo.Slug),
+            metaTitle: MetaTitle.CreateOrNull(command.Seo.MetaTitle),
+            metaDescription: MetaDescription.CreateOrNull(command.Seo.MetaDescription),
+            keywords: SeoKeywords.CreateOrNull(command.Seo.Keywords));
 
         var category = Category.Create(
-            name: command.Name,
-            description: command.Description,
+            name: CategoryName.Create(command.Name),
+            description: CategoryDescription.Create(command.Description),
             seoMetadata: seo,
-            iconPath: command.IconPath,
-            coverImagePath: command.CoverImagePath,
-            imageAltText: command.ImageAltText,
+            iconPath: ImagePath.CreateOrNull(command.IconPath),
+            coverImagePath: ImagePath.Create(command.CoverImagePath),
+            imageAltText: AltText.CreateOrNull(command.ImageAltText),
             parentId: command.ParentId,
             isActive: command.IsActive,
             showOnHome: command.ShowOnHome,

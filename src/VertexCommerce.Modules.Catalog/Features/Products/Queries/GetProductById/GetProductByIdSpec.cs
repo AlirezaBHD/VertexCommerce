@@ -1,5 +1,5 @@
 using VertexCommerce.Modules.Catalog.Domain.Products;
-using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
+using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
 using VertexCommerce.Modules.Catalog.Features.Products.Queries.GetProductById.DTOs;
 using VertexCommerce.Shared.Specifications;
 
@@ -16,8 +16,8 @@ public sealed class GetProductByIdSpec : BaseSpecification<Product, ProductRespo
         Include(p => p.Seo);
         Include(p => p.Variants);
         Select(p => new ProductResponse(
-            p.Name,
-            p.Description,
+            p.Name.Value,
+            p.Description.HasValue ? p.Description.Value.Value : null,
             p.IsActive,
             p.CategoryId,
             p.CreatedAt,
@@ -29,7 +29,7 @@ public sealed class GetProductByIdSpec : BaseSpecification<Product, ProductRespo
     }
 
     private static SeoMetadataResponse MapSeoMetadata(SeoMetadata seo) =>
-        new(seo.Slug, seo.MetaTitle, seo.MetaDescription, seo.Keywords);
+        new(seo.Slug.Value, seo.MetaTitle.HasValue ? seo.MetaTitle.Value.Value : string.Empty, seo.MetaDescription.HasValue ? seo.MetaDescription.Value.Value : string.Empty, seo.Keywords.HasValue ? seo.Keywords.Value.Value : null);
 
     private static List<ProductVariantDto> MapVariants(IEnumerable<ProductVariant> variants) =>
         variants.Select(v => new ProductVariantDto(
@@ -43,8 +43,8 @@ public sealed class GetProductByIdSpec : BaseSpecification<Product, ProductRespo
         )).ToList();
 
     private static List<ProductAttributeDto> MapAttributes(IEnumerable<ProductAttribute> attributes) =>
-        attributes.Select(a => new ProductAttributeDto(a.AttributeCode, a.OptionCode)).ToList();
+        attributes.Select(a => new ProductAttributeDto(a.AttributeCode.Value, a.OptionCode.Value)).ToList();
 
     private static List<ProductMediaDto> MapMedia(IEnumerable<ProductMedia> media) =>
-        media.Select(m => new ProductMediaDto(m.Path, m.Type.ToString(), m.SortOrder, m.AltText, m.AssociatedAttributeCode, m.AssociatedOptionCode)).ToList();
+        media.Select(m => new ProductMediaDto(m.Path.Value, m.Type.ToString(), m.SortOrder, m.AltText?.Value, m.AssociatedAttributeCode?.Value, m.AssociatedOptionCode?.Value)).ToList();
 }

@@ -1,18 +1,18 @@
 using VertexCommerce.Modules.Catalog.Domain.Categories.Events;
 using VertexCommerce.Modules.Catalog.Domain.Products;
-using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
+using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
 using VertexCommerce.Shared.Domain;
 
 namespace VertexCommerce.Modules.Catalog.Domain.Categories;
 
 public sealed class Category : AggregateRoot<Guid>
 {
-    public string Name { get; private set; } = string.Empty;
-    public string Description { get; private set; } = string.Empty;
-    public SeoMetadata Seo { get; private set; } = null!;
-    public string? IconPath { get; private set; }
-    public string CoverImagePath { get; private set; } = string.Empty;
-    public string? ImageAltText { get; private set; }
+    public CategoryName Name { get; private set; }
+    public CategoryDescription Description { get; private set; }
+    public SeoMetadata Seo { get; private set; }
+    public ImagePath? IconPath { get; private set; }
+    public ImagePath CoverImagePath { get; private set; }
+    public AltText? ImageAltText { get; private set; }
     public Guid? ParentId { get; private set; }
     public bool IsActive { get; private set; }
     public bool ShowOnHome { get; private set; }
@@ -20,10 +20,10 @@ public sealed class Category : AggregateRoot<Guid>
     public int SortOrder { get; private set; }
 
     private readonly List<Category> _children = [];
-    public IReadOnlyCollection<Category> Children => _children.AsReadOnly();
+    public IReadOnlyCollection<Category> Children => _children;
 
     private readonly List<Product> _products = [];
-    public IReadOnlyCollection<Product> Products => _products.AsReadOnly();
+    public IReadOnlyCollection<Product> Products => _products;
 
     private Category()
     {
@@ -42,19 +42,19 @@ public sealed class Category : AggregateRoot<Guid>
     }
     
     public static Category Create(
-        string name,
-        string description,
+        CategoryName name,
+        CategoryDescription description,
         SeoMetadata seoMetadata,
-        string? iconPath,
-        string coverImagePath,
-        string? imageAltText,
+        ImagePath? iconPath,
+        ImagePath coverImagePath,
+        AltText? imageAltText,
         Guid? parentId,
         bool isActive,
         bool showOnHome,
         bool includeInMenu,
         int sortOrder)
     {
-        if (string.IsNullOrWhiteSpace(name))
+        if (string.IsNullOrWhiteSpace(name.Value))
         {
             throw new ArgumentException("Category name cannot be empty.", nameof(name));
         }
@@ -62,8 +62,8 @@ public sealed class Category : AggregateRoot<Guid>
         var category = new Category
         {
             Id = Guid.NewGuid(),
-            Name = name.Trim(),
-            Description = description.Trim(),
+            Name = name,
+            Description = description,
             ParentId = parentId,
             SortOrder = sortOrder,
             IsActive = isActive,
@@ -78,7 +78,7 @@ public sealed class Category : AggregateRoot<Guid>
         
         category.AddDomainEvent(new CategoryCreatedEvent(
             category.Id,
-            category.Name,
+            category.Name.Value,
             category.ParentId
         ));
         
@@ -86,25 +86,25 @@ public sealed class Category : AggregateRoot<Guid>
     }
 
     public void Update(
-        string name,
-        string description,
+        CategoryName name,
+        CategoryDescription description,
         SeoMetadata seoMetadata,
-        string? iconPath,
-        string coverImagePath,
-        string? imageAltText,
+        ImagePath? iconPath,
+        ImagePath coverImagePath,
+        AltText? imageAltText,
         Guid? parentId,
         bool isActive,
         bool showOnHome,
         bool includeInMenu,
         int sortOrder)
     {
-        if (string.IsNullOrWhiteSpace(name))
+        if (string.IsNullOrWhiteSpace(name.Value))
         {
             throw new ArgumentException("Category name cannot be empty.", nameof(name));
         }
 
-        Name = name.Trim();
-        Description = description.Trim();
+        Name = name;
+        Description = description;
         ParentId = parentId;
         SortOrder = sortOrder;
         IsActive = isActive;
@@ -115,7 +115,7 @@ public sealed class Category : AggregateRoot<Guid>
         ShowOnHome = showOnHome;
         IncludeInMenu = includeInMenu;
         
-        AddDomainEvent(new CategoryCreatedEvent(Id, Name, ParentId));
+        AddDomainEvent(new CategoryCreatedEvent(Id, Name.Value, ParentId));
     }
 
     public void Activate()
@@ -134,7 +134,7 @@ public sealed class Category : AggregateRoot<Guid>
     {
         SortOrder = sortOrder;
         SetUpdatedAt();
-        AddDomainEvent(new CategoryUpdatedEvent(Id, Name, ParentId, IsActive, sortOrder));
+        AddDomainEvent(new CategoryUpdatedEvent(Id, Name.Value, ParentId, IsActive, sortOrder));
     }
 
     public void SetParent(Guid? parentId)

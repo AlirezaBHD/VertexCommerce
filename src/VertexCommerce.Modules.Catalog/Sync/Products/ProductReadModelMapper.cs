@@ -1,5 +1,5 @@
 using VertexCommerce.Modules.Catalog.Domain.Products;
-using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
+using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories.Documents;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Products.Documents;
 
@@ -26,8 +26,8 @@ internal static class ProductReadModelMapper
         return new ProductReadModel
         {
             Id = product.Id,
-            Name = product.Name,
-            Description = product.Description,
+            Name = product.Name.Value,
+            Description = product.Description?.Value,
             MinPrice = minPrice,
             MaxPrice = maxPrice,
             TotalStock = totalStock,
@@ -42,10 +42,10 @@ internal static class ProductReadModelMapper
             CreatedAt = product.CreatedAt,
             UpdatedAt = product.UpdatedAt,
             SyncedAt = DateTime.UtcNow,
-            Slug = product.Seo.Slug,
-            MetaTitle = product.Seo.MetaTitle,
-            MetaDescription = product.Seo.MetaDescription,
-            Keywords = product.Seo.Keywords
+            Slug = product.Seo.Slug.Value,
+            MetaTitle = product.Seo.MetaTitle?.Value ?? string.Empty,
+            MetaDescription = product.Seo.MetaDescription?.Value ?? string.Empty,
+            Keywords = product.Seo.Keywords?.Value ?? string.Empty
         };
     }
 
@@ -63,8 +63,8 @@ internal static class ProductReadModelMapper
             SortOrder = v.SortOrder,
             Attributes = v.Attributes.Select(a => new ProductAttributeReadModel
             {
-                AttributeCode = a.AttributeCode,
-                OptionCode = a.OptionCode
+                AttributeCode = a.AttributeCode.Value,
+                OptionCode = a.OptionCode.Value
             }).ToList()
         }).ToList();
     }
@@ -76,12 +76,12 @@ internal static class ProductReadModelMapper
             .OrderBy(m => m.SortOrder)
             .Select(m => new ProductMediaReadModel
             {
-                Path = m.Path,
+                Path = m.Path.Value,
                 Type = m.Type.ToString(),
-                AltText = m.AltText,
+                AltText = m.AltText?.Value,
                 SortOrder = m.SortOrder,
-                AssociatedAttributeCode = m.AssociatedAttributeCode,
-                AssociatedOptionCode = m.AssociatedOptionCode
+                AssociatedAttributeCode = m.AssociatedAttributeCode?.Value,
+                AssociatedOptionCode = m.AssociatedOptionCode?.Value
             }).ToList();
     }
 
@@ -117,10 +117,10 @@ internal static class ProductReadModelMapper
         string categoryName,
         List<ProductVariantReadModel> variants)
     {
-        var parts = new List<string> { product.Name, categoryName };
+        var parts = new List<string> { product.Name.Value, categoryName };
 
-        if (!string.IsNullOrWhiteSpace(product.Description))
-            parts.Add(product.Description);
+        if (product.Description != null)
+            parts.Add(product.Description.Value.Value);
 
         foreach (var variant in variants)
         {

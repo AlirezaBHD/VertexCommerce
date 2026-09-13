@@ -1,6 +1,6 @@
 using VertexCommerce.Modules.Catalog.Domain.Categories;
 using VertexCommerce.Modules.Catalog.Domain.Products;
-using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
+using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
 using VertexCommerce.Modules.Catalog.Persistence.Postgres;
 using VertexCommerce.Shared.CQRS;
 
@@ -25,7 +25,7 @@ internal sealed class UpdateProductCommandHandler(
             return Result.Failure(Error.NotFound("Category", command.CategoryId));
         }
 
-        var slugValidation = await ValidateSlugAsync(product, command.SeoMetadata.Slug, ct);
+        var slugValidation = await ValidateSlugAsync(product, Slug.Create(command.SeoMetadata.Slug), ct);
         if (slugValidation.IsFailure)
         {
             return Result.Failure(Error.Conflict("Slug already exists."));
@@ -54,7 +54,7 @@ internal sealed class UpdateProductCommandHandler(
             foreach (var variantDto in command.Variants)
             {
                 var attributes = variantDto.Attributes
-                    .Select(a => ProductAttribute.Create(a.AttributeCode, a.OptionCode))
+                    .Select(a => ProductAttribute.Create(AttributeCode.Create(a.AttributeCode), OptionCode.Create(a.OptionCode)))
                     .ToList();
             
                 if (variantDto.Id.HasValue)
@@ -67,7 +67,7 @@ internal sealed class UpdateProductCommandHandler(
                             ? Sku.Create(variantDto.Sku) 
                             : existingVariant.Sku;
                         
-                        var price = Money.Create(variantDto.Price, variantDto.Currency ?? "USD");
+                        var price = Money.Create(variantDto.Price, Currency.Create(variantDto.Currency ?? "USD"));
                         
                         existingVariant.Update(
                             sku: sku,
@@ -86,7 +86,7 @@ internal sealed class UpdateProductCommandHandler(
                                                 ? Sku.Create(variantDto.Sku)
                         : Sku.Generate();
             
-                    var price = Money.Create(variantDto.Price, variantDto.Currency ?? "USD");
+                    var price = Money.Create(variantDto.Price, Currency.Create(variantDto.Currency ?? "USD"));
             
                     var newVariant = ProductVariant.Create(
                         productId: product.Id,
@@ -107,26 +107,26 @@ internal sealed class UpdateProductCommandHandler(
         {
             var medias = command.Media.Select(m =>
                 ProductMedia.Create(
-                    path: m.Path,
+                    path: ImagePath.Create(m.Path),
                     type: MediaType.Image,
                     order: m.SortOrder,
-                    altText: m.AltText,
-                    associatedAttributeCode: m.AssociatedAttributeCode,
-                    associatedOptionCode: m.AssociatedOptionCode
+                    altText: AltText.CreateOrNull(m.AltText),
+                    associatedAttributeCode: m.AssociatedAttributeCode != null ? AttributeCode.Create(m.AssociatedAttributeCode) : null,
+                    associatedOptionCode: m.AssociatedOptionCode != null ? OptionCode.Create(m.AssociatedOptionCode) : null
                 )).ToList();
 
             product.SetMedia(medias);
         }
 
         var seoMetadata = SeoMetadata.Create(
-            command.SeoMetadata.Slug,
-            command.SeoMetadata.MetaTitle,
-            command.SeoMetadata.MetaDescription,
-            command.SeoMetadata.Keywords);
+            Slug.Create(command.SeoMetadata.Slug),
+            MetaTitle.CreateOrNull(command.SeoMetadata.MetaTitle),
+            MetaDescription.CreateOrNull(command.SeoMetadata.MetaDescription),
+            SeoKeywords.CreateOrNull(command.SeoMetadata.Keywords));
 
         product.Update(
-            name: command.Name,
-            description: command.Description,
+            name: ProductName.Create(command.Name),
+            description: command.Description != null ? ProductDescription.Create(command.Description) : null,
             categoryId: command.CategoryId,
             seoMetadata: seoMetadata);
 
@@ -134,14 +134,14 @@ internal sealed class UpdateProductCommandHandler(
         return Result.Success();
     }
 
-    private async Task<Result> ValidateSlugAsync(Product product, string newSlug, CancellationToken ct)
+    private async Task<Result> ValidateSlugAsync(Product product, Slug newSlug, CancellationToken ct)
     {
-        if (product.Seo.Slug == newSlug)
+        if (product.Seo.Slug.Value == newSlug.Value)
         {
             return Result.Success();
         }
 
-        if (await productRepository.SlugExistsAsync(newSlug, ct))
+        if (await productRepository.SlugExistsAsync(newSlug.Value, ct))
         {
             return Result.Failure(Error.Conflict($"Product Slug '{newSlug}' already exists."));
         }
