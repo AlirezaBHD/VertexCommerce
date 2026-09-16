@@ -22,6 +22,8 @@
     <PackageVersion Include="MongoDB.Driver" Version="3.4.0" />
     <!-- GraphQL -->
     <PackageVersion Include="HotChocolate.AspNetCore" Version="15.1.12" />
+    <PackageVersion Include="HotChocolate.AspNetCore.Authorization" Version="15.1.12" />
+    <PackageVersion Include="HotChocolate.Authorization" Version="15.1.12" />
     <PackageVersion Include="HotChocolate.Types" Version="15.1.12" />
     <PackageVersion Include="HotChocolate.Data" Version="15.1.12" />
     <PackageVersion Include="HotChocolate.Data.MongoDb" Version="15.1.12" />

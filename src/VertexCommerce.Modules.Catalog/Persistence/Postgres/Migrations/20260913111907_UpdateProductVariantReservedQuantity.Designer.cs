@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using VertexCommerce.Modules.Catalog.Persistence.Postgres;
@@ -12,9 +13,11 @@ using VertexCommerce.Modules.Catalog.Persistence.Postgres;
 namespace VertexCommerce.Modules.Catalog.Persistence.Postgres.Migrations
 {
     [DbContext(typeof(CatalogDbContext))]
-    partial class CatalogDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260913111907_UpdateProductVariantReservedQuantity")]
+    partial class UpdateProductVariantReservedQuantity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

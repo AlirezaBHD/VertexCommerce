@@ -1,4 +1,5 @@
 using FluentValidation;
+using VertexCommerce.Modules.Orders.Domain.ValueObjects;
 
 namespace VertexCommerce.Modules.Orders.Features.CreateManualOrder;
 
@@ -44,7 +45,9 @@ public sealed class CreateManualOrderCommandValidator : AbstractValidator<Create
             RuleFor(x => x.Province).NotEmpty().WithMessage("Province is required.");
             RuleFor(x => x.City).NotEmpty().WithMessage("City is required.");
             RuleFor(x => x.PostalAddress).NotEmpty().WithMessage("Postal address is required.");
-            RuleFor(x => x.PostalCode).NotEmpty().WithMessage("Postal code is required.");
+            RuleFor(x => x.PostalCode)
+                .NotEmpty().WithMessage("Postal code is required.")
+                .MustInstantiate(PostalCode.Create);
         }
     }
 }

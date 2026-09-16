@@ -15,8 +15,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .Property(p => p.Value)
             .HasColumnName("PhoneNumber")
             .HasSchema(PhoneNumber.Schema));
-        builder.HasIndex("PhoneNumber.Value")
-            .IsUnique();
+        // builder.HasIndex("PhoneNumber.Value").IsUnique(); // Index created in migration
         builder.Property(u => u.PasswordHash)
             .HasMaxLength(512)
             .IsRequired();

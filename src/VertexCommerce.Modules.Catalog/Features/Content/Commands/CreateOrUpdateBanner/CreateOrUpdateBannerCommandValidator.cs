@@ -13,7 +13,7 @@ public sealed class CreateOrUpdateBannerCommandValidator : AbstractValidator<Cre
 
         RuleFor(x => x.Target).NotNull().WithMessage("Target is required.");
 
-        When(x => x.Target?.Type == TargetType.None, () =>
+        When(x => x.Target.Type == TargetType.None, () =>
         {
             RuleFor(x => x.Target.ProductId).Null().WithMessage("ProductId must not be set when type is None.");
             RuleFor(x => x.Target.CategoryId).Null().WithMessage("CategoryId must not be set when type is None.");
@@ -21,7 +21,7 @@ public sealed class CreateOrUpdateBannerCommandValidator : AbstractValidator<Cre
             RuleFor(x => x.Target.ExternalUrl).Null().WithMessage("ExternalUrl must not be set when type is None.");
         });
 
-        When(x => x.Target?.Type == TargetType.Product, () =>
+        When(x => x.Target.Type == TargetType.Product, () =>
         {
             RuleFor(x => x.Target.ProductSlugSnapshot)
                 .NotEmpty().WithMessage("ProductSlugSnapshot is required when targeting a Product.")
@@ -34,7 +34,7 @@ public sealed class CreateOrUpdateBannerCommandValidator : AbstractValidator<Cre
             RuleFor(x => x.Target.ExternalUrl).Null().WithMessage("ExternalUrl must not be used with Product target.");
         });
 
-        When(x => x.Target?.Type == TargetType.Category, () =>
+        When(x => x.Target.Type == TargetType.Category, () =>
         {
             RuleFor(x => x.Target.CategoryId)
                 .NotEmpty().WithMessage("CategoryId is required when targeting a Category.");
@@ -51,7 +51,7 @@ public sealed class CreateOrUpdateBannerCommandValidator : AbstractValidator<Cre
             RuleFor(x => x.Target.ExternalUrl).Null().WithMessage("ExternalUrl must not be used with Category target.");
         });
 
-        When(x => x.Target?.Type == TargetType.InternalPath, () =>
+        When(x => x.Target.Type == TargetType.InternalPath, () =>
         {
             RuleFor(x => x.Target.InternalPath)
                 .NotEmpty().WithMessage("InternalPath is required.")
@@ -72,7 +72,7 @@ public sealed class CreateOrUpdateBannerCommandValidator : AbstractValidator<Cre
             RuleFor(x => x.Target.ExternalUrl).Null().WithMessage("ExternalUrl must not be used with InternalPath target.");
         });
 
-        When(x => x.Target?.Type == TargetType.ExternalUrl, () =>
+        When(x => x.Target.Type == TargetType.ExternalUrl, () =>
         {
             RuleFor(x => x.Target.ExternalUrl)
                 .NotEmpty().WithMessage("ExternalUrl is required.")
@@ -85,5 +85,9 @@ public sealed class CreateOrUpdateBannerCommandValidator : AbstractValidator<Cre
             RuleFor(x => x.Target.CategoryId).Null().WithMessage("CategoryId must not be set for ExternalUrl target.");
             RuleFor(x => x.Target.InternalPath).Null().WithMessage("InternalPath must not be used with ExternalUrl target.");
         });
+
+        RuleFor(x => x)
+            .Must(x => x.MediaFileId.HasValue || !string.IsNullOrWhiteSpace(x.ImagePath))
+            .WithMessage("Image is required.");
     }
 }

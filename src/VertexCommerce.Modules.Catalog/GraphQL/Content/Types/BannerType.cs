@@ -1,6 +1,8 @@
+using HotChocolate.Authorization;
 using VertexCommerce.Modules.Catalog.Domain.Banners;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Content.Documents;
 using VertexCommerce.Modules.Catalog.Services;
+using VertexCommerce.Shared.Contracts.Identity;
 
 namespace VertexCommerce.Modules.Catalog.GraphQL.Content.Types;
 
@@ -16,7 +18,9 @@ public sealed class BannerType : ObjectType<BannerDocument>
         descriptor.Field(b => b.MediaFileId).Type<UuidType>();
         descriptor.Field(b => b.ImagePath).Type<StringType>();
         descriptor.Field(b => b.SortOrder).Type<NonNullType<IntType>>();
-        descriptor.Field(b => b.IsActive).Type<NonNullType<BooleanType>>();
+        descriptor.Field(b => b.IsActive)
+            .Type<NonNullType<BooleanType>>()
+            .Authorize(AppRoles.Admin);
         descriptor.Field(b => b.CreatedAt).Type<NonNullType<DateTimeType>>();
         descriptor.Field(b => b.UpdatedAt).Type<NonNullType<DateTimeType>>();
 

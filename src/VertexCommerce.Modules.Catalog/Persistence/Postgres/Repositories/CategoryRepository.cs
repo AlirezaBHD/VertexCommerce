@@ -1,3 +1,4 @@
+using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using VertexCommerce.Modules.Catalog.Domain.Categories;
 using VertexCommerce.Shared.Specifications;
@@ -91,7 +92,8 @@ public sealed class CategoryRepository(CatalogDbContext context) : ICategoryRepo
 
     public async Task<bool> SlugExistsAsync(string slug, Guid? excludeId, CancellationToken ct)
     {
-        var query = context.Categories.Where(c => c.Seo.Slug.Value == slug);
+        var slugVo = Slug.Create(slug);
+        var query = context.Categories.Where(c => c.Seo.Slug == slugVo);
 
         if (excludeId.HasValue)
         {

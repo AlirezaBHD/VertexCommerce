@@ -1,3 +1,4 @@
+using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using VertexCommerce.Modules.Catalog.Domain.Products;
 using VertexCommerce.Shared.Specifications;
@@ -66,7 +67,8 @@ public sealed class ProductRepository(CatalogDbContext context) : IProductReposi
 
     public async Task<bool> SlugExistsAsync(string slug, CancellationToken ct)
     {
-        return await context.Products.AnyAsync(p => p.Seo.Slug.Value == slug, ct);
+        var slugVo = Slug.Create(slug);
+        return await context.Products.AnyAsync(p => p.Seo.Slug == slugVo, ct);
     }
 
     public void UpdateVariantAsync(ProductVariant variant)

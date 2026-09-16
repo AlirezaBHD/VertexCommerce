@@ -18,7 +18,7 @@ public sealed class CatalogAttributeConfiguration : IEntityTypeConfiguration<Cat
             .HasColumnName("id")
             .ValueGeneratedNever();
 
-        builder.ComplexProperty(a => a.Code, code => code.Property(x => x.Value).HasColumnName("code").HasSchema(AttributeCode.Schema).IsRequired());
+        builder.Property(a => a.Code).HasConversion(x => x.Value, v => AttributeCode.Create(v)).HasColumnName("code").HasSchema(AttributeCode.Schema).IsRequired();
         
         builder.HasMany(a => a.Options)
             .WithOne()

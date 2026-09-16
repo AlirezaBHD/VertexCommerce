@@ -5,6 +5,7 @@ using VertexCommerce.Modules.Customers.Domain.ValueObjects;
 using VertexCommerce.Modules.Customers.Services;
 using VertexCommerce.Shared.Contracts.Customers;
 using VertexCommerce.Shared.Contracts.Pagination;
+using VertexCommerce.Shared.Domain.Schema;
 using VertexCommerce.Shared.Specifications;
 
 namespace VertexCommerce.Modules.Customers.Persistence.Repositories;
@@ -52,8 +53,13 @@ internal sealed class CustomerRepository(CustomersDbContext context) : ICustomer
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
             var term = searchTerm.Trim();
+            var asciiTerm = DigitNormalization.ToAsciiDigits(term);
+            var normalizedPhone = PhoneNumber.Normalize(asciiTerm);
+
             query = query.Where(c =>
                 c.PhoneNumber.Value.Contains(term) ||
+                c.PhoneNumber.Value.Contains(asciiTerm) ||
+                (!string.IsNullOrEmpty(normalizedPhone) && c.PhoneNumber.Value.Contains(normalizedPhone)) ||
                 c.FirstName.Value.Contains(term) ||
                 c.LastName.Value.Contains(term));
         }

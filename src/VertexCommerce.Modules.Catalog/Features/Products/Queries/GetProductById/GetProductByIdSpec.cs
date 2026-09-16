@@ -13,7 +13,6 @@ public sealed class GetProductByIdSpec : BaseSpecification<Product, ProductRespo
         
         Include(p => p.Category!);
         Include(p => p.Media);
-        Include(p => p.Seo);
         Include(p => p.Variants);
         Select(p => new ProductResponse(
             p.Name.Value,

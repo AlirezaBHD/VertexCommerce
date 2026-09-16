@@ -1,4 +1,5 @@
 using HotChocolate;
+using HotChocolate.Authorization;
 using VertexCommerce.Modules.Basket.Contract;
 using VertexCommerce.Modules.Basket.Persistence.Documents;
 using VertexCommerce.Shared.Contracts.Customers;
@@ -8,6 +9,7 @@ namespace VertexCommerce.Modules.Basket.GraphQL;
 
 [ExtendObjectType("Query")]
 public sealed class BasketQueries{
+    [Authorize]
     public async Task<BasketDocument?> GetBasket(
         [Service] IBasketRepository basketRepository,
         [Service] ICurrentUser currentUser,

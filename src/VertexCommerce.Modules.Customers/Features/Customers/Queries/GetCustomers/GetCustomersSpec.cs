@@ -1,4 +1,6 @@
 using VertexCommerce.Modules.Customers.Domain.Entities;
+using VertexCommerce.Modules.Customers.Domain.ValueObjects;
+using VertexCommerce.Shared.Domain.Schema;
 using VertexCommerce.Shared.Specifications;
 
 namespace VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustomers;
@@ -12,7 +14,12 @@ public sealed class GetCustomersSpec : BaseSpecification<Customer, CustomerAdmin
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
             var term = searchTerm.Trim();
+            var asciiTerm = DigitNormalization.ToAsciiDigits(term);
+            var normalizedPhone = PhoneNumber.Normalize(asciiTerm);
+
             Where(c => c.PhoneNumber.Value.Contains(term) ||
+                       c.PhoneNumber.Value.Contains(asciiTerm) ||
+                       (!string.IsNullOrEmpty(normalizedPhone) && c.PhoneNumber.Value.Contains(normalizedPhone)) ||
                        c.FirstName.Value.Contains(term) ||
                        c.LastName.Value.Contains(term));
         }

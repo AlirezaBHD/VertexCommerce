@@ -1,4 +1,6 @@
+using HotChocolate.Authorization;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories.Documents;
+using VertexCommerce.Shared.Contracts.Identity;
 
 namespace VertexCommerce.Modules.Catalog.GraphQL.Categories.Types;
 
@@ -41,7 +43,8 @@ public sealed class CategoryType : ObjectType<CategoryReadModel>
         // === Flags ===
         descriptor
             .Field(c => c.IsActive)
-            .Type<NonNullType<BooleanType>>();
+            .Type<NonNullType<BooleanType>>()
+            .Authorize(AppRoles.Admin);
 
         descriptor
             .Field(c => c.ShowOnHome)

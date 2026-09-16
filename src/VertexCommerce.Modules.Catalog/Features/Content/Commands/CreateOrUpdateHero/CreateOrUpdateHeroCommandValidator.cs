@@ -40,5 +40,15 @@ public sealed class CreateOrUpdateHeroCommandValidator : AbstractValidator<Creat
             RuleFor(x => x.Target.ExternalUrl)
                 .NotEmpty().WithMessage("ExternalUrl is required for ExternalUrl target.");
         });
+
+        RuleFor(x => x)
+            .Must(x => x.ImageMediaFileId.HasValue || !string.IsNullOrWhiteSpace(x.ImagePath))
+            .WithName("ImagePath")
+            .WithMessage("Main image is required.");
+
+        RuleFor(x => x)
+            .Must(x => x.MobileImageMediaFileId.HasValue || !string.IsNullOrWhiteSpace(x.MobileImagePath))
+            .WithName("MobileImagePath")
+            .WithMessage("Mobile image is required.");
     }
 }

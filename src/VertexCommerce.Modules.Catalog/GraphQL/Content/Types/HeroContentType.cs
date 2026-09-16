@@ -1,6 +1,8 @@
+using HotChocolate.Authorization;
 using VertexCommerce.Modules.Catalog.Domain.Banners;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Content.Documents;
 using VertexCommerce.Modules.Catalog.Services;
+using VertexCommerce.Shared.Contracts.Identity;
 
 namespace VertexCommerce.Modules.Catalog.GraphQL.Content.Types;
 
@@ -19,7 +21,9 @@ public sealed class HeroContentType : ObjectType<HeroContentDocument>
         descriptor.Field(h => h.MobileImagePath).Type<StringType>();
         descriptor.Field(h => h.VideoMediaFileId).Type<UuidType>();
         descriptor.Field(h => h.VideoPath).Type<StringType>();
-        descriptor.Field(h => h.IsActive).Type<NonNullType<BooleanType>>();
+        descriptor.Field(h => h.IsActive)
+            .Type<NonNullType<BooleanType>>()
+            .Authorize(AppRoles.Admin);
         descriptor.Field(h => h.UpdatedAt).Type<NonNullType<DateTimeType>>();
 
         descriptor.Field("href")

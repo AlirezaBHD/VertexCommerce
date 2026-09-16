@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
 using VertexCommerce.Modules.Identity.Domain.Repositories;
+using VertexCommerce.Modules.Identity.Domain.ValueObjects;
 using VertexCommerce.Modules.Identity.Infrastructure.Authentication;
 using VertexCommerce.Modules.Identity.Infrastructure.Cryptography;
 using VertexCommerce.Modules.Identity.Infrastructure.Identity;
@@ -18,7 +19,7 @@ internal sealed class SendOptCommandHandler(
 {
     public async Task<Result<RegistrationTokenResponse>> Handle(SendOptCommand command, CancellationToken ct)
     {
-        var phoneNumber = command.PhoneNumber;
+        var phoneNumber = PhoneNumber.Normalize(command.PhoneNumber);
         var phoneExists = await userRepository.PhoneExistsAsync(phoneNumber, ct);
         if (phoneExists)
         {

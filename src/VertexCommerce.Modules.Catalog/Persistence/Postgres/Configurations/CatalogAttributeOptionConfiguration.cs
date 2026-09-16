@@ -22,7 +22,7 @@ public sealed class CatalogAttributeOptionConfiguration : IEntityTypeConfigurati
             .HasColumnName("attribute_id")
             .IsRequired();
 
-        builder.ComplexProperty(a => a.Code, code => code.Property(x => x.Value).HasColumnName("code").HasSchema(OptionCode.Schema).IsRequired());
+        builder.Property(a => a.Code).HasConversion(x => x.Value, v => OptionCode.Create(v)).HasColumnName("code").HasSchema(OptionCode.Schema).IsRequired();
 
         builder.ComplexProperty(a => a.DefaultName, name => name.Property(x => x.Value).HasColumnName("default_name").HasSchema(OptionValue.Schema).IsRequired());
 

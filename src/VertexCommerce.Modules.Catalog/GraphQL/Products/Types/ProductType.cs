@@ -1,5 +1,7 @@
+using HotChocolate.Authorization;
 using VertexCommerce.Modules.Catalog.GraphQL.Categories.Types;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Products.Documents;
+using VertexCommerce.Shared.Contracts.Identity;
 
 namespace VertexCommerce.Modules.Catalog.GraphQL.Products.Types;
 
@@ -23,7 +25,9 @@ public sealed class ProductType : ObjectType<ProductReadModel>
             .Resolve(ctx =>
                 ctx.Parent<ProductReadModel>().TotalStock > 0);
 
-        descriptor.Field(p => p.IsActive).Type<NonNullType<BooleanType>>();
+        descriptor.Field(p => p.IsActive)
+            .Type<NonNullType<BooleanType>>()
+            .Authorize(AppRoles.Admin);
 
         descriptor.Field(p => p.CategoryId).Type<NonNullType<UuidType>>();
         descriptor.Field(p => p.CategoryName).Type<NonNullType<StringType>>();

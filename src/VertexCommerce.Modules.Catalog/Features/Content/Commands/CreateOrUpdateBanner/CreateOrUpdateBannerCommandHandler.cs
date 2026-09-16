@@ -41,6 +41,13 @@ internal sealed class CreateOrUpdateBannerCommandHandler(
             ExternalUrl = command.Target.ExternalUrl
         };
 
+        int sortOrder = command.SortOrder;
+        if (command.Id is null)
+        {
+            var existingBanners = await contentRepository.GetAllBannersAsync(ct);
+            sortOrder = existingBanners.Count;
+        }
+
         var doc = new BannerDocument
         {
             Id = command.Id ?? Guid.NewGuid(),
@@ -48,7 +55,7 @@ internal sealed class CreateOrUpdateBannerCommandHandler(
             Target = target,
             MediaFileId = mediaFileId,
             ImagePath = imagePath,
-            SortOrder = command.SortOrder,
+            SortOrder = sortOrder,
             IsActive = command.IsActive,
             CreatedAt = command.Id is null ? DateTime.UtcNow : default,
         };

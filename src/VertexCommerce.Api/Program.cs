@@ -47,11 +47,13 @@ static void ConfigureServices(WebApplicationBuilder builder)
     var graphQlBuilder = builder.Services
         .AddGraphQLServer()
         .AddQueryType(d => d.Name("Query"))
+        .AddAuthorization()
         .AddMongoDbProjections()
         .AddMongoDbFiltering()
         .AddMongoDbPagingProviders()
         .AddMongoDbSorting()
-        .ModifyCostOptions(options => { options.MaxFieldCost = 10000; });
+        .ModifyCostOptions(options => { options.MaxFieldCost = 10000; })
+        .ModifyRequestOptions(options => options.IncludeExceptionDetails = builder.Environment.IsDevelopment());
     
     builder.Services.RegisterModules(builder.Configuration);
     graphQlBuilder.ConfigureModulesGraphQl();

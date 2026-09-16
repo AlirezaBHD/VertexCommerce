@@ -39,10 +39,10 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.ComplexProperty(p => p.Seo, seo =>
         {
-            seo.ComplexProperty(s => s.Slug, slug => slug.Property(x => x.Value).HasColumnName("slug").HasSchema(Slug.Schema).IsRequired());
-            seo.Property(s => s.MetaTitle).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : MetaTitle.CreateOrNull(v)).HasColumnName("meta_title").HasSchema(MetaTitle.Schema);
-            seo.Property(s => s.MetaDescription).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : MetaDescription.CreateOrNull(v)).HasColumnName("meta_description").HasSchema(MetaDescription.Schema);
-            seo.Property(s => s.Keywords).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : SeoKeywords.CreateOrNull(v)).HasColumnName("keywords").HasSchema(SeoKeywords.Schema);
+            seo.Property(s => s.Slug).HasConversion(x => x.Value, v => Slug.Create(v)).HasColumnName("seo_slug").HasSchema(Slug.Schema).IsRequired();
+            seo.Property(s => s.MetaTitle).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : MetaTitle.CreateOrNull(v)).HasColumnName("seo_meta_title").HasSchema(MetaTitle.Schema);
+            seo.Property(s => s.MetaDescription).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : MetaDescription.CreateOrNull(v)).HasColumnName("seo_meta_description").HasSchema(MetaDescription.Schema);
+            seo.Property(s => s.Keywords).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : SeoKeywords.CreateOrNull(v)).HasColumnName("seo_keywords").HasSchema(SeoKeywords.Schema);
         });
 
         builder.OwnsMany(p => p.Media, mb =>

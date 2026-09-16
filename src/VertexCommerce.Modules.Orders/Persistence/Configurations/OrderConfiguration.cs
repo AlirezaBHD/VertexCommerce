@@ -17,7 +17,7 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
             orderNumber.Property(p => p.Value).HasColumnName("OrderNumber").HasSchema(OrderNumber.Schema);
         });
 
-        builder.HasIndex("OrderNumber.Value").IsUnique();
+        // builder.HasIndex("OrderNumber.Value").IsUnique(); // Manual migration needed for complex types
         builder.HasIndex(o => o.CustomerId);
 
         builder.ComplexProperty(o => o.CustomerPhoneNumber, phoneNumber => {

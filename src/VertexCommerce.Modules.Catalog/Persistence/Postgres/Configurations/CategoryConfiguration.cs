@@ -61,22 +61,22 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
 
         builder.ComplexProperty(c => c.Seo, seo =>
         {
-            seo.Property(s => s.Slug)
+            seo.Property(s => s.Slug).HasConversion(x => x.Value, v => Slug.Create(v))
                 .HasColumnName("seo_slug")
                 .HasMaxLength(200)
                 .IsRequired();
 
-            seo.Property(s => s.MetaTitle)
+            seo.Property(s => s.MetaTitle).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : MetaTitle.CreateOrNull(v))
                 .HasColumnName("seo_meta_title")
                 .HasMaxLength(60)
                 .IsRequired();
 
-            seo.Property(s => s.MetaDescription)
+            seo.Property(s => s.MetaDescription).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : MetaDescription.CreateOrNull(v))
                 .HasColumnName("seo_meta_description")
                 .HasMaxLength(160)
                 .IsRequired();
 
-            seo.Property(s => s.Keywords)
+            seo.Property(s => s.Keywords).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : SeoKeywords.CreateOrNull(v))
                 .HasColumnName("seo_keywords")
                 .HasMaxLength(500);
 
