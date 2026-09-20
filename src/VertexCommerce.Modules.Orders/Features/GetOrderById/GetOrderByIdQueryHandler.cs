@@ -25,6 +25,7 @@ internal sealed class GetOrderByIdQueryHandler(
                 o.Status.ToString(),
                 o.PaymentStatus.ToString(),
                 o.SubTotal.ToString(),
+                o.ShippingCost.ToString(),
                 o.TotalAmount.ToString(),
                 o.ReceiptImagePath,
                 o.TrackingNumber == null ? null : o.TrackingNumber.Value.Value,

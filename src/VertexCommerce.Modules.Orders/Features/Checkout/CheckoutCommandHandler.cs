@@ -19,7 +19,8 @@ public sealed class CheckoutCommandHandler(
     ICustomerResolver customerResolver,
     ICustomerService customerService,
     IProductService productService,
-    IStockService stockService)
+    IStockService stockService,
+    IShippingSettingsRepository shippingSettingsRepository)
     : ICommandHandler<CheckoutCommand, CheckoutResponse>
 {
     public async Task<Result<CheckoutResponse>> Handle(CheckoutCommand command, CancellationToken ct)
@@ -103,6 +104,13 @@ public sealed class CheckoutCommandHandler(
             return Result.Failure<CheckoutResponse>(
                 OrderErrors.EmptyItems);
         }
+
+        var shippingSettings = await shippingSettingsRepository.GetActiveAsync(ct);
+        var shippingCost = shippingSettings is { IsActive: true }
+            ? shippingSettings.CalculateShippingCost(order.SubTotal)
+            : Money.Zero(order.SubTotal.Currency);
+
+        order.SetShippingCost(shippingCost);
 
         var stockRequests = order.Items.Select(i => new StockDeductionRequest(i.VariantId, i.Quantity));
         var reserveResult = await stockService.ReserveStocksAsync(stockRequests, ct);

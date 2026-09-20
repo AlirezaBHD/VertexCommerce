@@ -11,6 +11,7 @@ public sealed record GetOrderByIdResponse(
     string Status,
     string PaymentStatus,
     string SubTotal,
+    string ShippingCost,
     string TotalAmount,
     string? ReceiptImagePath,
     string? TrackingNumber,

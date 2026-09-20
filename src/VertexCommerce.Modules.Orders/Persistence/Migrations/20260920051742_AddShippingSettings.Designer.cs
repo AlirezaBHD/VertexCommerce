@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using VertexCommerce.Modules.Orders.Persistence;
@@ -12,9 +13,11 @@ using VertexCommerce.Modules.Orders.Persistence;
 namespace VertexCommerce.Modules.Orders.Persistence.Migrations
 {
     [DbContext(typeof(OrdersDbContext))]
-    partial class OrdersDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260920051742_AddShippingSettings")]
+    partial class AddShippingSettings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -444,12 +447,20 @@ namespace VertexCommerce.Modules.Orders.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<decimal>("Cost")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<decimal?>("FreeShippingThreshold")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -459,38 +470,6 @@ namespace VertexCommerce.Modules.Orders.Persistence.Migrations
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.ComplexProperty<Dictionary<string, object>>("Cost", "VertexCommerce.Modules.Orders.Domain.Entities.ShippingSettings.Cost#Money", b1 =>
-                        {
-                            b1.Property<decimal>("Amount")
-                                .HasPrecision(18, 2)
-                                .HasColumnType("numeric(18,2)")
-                                .HasColumnName("Cost");
-
-                            b1.Property<string>("Currency")
-                                .IsRequired()
-                                .HasMaxLength(3)
-                                .IsUnicode(true)
-                                .HasColumnType("character varying(3)")
-                                .HasColumnName("CostCurrency")
-                                .IsFixedLength(false);
-                        });
-
-                    b.ComplexProperty<Dictionary<string, object>>("FreeShippingThreshold", "VertexCommerce.Modules.Orders.Domain.Entities.ShippingSettings.FreeShippingThreshold#Money", b1 =>
-                        {
-                            b1.Property<decimal>("Amount")
-                                .HasPrecision(18, 2)
-                                .HasColumnType("numeric(18,2)")
-                                .HasColumnName("FreeShippingThreshold");
-
-                            b1.Property<string>("Currency")
-                                .IsRequired()
-                                .HasMaxLength(3)
-                                .IsUnicode(true)
-                                .HasColumnType("character varying(3)")
-                                .HasColumnName("FreeShippingThresholdCurrency")
-                                .IsFixedLength(false);
-                        });
 
                     b.HasKey("Id");
 

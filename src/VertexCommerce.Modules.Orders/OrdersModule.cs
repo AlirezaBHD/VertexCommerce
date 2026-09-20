@@ -24,6 +24,7 @@ public class OrdersModule :IModule
 
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IPaymentSettingsRepository, PaymentSettingsRepository>();
+        services.AddScoped<IShippingSettingsRepository, ShippingSettingsRepository>();
         services.AddScoped<IOrdersUnitOfWork>(sp => sp.GetRequiredService<OrdersDbContext>());
 
         services.AddHostedService<BackgroundServices.OrderExpirationBackgroundService>();
@@ -39,6 +40,7 @@ public class OrdersModule :IModule
         endpoints.MapCheckoutEndpoints();
         endpoints.MapOrdersEndpoints();
         endpoints.MapPaymentSettingsEndpoints();
+        endpoints.MapShippingSettingsEndpoints();
     }
 
     public void ConfigureGraphQl(IRequestExecutorBuilder builder)
