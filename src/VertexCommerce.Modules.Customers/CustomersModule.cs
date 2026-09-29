@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using VertexCommerce.Modules.Customers.Domain.Repositories;
 using VertexCommerce.Modules.Customers.Endpoints;
 using VertexCommerce.Modules.Customers.Infrastructure.Services;
@@ -53,5 +54,24 @@ public class CustomersModule : IModule
     public void ConfigureGraphQl(IRequestExecutorBuilder builder)
     {
         
+    }
+
+    public async Task InitializeAsync(IServiceProvider serviceProvider, CancellationToken ct = default)
+    {
+        using var scope = serviceProvider.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<CustomersDbContext>();
+        var logger = scope.ServiceProvider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<CustomersModule>>();
+
+        try
+        {
+            logger.LogInformation("Applying migrations for Customers module...");
+            await db.Database.MigrateAsync(ct);
+            logger.LogInformation("Customers migrations applied successfully.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to apply migrations for Customers module.");
+            throw;
+        }
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using VertexCommerce.Modules.Catalog.Domain.Categories;
 using VertexCommerce.Modules.Catalog.Domain.Products;
 using VertexCommerce.Modules.Catalog.Endpoints;
@@ -109,6 +110,22 @@ public class CatalogModule : IModule
 
     public async Task InitializeAsync(IServiceProvider serviceProvider, CancellationToken ct = default)
     {
+        using var scope = serviceProvider.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
+        var logger = scope.ServiceProvider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<CatalogModule>>();
+
+        try
+        {
+            logger.LogInformation("Applying migrations for Catalog module...");
+            await db.Database.MigrateAsync(ct);
+            logger.LogInformation("Catalog migrations applied successfully.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to apply migrations for Catalog module.");
+            throw;
+        }
+
         var productRepo = serviceProvider.GetRequiredService<ProductIndexManager>();
         await productRepo.EnsureIndexesAsync(ct);
 

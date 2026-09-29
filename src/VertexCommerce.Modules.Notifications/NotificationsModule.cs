@@ -58,6 +58,19 @@ public class NotificationsModule : IModule
         try
         {
             logger.LogInformation("Applying migrations for Notifications module...");
+            await db.Database.ExecuteSqlRawAsync("""
+                DO $$
+                BEGIN
+                    IF EXISTS (
+                        SELECT 1 FROM information_schema.tables
+                        WHERE table_schema = 'notifications' AND table_name = '__EFMigrationsHistory'
+                    ) THEN
+                        UPDATE notifications."__EFMigrationsHistory"
+                        SET "MigrationId" = '20260920090000_InitialNotifications'
+                        WHERE "MigrationId" = '20260920120000_InitialNotifications';
+                    END IF;
+                END $$;
+                """, ct);
             await db.Database.MigrateAsync(ct);
             logger.LogInformation("Notifications migrations applied successfully.");
         }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using VertexCommerce.Modules.Orders.Domain.Repositories;
 using VertexCommerce.Modules.Orders.Endpoints;
 using VertexCommerce.Modules.Orders.Persistence;
@@ -53,5 +54,24 @@ public class OrdersModule :IModule
     public void ConfigureGraphQl(IRequestExecutorBuilder builder)
     {
         
+    }
+
+    public async Task InitializeAsync(IServiceProvider serviceProvider, CancellationToken ct = default)
+    {
+        using var scope = serviceProvider.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
+        var logger = scope.ServiceProvider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<OrdersModule>>();
+
+        try
+        {
+            logger.LogInformation("Applying migrations for Orders module...");
+            await db.Database.MigrateAsync(ct);
+            logger.LogInformation("Orders migrations applied successfully.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to apply migrations for Orders module.");
+            throw;
+        }
     }
 }
