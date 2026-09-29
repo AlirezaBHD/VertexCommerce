@@ -64,10 +64,10 @@ static void ConfigureMiddleware(WebApplication app)
     app.UseExceptionHandler();
     app.UseSerilogRequestLogging();
 
-    if (app.Environment.IsDevelopment())
-    {
+    // if (app.Environment.IsDevelopment())
+    // {
         app.UseVertexDeveloperTools();
-    }
+    // }
 
     app.UseCors(CorsExtensions.PolicyName);
     app.UseStaticFiles();
