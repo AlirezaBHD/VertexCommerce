@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/deploy/">
     <File Path="docker-compose.yml" />
+    <File Path="Dockerfile" />
   </Folder>
   <Folder Name="/items/">
     <File Path="Directory.Build.props" />
