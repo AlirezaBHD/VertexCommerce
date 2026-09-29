@@ -19,6 +19,7 @@
       <PackageReference Include="HotChocolate.Execution.Abstractions" />
       <PackageReference Include="HotChocolate.Authorization" />
       <PackageReference Include="Newtonsoft.Json" />
+      <PackageReference Include="CloudinaryDotNet" />
       <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
     

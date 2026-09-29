@@ -3,6 +3,7 @@ using VertexCommerce.Modules.Catalog;
 using VertexCommerce.Modules.Basket;
 using VertexCommerce.Modules.Customers;
 using VertexCommerce.Modules.Identity;
+using VertexCommerce.Modules.Notifications;
 using VertexCommerce.Modules.Orders;
 using VertexCommerce.Shared.Contracts;
 
@@ -16,6 +17,7 @@ public static class ModuleExtensions
         new CatalogModule(),
         new CustomersModule(),
         new IdentityModule(),
+        new NotificationsModule(),
         new OrdersModule()
     };
 

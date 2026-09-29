@@ -42,7 +42,7 @@ static void ConfigureServices(WebApplicationBuilder builder)
     builder.Services.AddVertexCors(builder.Configuration);
     builder.Services.AddMongoDb(builder.Configuration);
     builder.Services.AddVertexOpenApi();
-    builder.Services.AddVertexMedia(builder.Environment);
+    builder.Services.AddVertexMedia(builder.Environment, builder.Configuration);
 
     var graphQlBuilder = builder.Services
         .AddGraphQLServer()

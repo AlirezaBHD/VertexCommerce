@@ -16,7 +16,8 @@ public sealed class GetCustomerInfoSpec : BaseSpecification<Customer, CustomerIn
             FirstName: c.FirstName.Value,
             LastName: c.LastName.Value,
             ShippingAddress: MapAddress(c.GetDefaultShippingAddress()),
-            BillingAddress: MapAddress(c.GetDefaultBillingAddress()))
+            BillingAddress: MapAddress(c.GetDefaultBillingAddress()),
+            UserId: c.UserId)
         );
     }
 

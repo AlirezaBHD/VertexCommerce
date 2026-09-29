@@ -34,6 +34,7 @@ public class IdentityModule : IModule
 
         services.AddScoped<IOtpService, OtpService>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IIdentityUnitOfWork>(sp => sp.GetRequiredService<IdentityDbContext>());
 
         services.AddOutbox<IdentityDbContext>(opts =>
@@ -77,6 +78,20 @@ public class IdentityModule : IModule
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(jwtSettings.Secret)),
                     ClockSkew = TimeSpan.Zero
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/api/notifications/stream"))
+                        {
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
                 };
             });
 

@@ -8,6 +8,7 @@ using VertexCommerce.Modules.Orders.Domain.Repositories;
 using VertexCommerce.Modules.Orders.Endpoints;
 using VertexCommerce.Modules.Orders.Persistence;
 using VertexCommerce.Shared.Contracts;
+using VertexCommerce.Shared.Persistence;
 
 namespace VertexCommerce.Modules.Orders;
 
@@ -17,10 +18,16 @@ public class OrdersModule :IModule
 
     public void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<OrdersDbContext>(options =>
+        services.AddScoped<DomainEventInterceptor>();
+
+        services.AddDbContext<OrdersDbContext>((sp, options) =>
+        {
             options.UseNpgsql(
                 configuration.GetConnectionString("OrdersDb"),
-                npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "orders")));
+                npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "orders"));
+
+            options.AddInterceptors(sp.GetRequiredService<DomainEventInterceptor>());
+        });
 
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IPaymentSettingsRepository, PaymentSettingsRepository>();

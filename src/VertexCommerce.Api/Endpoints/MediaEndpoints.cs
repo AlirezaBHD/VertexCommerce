@@ -20,7 +20,7 @@ public static class MediaEndpoints
             .Produces<MediaUploadResponse>(200)
             .Produces(400);
 
-        group.MapDelete("/{*path}", DeleteMedia)
+        group.MapDelete("/", DeleteMedia)
             .WithName("DeleteMedia")
             .WithSummary("Delete a media file")
             .Produces(204)
@@ -60,7 +60,7 @@ public static class MediaEndpoints
 
 
     private static async Task<IResult> DeleteMedia(
-        string path,
+        [FromQuery] string path,
         IMediaService mediaService,
         CancellationToken ct)
     {

@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
+      <UserSecretsId>d20f0ee7-fc69-48ea-8732-3d0bbf787545</UserSecretsId>
+  </PropertyGroup>
 
     <PropertyGroup>
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
@@ -27,6 +28,7 @@
       <ProjectReference Include="..\VertexCommerce.Modules.Basket\VertexCommerce.Modules.Basket.csproj" />
       <ProjectReference Include="..\VertexCommerce.Modules.Customers\VertexCommerce.Modules.Customers.csproj" />
       <ProjectReference Include="..\VertexCommerce.Modules.Identity\VertexCommerce.Modules.Identity.csproj" />
+      <ProjectReference Include="..\VertexCommerce.Modules.Notifications\VertexCommerce.Modules.Notifications.csproj" />
     </ItemGroup>
 
     <ItemGroup>

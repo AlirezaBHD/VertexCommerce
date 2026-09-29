@@ -11,4 +11,5 @@ public sealed record CustomerInfoDto(
     string? FirstName,
     string? LastName,
     AddressDto? ShippingAddress,
-    AddressDto? BillingAddress);
+    AddressDto? BillingAddress,
+    Guid? UserId = null);

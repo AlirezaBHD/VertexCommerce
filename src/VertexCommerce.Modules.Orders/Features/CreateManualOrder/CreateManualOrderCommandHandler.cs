@@ -83,6 +83,8 @@ internal sealed class CreateManualOrderCommandHandler(
             return Result.Failure<CreateManualOrderResponse>(deductResult.Error);
         }
 
+        order.MarkAsPlaced();
+
         await orderRepository.AddAsync(order, ct);
         await unitOfWork.SaveChangesAsync(ct);
 

@@ -10,8 +10,10 @@ internal class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentU
     {
         get
         {
-            var userIdClaim = httpContextAccessor.HttpContext?.User
-                .FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = httpContextAccessor.HttpContext?.User;
+            var userIdClaim = user?.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? user?.FindFirstValue("sub")
+                ?? user?.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub);
 
             if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
             {

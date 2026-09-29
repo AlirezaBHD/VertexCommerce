@@ -2,6 +2,7 @@ using VertexCommerce.Modules.Orders.Domain.Enums;
 using VertexCommerce.Modules.Orders.Domain.ValueObjects;
 using VertexCommerce.Shared.CQRS;
 using VertexCommerce.Shared.Domain;
+using VertexCommerce.Shared.IntegrationEvents;
 
 namespace VertexCommerce.Modules.Orders.Domain.Entities;
 
@@ -134,6 +135,16 @@ public sealed class Order : AggregateRoot<Guid>
         RecalculateTotals();
     }
 
+    public void MarkAsPlaced()
+    {
+        AddDomainEvent(new OrderCreatedIntegrationEvent(
+            Id,
+            CustomerId,
+            OrderNumber.Value,
+            TotalAmount.Amount,
+            TotalAmount.Currency));
+    }
+
     #region State Transitions
 
     public Result Confirm()
@@ -144,10 +155,20 @@ public sealed class Order : AggregateRoot<Guid>
         if (!_items.Any())
             return Result.Failure(Error.Validation("Cannot confirm order without items"));
 
+        var oldStatus = Status;
         Status = OrderStatus.Confirmed;
         PaymentStatus = PaymentStatus.Paid;
         ConfirmedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
+
+        AddDomainEvent(new OrderStatusChangedIntegrationEvent(
+            Id,
+            CustomerId,
+            OrderNumber.Value,
+            oldStatus.ToString(),
+            Status.ToString(),
+            TotalAmount.Amount,
+            TotalAmount.Currency));
 
         return Result.Success();
     }
@@ -157,12 +178,23 @@ public sealed class Order : AggregateRoot<Guid>
         if (Status != OrderStatus.Confirmed)
             return Result.Failure(Error.Validation($"Cannot process order with status {Status}"));
 
+        var oldStatus = Status;
         Status = OrderStatus.Processing;
         ProcessingAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
 
+        AddDomainEvent(new OrderStatusChangedIntegrationEvent(
+            Id,
+            CustomerId,
+            OrderNumber.Value,
+            oldStatus.ToString(),
+            Status.ToString(),
+            TotalAmount.Amount,
+            TotalAmount.Currency));
+
         return Result.Success();
     }
+
     public Result<string> SubmitPaymentReceipt(string receiptImagePath)
     {
         if (Status != OrderStatus.AwaitingPayment && Status != OrderStatus.Pending)
@@ -171,9 +203,20 @@ public sealed class Order : AggregateRoot<Guid>
         if (ExpiresAt.HasValue && DateTime.UtcNow > ExpiresAt.Value)
             return Result.Failure<string>(Error.Validation("Payment time expired"));
             
+        var oldStatus = Status;
         ReceiptImagePath = receiptImagePath;
         TransactionReference = GenerateTransactionReference();
         Status = OrderStatus.PaymentUnderReview;
+
+        AddDomainEvent(new OrderStatusChangedIntegrationEvent(
+            Id,
+            CustomerId,
+            OrderNumber.Value,
+            oldStatus.ToString(),
+            Status.ToString(),
+            TotalAmount.Amount,
+            TotalAmount.Currency));
+
         return Result.Success(TransactionReference);
     }
     
@@ -202,10 +245,21 @@ public sealed class Order : AggregateRoot<Guid>
         if (string.IsNullOrWhiteSpace(trackingNumber.Value))
             return Result.Failure(Error.Validation("Tracking number is required"));
 
+        var oldStatus = Status;
         Status = OrderStatus.Shipped;
         TrackingNumber = trackingNumber;
         ShippedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
+
+        AddDomainEvent(new OrderStatusChangedIntegrationEvent(
+            Id,
+            CustomerId,
+            OrderNumber.Value,
+            oldStatus.ToString(),
+            Status.ToString(),
+            TotalAmount.Amount,
+            TotalAmount.Currency,
+            TrackingNumber: trackingNumber.Value));
 
         return Result.Success();
     }
@@ -215,9 +269,19 @@ public sealed class Order : AggregateRoot<Guid>
         if (Status != OrderStatus.Shipped)
             return Result.Failure(Error.Validation($"Cannot deliver order with status {Status}"));
 
+        var oldStatus = Status;
         Status = OrderStatus.Delivered;
         DeliveredAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
+
+        AddDomainEvent(new OrderStatusChangedIntegrationEvent(
+            Id,
+            CustomerId,
+            OrderNumber.Value,
+            oldStatus.ToString(),
+            Status.ToString(),
+            TotalAmount.Amount,
+            TotalAmount.Currency));
 
         return Result.Success();
     }
@@ -230,10 +294,21 @@ public sealed class Order : AggregateRoot<Guid>
         if (string.IsNullOrWhiteSpace(reason))
             return Result.Failure(Error.Validation("Cancellation reason is required"));
 
+        var oldStatus = Status;
         Status = OrderStatus.Cancelled;
         CancellationReason = reason;
         CancelledAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
+
+        AddDomainEvent(new OrderStatusChangedIntegrationEvent(
+            Id,
+            CustomerId,
+            OrderNumber.Value,
+            oldStatus.ToString(),
+            Status.ToString(),
+            TotalAmount.Amount,
+            TotalAmount.Currency,
+            CancellationReason: reason));
 
         return Result.Success();
     }
@@ -243,10 +318,21 @@ public sealed class Order : AggregateRoot<Guid>
         if (Status is not (OrderStatus.Pending or OrderStatus.AwaitingPayment))
             return Result.Failure(Error.Validation($"Cannot expire order with status {Status}"));
 
+        var oldStatus = Status;
         Status = OrderStatus.Cancelled;
         CancellationReason = "Payment timeout expired";
         CancelledAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
+
+        AddDomainEvent(new OrderStatusChangedIntegrationEvent(
+            Id,
+            CustomerId,
+            OrderNumber.Value,
+            oldStatus.ToString(),
+            Status.ToString(),
+            TotalAmount.Amount,
+            TotalAmount.Currency,
+            CancellationReason: CancellationReason));
 
         return Result.Success();
     }

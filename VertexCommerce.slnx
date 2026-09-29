@@ -13,6 +13,7 @@
     <Project Path="src/VertexCommerce.Modules.Catalog/VertexCommerce.Modules.Catalog.csproj" />
     <Project Path="src/VertexCommerce.Modules.Customers/VertexCommerce.Modules.Customers.csproj" />
     <Project Path="src/VertexCommerce.Modules.Identity/VertexCommerce.Modules.Identity.csproj" />
+    <Project Path="src/VertexCommerce.Modules.Notifications/VertexCommerce.Modules.Notifications.csproj" />
     <Project Path="src/VertexCommerce.Modules.Orders/VertexCommerce.Modules.Orders.csproj" />
     <Project Path="src/VertexCommerce.Shared/VertexCommerce.Shared.csproj" />
   </Folder>

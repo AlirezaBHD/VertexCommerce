@@ -119,6 +119,8 @@ public sealed class CheckoutCommandHandler(
             return Result.Failure<CheckoutResponse>(reserveResult.Error);
         }
 
+        order.MarkAsPlaced();
+
         await orderRepository.AddAsync(order, ct);
         await unitOfWork.SaveChangesAsync(ct);
 

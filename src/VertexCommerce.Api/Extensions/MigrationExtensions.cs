@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using VertexCommerce.Modules.Catalog.Persistence.Postgres;
 using VertexCommerce.Modules.Customers.Persistence;
 using VertexCommerce.Modules.Identity.Persistence;
+using VertexCommerce.Modules.Notifications.Persistence;
 using VertexCommerce.Modules.Orders.Persistence;
 
 namespace VertexCommerce.Api.Extensions;
@@ -14,6 +15,7 @@ public static class MigrationExtensions
         app.ApplyMigrations<CatalogDbContext>();
         app.ApplyMigrations<IdentityDbContext>();
         app.ApplyMigrations<OrdersDbContext>();
+        app.ApplyMigrations<NotificationsDbContext>();
     }
 
     private static void ApplyMigrations<TContext>(this IApplicationBuilder app)

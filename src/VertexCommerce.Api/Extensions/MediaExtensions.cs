@@ -7,7 +7,8 @@ public static class MediaExtensions
 {
     public static IServiceCollection AddVertexMedia(
         this IServiceCollection services,
-        IWebHostEnvironment environment)
+        IWebHostEnvironment environment,
+        IConfiguration configuration)
     {
         services.Configure<MediaOptions>(options =>
         {
@@ -15,7 +16,18 @@ public static class MediaExtensions
                                Path.Combine(environment.ContentRootPath, "wwwroot");
         });
 
-        services.AddSingleton<IMediaService, LocalMediaService>();
+        var providerOptions = new MediaProviderOptions();
+        configuration.GetSection(MediaProviderOptions.SectionName).Bind(providerOptions);
+
+        if (string.Equals(providerOptions.Provider, "Cloudinary", StringComparison.OrdinalIgnoreCase))
+        {
+            services.Configure<CloudinaryOptions>(configuration.GetSection("Cloudinary"));
+            services.AddSingleton<IMediaService, CloudinaryMediaService>();
+        }
+        else
+        {
+            services.AddSingleton<IMediaService, LocalMediaService>();
+        }
 
         return services;
     }
