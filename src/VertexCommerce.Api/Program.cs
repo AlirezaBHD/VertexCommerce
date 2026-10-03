@@ -37,6 +37,7 @@ static void ConfigureServices(WebApplicationBuilder builder)
     });
     builder.Services.AddAntiforgery();
     builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddHealthChecks();
     builder.Services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
     builder.Services.AddVertexCors(builder.Configuration);
@@ -78,6 +79,7 @@ static void ConfigureMiddleware(WebApplication app)
 
 static void ConfigureEndpoints(WebApplication app)
 {
+    app.MapHealthEndpoints();
     app.MapMediaEndpoints();
     app.MapGraphQL();
     app.MapModulesEndpoints();
