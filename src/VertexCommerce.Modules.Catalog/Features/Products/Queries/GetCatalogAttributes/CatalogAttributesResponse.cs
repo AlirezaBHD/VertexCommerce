@@ -2,4 +2,4 @@ namespace VertexCommerce.Modules.Catalog.Features.Products.Queries.GetCatalogAtt
 
 public sealed record CatalogAttributesResponse(string Code, string DefaultName, List<CatalogAttributeOptionResponse> Options);
 
-public sealed record CatalogAttributeOptionResponse(string Code, string DefaultName,string? MediaPath );
+public sealed record CatalogAttributeOptionResponse(string Code, string DefaultName, string? MediaPath, string? ColorHex);

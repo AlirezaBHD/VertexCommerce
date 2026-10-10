@@ -262,6 +262,11 @@ namespace VertexCommerce.Modules.Catalog.Persistence.Postgres.Migrations
                         .HasColumnName("code")
                         .IsFixedLength(false);
 
+                    b.Property<string>("ColorHex")
+                        .HasMaxLength(7)
+                        .HasColumnType("character varying(7)")
+                        .HasColumnName("color_hex");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");

@@ -28,6 +28,8 @@ public sealed class CatalogAttributeOptionConfiguration : IEntityTypeConfigurati
 
         builder.Property(a => a.MediaPath).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : ImagePath.CreateOrNull(v)).HasColumnName("media_path").HasSchema(ImagePath.Schema);
 
+        builder.Property(a => a.ColorHex).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : ColorHex.Create(v)).HasColumnName("color_hex").HasMaxLength(7);
+
         builder.Property(a => a.CreatedAt)
             .HasColumnName("created_at")
             .IsRequired();

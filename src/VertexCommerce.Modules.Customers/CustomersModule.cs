@@ -26,9 +26,14 @@ public class CustomersModule : IModule
     {
         services.AddMemoryCache();
         services.AddDbContext<CustomersDbContext>(options =>
+        {
             options.UseNpgsql(
                 configuration.GetConnectionString("CustomersDb"),
-                npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "customers")));
+                npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "customers"));
+
+            options.ConfigureWarnings(w =>
+                w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+        });
 
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<ICustomerAddressRepository, CustomerAddressRepository>();

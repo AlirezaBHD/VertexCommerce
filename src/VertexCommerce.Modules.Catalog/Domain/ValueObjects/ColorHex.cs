@@ -1,10 +1,10 @@
-using VertexCommerce.Shared.Domain.Schema;
+using System.Text.RegularExpressions;
 
 namespace VertexCommerce.Modules.Catalog.Domain.ValueObjects;
 
 public readonly record struct ColorHex
 {
-    public static StringFieldSchema Schema { get; } = new(maxLength: 7);
+    private static readonly Regex Pattern = new("^#[0-9A-Fa-f]{6}$", RegexOptions.Compiled);
 
     public string Value { get; }
 
@@ -13,12 +13,16 @@ public readonly record struct ColorHex
         Value = value;
     }
 
-    public static ColorHex CreateOrNull(string? value)
+    public static ColorHex Create(string? value)
     {
-        if (string.IsNullOrWhiteSpace(value)) return default;
-        return new(StringFieldGuard.Apply(value, Schema, nameof(ColorHex)));
+        if (value is null || !Pattern.IsMatch(value))
+        {
+            throw new ArgumentException("Color hex must use the #RRGGBB format.", nameof(value));
+        }
+
+        return new ColorHex(value);
     }
-    
-    public static ColorHex Create(string? value) =>
-        new(StringFieldGuard.Apply(value, Schema, nameof(ColorHex)));
+
+    public static ColorHex? CreateOrNull(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : Create(value);
 }

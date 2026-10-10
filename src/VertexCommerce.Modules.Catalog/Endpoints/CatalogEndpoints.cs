@@ -27,32 +27,35 @@ public static class CatalogEndpoints
 {
     public static IEndpointRouteBuilder MapEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/catalog")
+        var adminGroup = app.MapGroup("/api/catalog")
             .WithTags("Catalog")
             .RequireAuthorization(AppRoles.Admin);
+        
+        var publicGroup = app.MapGroup("/api/catalog")
+            .WithTags("Catalog");
             
         // Products
-        group.MapPost("/products", CreateProduct);
-        group.MapPut("/products/{id:guid}", UpdateProduct);
-        group.MapGet("/products/{id:guid}", GetProductById);
-        group.MapDelete("/products/{id:guid}", DeleteProduct);
-        group.MapPatch("/products/{id:guid}/stock", UpdateStock);
-        group.MapPatch("/products/{id:guid}/stock/add", AddStock);
-        group.MapPatch("/products/{id:guid}/stock/remove", RemoveStock);
-        group.MapPost("/products/{id:guid}/activate", ActivateProduct);
-        group.MapPost("/products/{id:guid}/deactivate", DeactivateProduct);
-        group.MapGet("/products/lookup", ProductLookup);
-        group.MapGet("/products/stats", GetProductStats);
+        adminGroup.MapPost("/products", CreateProduct);
+        adminGroup.MapPut("/products/{id:guid}", UpdateProduct);
+        adminGroup.MapGet("/products/{id:guid}", GetProductById);
+        adminGroup.MapDelete("/products/{id:guid}", DeleteProduct);
+        adminGroup.MapPatch("/products/{id:guid}/stock", UpdateStock);
+        adminGroup.MapPatch("/products/{id:guid}/stock/add", AddStock);
+        adminGroup.MapPatch("/products/{id:guid}/stock/remove", RemoveStock);
+        adminGroup.MapPost("/products/{id:guid}/activate", ActivateProduct);
+        adminGroup.MapPost("/products/{id:guid}/deactivate", DeactivateProduct);
+        adminGroup.MapGet("/products/lookup", ProductLookup);
+        adminGroup.MapGet("/products/stats", GetProductStats);
 
         // Categories
-        group.MapPost("/categories", CreateCategory);
-        group.MapGet("/categories/{id:guid}", GetCategoryById);
-        group.MapPut("/categories/{id:guid}", UpdateCategory);
-        group.MapDelete("/categories/{id:guid}", DeleteCategory);
-        group.MapPatch("/categories/reorder", ReorderCategories);
-        group.MapGet("/categories/lookup", CategoryLookup);
+        adminGroup.MapPost("/categories", CreateCategory);
+        adminGroup.MapGet("/categories/{id:guid}", GetCategoryById);
+        adminGroup.MapPut("/categories/{id:guid}", UpdateCategory);
+        adminGroup.MapDelete("/categories/{id:guid}", DeleteCategory);
+        adminGroup.MapPatch("/categories/reorder", ReorderCategories);
+        adminGroup.MapGet("/categories/lookup", CategoryLookup);
 
-        group.MapGet("/attributes", GetAttributes);
+        publicGroup.MapGet("/attributes", GetAttributes);
 
 
         return app;

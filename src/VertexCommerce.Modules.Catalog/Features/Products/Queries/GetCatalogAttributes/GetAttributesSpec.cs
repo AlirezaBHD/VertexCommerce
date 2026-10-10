@@ -19,6 +19,7 @@ public sealed class GetAttributesSpec : BaseSpecification<CatalogAttribute, Cata
         options.Select(o => new CatalogAttributeOptionResponse(
             o.Code.Value,
             o.DefaultName.Value,
-            o.MediaPath.HasValue ? o.MediaPath.Value.Value : null
+            o.MediaPath?.Value,
+            o.ColorHex?.Value
             )).ToList();
 }

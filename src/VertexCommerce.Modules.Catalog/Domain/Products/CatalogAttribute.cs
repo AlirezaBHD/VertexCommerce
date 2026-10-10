@@ -54,8 +54,8 @@ public sealed class CatalogAttribute : Entity<Guid>
         SetUpdatedAt();
     }
 
-    public void AddOption(OptionValue defaultName, OptionCode optionCode, ImagePath? mediaPath = null)
+    public void AddOption(OptionValue defaultName, OptionCode optionCode, ImagePath? mediaPath = null, ColorHex? colorHex = null)
     {
-        _options.Add(CatalogAttributeOption.Create(Id, defaultName, optionCode, mediaPath));
+        _options.Add(CatalogAttributeOption.Create(Id, defaultName, optionCode, mediaPath, colorHex));
     }
 }
