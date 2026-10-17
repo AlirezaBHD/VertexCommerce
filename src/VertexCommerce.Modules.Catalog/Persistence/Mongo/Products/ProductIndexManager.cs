@@ -39,6 +39,26 @@ internal sealed class ProductIndexManager(IMongoDatabase database)
                     .Ascending(p => p.IsActive)
                     .Ascending(p => p.MinPrice),
                 new CreateIndexOptions { Name = "idx_category_active_price" }
+            ),
+            new(
+                indexKeys
+                    .Ascending("breadcrumb.id")
+                    .Ascending(p => p.IsActive),
+                new CreateIndexOptions { Name = "idx_breadcrumb_id_active" }
+            ),
+            new(
+                indexKeys
+                    .Ascending("breadcrumb.id")
+                    .Ascending(p => p.IsActive)
+                    .Descending(p => p.CreatedAt),
+                new CreateIndexOptions { Name = "idx_breadcrumb_id_active_created" }
+            ),
+            new(
+                indexKeys
+                    .Ascending("breadcrumb.id")
+                    .Ascending(p => p.IsActive)
+                    .Ascending(p => p.MinPrice),
+                new CreateIndexOptions { Name = "idx_breadcrumb_id_active_price" }
             )
         };
 

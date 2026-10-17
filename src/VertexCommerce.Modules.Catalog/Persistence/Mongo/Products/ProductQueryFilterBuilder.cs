@@ -13,7 +13,7 @@ internal static class ProductQueryFilterBuilder
         bool? inStock)
     {
         var builder = Builders<ProductReadModel>.Filter;
-        var filter = builder.Eq(p => p.CategoryId, categoryId)
+        var filter = builder.ElemMatch(p => p.Breadcrumb, b => b.Id == categoryId)
                      & builder.Eq(p => p.IsActive, true);
 
         if (minPrice.HasValue)
@@ -55,7 +55,7 @@ internal static class ProductQueryFilterBuilder
         }
 
         if (categoryId.HasValue)
-            filter &= builder.Eq(p => p.CategoryId, categoryId.Value);
+            filter &= builder.ElemMatch(p => p.Breadcrumb, b => b.Id == categoryId.Value);
 
         if (minPrice.HasValue)
             filter &= builder.Gte(p => p.MinPrice, minPrice.Value);
