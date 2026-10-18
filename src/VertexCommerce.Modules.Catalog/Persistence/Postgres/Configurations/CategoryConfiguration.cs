@@ -82,6 +82,7 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
 
         });
         
+        builder.HasQueryFilter(c => !c.IsDeleted);
         builder.Ignore(c => c.DomainEvents);
         builder.HasIndex(c => c.ParentId);
         builder.HasIndex(c => c.IsActive);

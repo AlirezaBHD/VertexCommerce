@@ -62,6 +62,7 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.Ignore(p => p.DomainEvents);
+        builder.HasQueryFilter(p => !p.IsDeleted);
 
         builder.HasIndex(p => p.CategoryId);
         builder.HasIndex(p => p.IsActive);

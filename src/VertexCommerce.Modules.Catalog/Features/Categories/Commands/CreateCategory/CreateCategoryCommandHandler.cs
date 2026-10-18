@@ -35,7 +35,7 @@ public sealed class CreateCategoryCommandHandler : ICommandHandler<CreateCategor
             return Result.Failure<Guid>(Error.Conflict($"Category with name '{command.Name}' already exists."));
         }
 
-        var slugExists = await _categoryRepository.SlugExistsAsync(command.Name, null, ct);
+        var slugExists = await _categoryRepository.SlugExistsAsync(command.Seo.Slug, null, ct);
         if (slugExists)
         {
             return Result.Failure<Guid>(Error.Conflict($"Category with slug '{Slug.Create(command.Seo.Slug)}' already exists."));

@@ -31,7 +31,7 @@ public sealed class Category : AggregateRoot<Guid>
 
     public void Delete()
     {
-        if (_children != null && _children.Any())
+        if (_children != null && _children.Any(c => !c.IsDeleted))
         {
             throw new InvalidOperationException("نمی‌توان دسته‌بندی که زیرمجموعه دارد را حذف کرد.");
         }

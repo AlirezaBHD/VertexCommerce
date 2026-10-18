@@ -33,7 +33,7 @@ internal sealed class UpdateCategoryCommandHandler(
             return Result.Failure(Error.Conflict($"Category with name '{command.Name}' already exists."));
         }
 
-        var slugExists = await categoryRepository.SlugExistsAsync(command.Name,command.Id, ct);
+        var slugExists = await categoryRepository.SlugExistsAsync(command.Seo.Slug, command.Id, ct);
         if (slugExists)
         {
             return Result.Failure(Error.Conflict($"Category with slug '{Slug.Create(command.Seo.Slug)}' already exists."));
