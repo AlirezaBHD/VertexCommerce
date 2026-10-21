@@ -1,0 +1,8 @@
+is_global = true
+global_level = 100
+
+# Escalate third-party analyzer findings to errors so the IDE shows them as errors, not only the build
+dotnet_analyzer_diagnostic.severity = error
+
+# Pure code-style rules stay as IDE suggestions
+dotnet_analyzer_diagnostic.category-Style.severity = suggestion

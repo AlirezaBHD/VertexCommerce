@@ -1,0 +1,49 @@
+is_global = true
+global_level = 100
+
+
+# Noise for an application (non-library) codebase; always silenced
+dotnet_diagnostic.CA2007.severity = none
+dotnet_diagnostic.MA0004.severity = none
+dotnet_diagnostic.CA1062.severity = none
+dotnet_diagnostic.CA1707.severity = none
+dotnet_diagnostic.CA1848.severity = none
+dotnet_diagnostic.CA1873.severity = none
+dotnet_diagnostic.CA1812.severity = none
+dotnet_diagnostic.CA1002.severity = none
+dotnet_diagnostic.CA2227.severity = none
+dotnet_diagnostic.CA1716.severity = none
+dotnet_diagnostic.CA1725.severity = none
+dotnet_diagnostic.CA1032.severity = none
+dotnet_diagnostic.CA1056.severity = none
+dotnet_diagnostic.CA1054.severity = none
+dotnet_diagnostic.CA1822.severity = none
+dotnet_diagnostic.CA1304.severity = none
+dotnet_diagnostic.CA1305.severity = none
+dotnet_diagnostic.CA1307.severity = none
+dotnet_diagnostic.CA1308.severity = none
+dotnet_diagnostic.CA1310.severity = none
+dotnet_diagnostic.CA1311.severity = none
+dotnet_diagnostic.MA0002.severity = none
+dotnet_diagnostic.MA0006.severity = none
+dotnet_diagnostic.MA0009.severity = none
+dotnet_diagnostic.MA0011.severity = none
+dotnet_diagnostic.MA0016.severity = none
+dotnet_diagnostic.MA0026.severity = none
+dotnet_diagnostic.MA0051.severity = none
+dotnet_diagnostic.S927.severity = none
+dotnet_diagnostic.S2479.severity = none
+dotnet_diagnostic.S1075.severity = none
+dotnet_diagnostic.S125.severity = none
+dotnet_diagnostic.S1135.severity = none
+dotnet_diagnostic.MSB3277.severity = none
+dotnet_diagnostic.RCS1037.severity = none
+dotnet_diagnostic.RCS1205.severity = none
+dotnet_diagnostic.RCS1021.severity = none
+dotnet_diagnostic.RCS1201.severity = none
+dotnet_diagnostic.RCS1181.severity = none
+dotnet_diagnostic.RCS1001.severity = none
+dotnet_diagnostic.MA0076.severity = none
+dotnet_diagnostic.MA0182.severity = none
+
+# MA0048 (file name must match type name) is kept on purpose: it finds misnamed files
