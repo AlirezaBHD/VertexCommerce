@@ -1,8 +1,6 @@
 using VertexCommerce.Modules.Orders.Domain.Entities;
 using VertexCommerce.Modules.Orders.Domain.Enums;
-using VertexCommerce.Shared.Contracts.Pagination;
 using VertexCommerce.Shared.Persistence;
-using VertexCommerce.Shared.Specifications;
 
 namespace VertexCommerce.Modules.Orders.Domain.Repositories;
 

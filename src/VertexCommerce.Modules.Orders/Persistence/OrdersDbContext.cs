@@ -16,8 +16,8 @@ public sealed class OrdersDbContext : DbContext, IOrdersUnitOfWork
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema("orders");
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(OrdersDbContext).Assembly);
+        modelBuilder.HasDefaultSchema("orders")
+            .ApplyConfigurationsFromAssembly(typeof(OrdersDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
     }
 }

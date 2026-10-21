@@ -2,8 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using VertexCommerce.Modules.Orders.Domain.Entities;
 using VertexCommerce.Modules.Orders.Domain.Enums;
 using VertexCommerce.Modules.Orders.Domain.Repositories;
-using VertexCommerce.Shared.Contracts.Pagination;
-using VertexCommerce.Shared.Specifications;
 
 namespace VertexCommerce.Modules.Orders.Persistence;
 
@@ -53,8 +51,8 @@ public sealed class OrderRepository : IOrderRepository
     {
         return await _context.Orders
             .Include(o => o.Items)
-            .Where(o => (o.Status == OrderStatus.Pending || o.Status == OrderStatus.AwaitingPayment) 
-                        && o.ExpiresAt != null 
+            .Where(o => (o.Status == OrderStatus.Pending || o.Status == OrderStatus.AwaitingPayment)
+                        && o.ExpiresAt != null
                         && o.ExpiresAt < before)
             .ToListAsync(ct);
     }

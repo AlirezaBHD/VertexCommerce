@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using VertexCommerce.Modules.Orders.Features.PaymentSettings;
 using VertexCommerce.Modules.Orders.Features.PaymentSettings.CreatePaymentSettings;
 using VertexCommerce.Modules.Orders.Features.PaymentSettings.DeletePaymentSettings;
+using VertexCommerce.Modules.Orders.Features.PaymentSettings.GetActivePaymentSettings;
+using VertexCommerce.Modules.Orders.Features.PaymentSettings.GetAllPaymentSettings;
 using VertexCommerce.Modules.Orders.Features.PaymentSettings.GetPaymentSettingById;
-using VertexCommerce.Modules.Orders.Features.PaymentSettings.GetPaymentSettings;
 using VertexCommerce.Modules.Orders.Features.PaymentSettings.SetActivePaymentSettings;
 using VertexCommerce.Modules.Orders.Features.PaymentSettings.UpdatePaymentSettings;
 using VertexCommerce.Shared.Contracts.Identity;
@@ -113,10 +115,3 @@ public static class PaymentSettingsEndpoints
     }
 }
 
-public sealed record UpdatePaymentSettingsRequest(
-    string BankName,
-    string AccountHolderName,
-    string CardNumber,
-    string? ShabaNumber,
-    string? AccountNumber,
-    string? Description);

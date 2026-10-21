@@ -24,7 +24,7 @@ internal sealed class ConfirmOrderCommandHandler(
 
         var stockRequests = order.Items.Select(i => new StockDeductionRequest(i.VariantId, i.Quantity));
         var deductResult = await stockService.CommitStocksAsync(stockRequests, ct);
-        
+
         if (deductResult.IsFailure)
             return deductResult;
 

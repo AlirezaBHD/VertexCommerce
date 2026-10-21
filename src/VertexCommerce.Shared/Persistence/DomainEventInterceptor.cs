@@ -38,7 +38,7 @@ public sealed class DomainEventInterceptor : SaveChangesInterceptor
     {
         var aggregateRoots = context.ChangeTracker
             .Entries<AggregateRoot<Guid>>()
-            .Where(e => e.Entity.DomainEvents.Any())
+            .Where(e => e.Entity.DomainEvents.Count != 0)
             .Select(e => e.Entity)
             .ToList();
 

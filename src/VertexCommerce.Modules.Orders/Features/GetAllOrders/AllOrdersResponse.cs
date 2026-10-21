@@ -1,5 +1,5 @@
 namespace VertexCommerce.Modules.Orders.Features.GetAllOrders;
-    
+
 public sealed record AllOrdersResponse(
     Guid Id,
     string CustomerPhoneNumber,

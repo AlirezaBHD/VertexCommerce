@@ -1,73 +1,136 @@
 using Bogus;
 using VertexCommerce.Modules.Catalog.Domain.Categories;
 using VertexCommerce.Modules.Catalog.Domain.Products;
-using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
+using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
 using VertexCommerce.Modules.Catalog.Features.Categories.Commands.CreateCategory;
 using VertexCommerce.Modules.Catalog.Features.Products.Commands.CreateProduct;
 
 namespace VertexCommerce.Modules.Catalog.Tests.Fixtures;
 
-public static class CatalogFixtures
+internal static class CatalogFixtures
 {
     private static readonly Faker Faker = new();
 
-    public static class Products
+    internal static class Products
     {
         public static Product Create(
             string? name = null,
-            decimal? price = null,
+            string? description = null,
+            Guid? categoryId = null,
+            string? slug = null)
+        {
+            var seo = SeoMetadata.Create(
+                Slug.Create(slug ?? Faker.Lorem.Slug()),
+                MetaTitle.CreateOrNull(Faker.Lorem.Sentence(3)),
+                MetaDescription.CreateOrNull(Faker.Lorem.Sentence(6))
+            );
+
+            return Product.Create(
+                ProductName.Create(name ?? Faker.Commerce.ProductName()),
+                ProductDescription.CreateOrNull(description ?? Faker.Commerce.ProductDescription()),
+                categoryId ?? Guid.NewGuid(),
+                seo
+            );
+        }
+
+        public static Product CreateWithVariant(
+            string? name = null,
+            decimal price = 99.99m,
+            string currency = "USD",
+            int stockQuantity = 10,
             Guid? categoryId = null)
         {
-            return Product.Create(
-                name ?? Faker.Commerce.ProductName(),
-                Faker.Commerce.ProductDescription(),
+            var product = Create(name: name, categoryId: categoryId);
+            var variant = ProductVariant.Create(
+                product.Id,
                 Sku.Generate(),
-                Money.Create(price ?? Faker.Random.Decimal(10, 1000), "USD"),
-                Faker.Random.Int(0, 100),
-                categoryId ?? Guid.NewGuid()
+                stockQuantity,
+                0,
+                Money.Create(price, Currency.Create(currency)),
+                []
             );
+            product.AddVariant(variant);
+            return product;
         }
 
         public static CreateProductCommand CreateCommand(
             string? name = null,
-            decimal? price = null,
-            Guid? categoryId = null)
+            string? description = null,
+            Guid? categoryId = null,
+            string? slug = null,
+            decimal price = 99.99m,
+            string currency = "USD",
+            int stockQuantity = 10)
         {
             return new CreateProductCommand(
                 name ?? Faker.Commerce.ProductName(),
-                Faker.Commerce.ProductDescription(),
-                null,
-                price ?? Faker.Random.Decimal(10, 1000),
-                "USD",
-                Faker.Random.Int(0, 100),
-                categoryId ?? Guid.NewGuid()
+                description ?? Faker.Commerce.ProductDescription(),
+                categoryId ?? Guid.NewGuid(),
+                new SeoMetadataRequest(
+                    slug ?? Faker.Lorem.Slug(),
+                    "Meta Title",
+                    "Meta Description",
+                    "keywords"
+                ),
+                [
+                    new CreateVariantRequest(
+                        price,
+                        currency,
+                        stockQuantity,
+                        0,
+                        []
+                    )
+                ],
+                null
             );
         }
     }
 
-    public static class Categories
+    internal static class Categories
     {
         public static Category Create(
             string? name = null,
-            Guid? parentId = null)
+            string? description = null,
+            Guid? parentId = null,
+            int sortOrder = 0,
+            bool isActive = true,
+            string? coverImagePath = null)
         {
             return Category.Create(
-                name ?? Faker.Commerce.Categories(1)[0],
-                Faker.Lorem.Sentence(),
+                CategoryName.Create(name ?? Faker.Commerce.Categories(1)[0]),
+                CategoryDescription.Create(description ?? Faker.Lorem.Sentence()),
+                SeoMetadata.Create(Slug.Create(Faker.Lorem.Slug())),
+                null,
+                ImagePath.Create(coverImagePath ?? "/images/default-cover.jpg"),
+                null,
                 parentId,
-                Faker.Random.Int(0, 10)
+                isActive,
+                showOnHome: false,
+                includeInMenu: true,
+                sortOrder: sortOrder
             );
         }
 
         public static CreateCategoryCommand CreateCommand(
             string? name = null,
-            Guid? parentId = null)
+            string? description = null,
+            Guid? parentId = null,
+            int sortOrder = 0,
+            string? slug = null,
+            string? coverImagePath = null)
         {
             return new CreateCategoryCommand(
                 name ?? Faker.Commerce.Categories(1)[0],
-                Faker.Lorem.Sentence(),
+                description ?? Faker.Lorem.Sentence(),
+                new SeoMetadataRequest(slug ?? Faker.Lorem.Slug(), "Meta Title", "Meta Description", null),
+                null,
+                coverImagePath ?? "/images/default-cover.jpg",
+                null,
                 parentId,
-                Faker.Random.Int(0, 10)
+                IsActive: true,
+                ShowOnHome: false,
+                IncludeInMenu: true,
+                SortOrder: sortOrder
             );
         }
     }

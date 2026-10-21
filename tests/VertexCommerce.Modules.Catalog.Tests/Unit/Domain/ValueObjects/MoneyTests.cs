@@ -1,5 +1,5 @@
-using FluentAssertions;
-using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
+using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
+using VertexCommerce.Shared.Exceptions;
 
 namespace VertexCommerce.Modules.Catalog.Tests.Unit.Domain.ValueObjects;
 
@@ -8,133 +8,120 @@ public class MoneyTests
     [Fact]
     public void Create_WithValidData_ShouldCreateMoney()
     {
-        var money = Money.Create(100.50m, "USD");
+        // Arrange
+        var currency = Currency.Create("USD");
 
+        // Act
+        var money = Money.Create(100.50m, currency);
+
+        // Assert
         money.Amount.Should().Be(100.50m);
-        money.Currency.Should().Be("USD");
+        money.Currency.Should().Be(currency);
+        money.Currency.Value.Should().Be("USD");
+    }
+
+    [Fact]
+    public void Create_WithZeroAmount_ShouldSucceed()
+    {
+        // Act
+        var money = Money.Create(0m, Currency.Create("IRR"));
+
+        // Assert
+        money.Amount.Should().Be(0m);
+        money.Currency.Value.Should().Be("IRR");
     }
 
     [Fact]
     public void Create_WithNegativeAmount_ShouldThrowException()
     {
-        var act = () => Money.Create(-10, "USD");
+        // Act
+        var act = () => Money.Create(-10m, Currency.Create("USD"));
 
-        act.Should().Throw<ArgumentException>()
+        // Assert
+        act.Should().Throw<DomainValidationException>()
             .WithMessage("*cannot be negative*");
+    }
+
+    [Fact]
+    public void Equals_WithSameValues_ShouldBeEqual()
+    {
+        // Arrange
+        var money1 = Money.Create(100m, Currency.Create("USD"));
+        var money2 = Money.Create(100m, Currency.Create("USD"));
+
+        // Assert
+        money1.Should().Be(money2);
+        (money1 == money2).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Equals_WithDifferentAmount_ShouldNotBeEqual()
+    {
+        // Arrange
+        var money1 = Money.Create(100m, Currency.Create("USD"));
+        var money2 = Money.Create(50m, Currency.Create("USD"));
+
+        // Assert
+        money1.Should().NotBe(money2);
+        (money1 == money2).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Equals_WithDifferentCurrency_ShouldNotBeEqual()
+    {
+        // Arrange
+        var money1 = Money.Create(100m, Currency.Create("USD"));
+        var money2 = Money.Create(100m, Currency.Create("EUR"));
+
+        // Assert
+        money1.Should().NotBe(money2);
+        (money1 == money2).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Currency_Create_WithValidCode_ShouldSetNormalizedValue()
+    {
+        // Act
+        var currency = Currency.Create("  USD  ");
+
+        // Assert
+        currency.Value.Should().Be("USD");
     }
 
     [Theory]
     [InlineData("")]
     [InlineData(" ")]
     [InlineData(null)]
-    public void Create_WithInvalidCurrency_ShouldThrowException(string? currency)
+    public void Currency_Create_WithEmptyValue_ShouldThrowDomainValidationException(string? value)
     {
-        var act = () => Money.Create(100, currency!);
+        // Act
+        var act = () => Currency.Create(value);
 
-        act.Should().Throw<ArgumentException>()
-            .WithMessage("*Currency*");
+        // Assert
+        act.Should().Throw<DomainValidationException>()
+            .WithMessage("*required*");
     }
 
     [Fact]
-    public void Create_ShouldNormalizeCurrencyToUpperCase()
+    public void Currency_Create_WithLengthGreaterThan3_ShouldThrowDomainValidationException()
     {
-        var money = Money.Create(100, "usd");
+        // Act
+        var act = () => Currency.Create("USDT");
 
-        money.Currency.Should().Be("USD");
+        // Assert
+        act.Should().Throw<DomainValidationException>()
+            .WithMessage("*must not exceed 3 characters*");
     }
 
     [Fact]
-    public void Add_WithSameCurrency_ShouldReturnSum()
+    public void Currency_Equals_WithSameValue_ShouldBeEqual()
     {
-        var money1 = Money.Create(100, "USD");
-        var money2 = Money.Create(50, "USD");
+        // Arrange
+        var c1 = Currency.Create("USD");
+        var c2 = Currency.Create("USD");
 
-        var result = money1.Add(money2);
-
-        result.Amount.Should().Be(150);
-        result.Currency.Should().Be("USD");
-    }
-
-    [Fact]
-    public void Add_WithDifferentCurrency_ShouldThrowException()
-    {
-        var money1 = Money.Create(100, "USD");
-        var money2 = Money.Create(50, "EUR");
-
-        var act = () => money1.Add(money2);
-
-        act.Should().Throw<InvalidOperationException>()
-            .WithMessage("*different currencies*");
-    }
-
-    [Fact]
-    public void Subtract_WithSameCurrency_ShouldReturnDifference()
-    {
-        var money1 = Money.Create(100, "USD");
-        var money2 = Money.Create(30, "USD");
-
-        var result = money1.Subtract(money2);
-
-        result.Amount.Should().Be(70);
-    }
-
-    [Fact]
-    public void Subtract_WhenResultNegative_ShouldThrowException()
-    {
-        var money1 = Money.Create(30, "USD");
-        var money2 = Money.Create(100, "USD");
-
-        var act = () => money1.Subtract(money2);
-
-        act.Should().Throw<InvalidOperationException>()
-            .WithMessage("*cannot be negative*");
-    }
-
-    [Fact]
-    public void Multiply_WithPositiveQuantity_ShouldReturnProduct()
-    {
-        var money = Money.Create(25, "USD");
-
-        var result = money.Multiply(4);
-
-        result.Amount.Should().Be(100);
-    }
-
-    [Fact]
-    public void Equals_WithSameValues_ShouldBeEqual()
-    {
-        var money1 = Money.Create(100, "USD");
-        var money2 = Money.Create(100, "USD");
-
-        money1.Should().Be(money2);
-        (money1 == money2).Should().BeTrue();
-    }
-
-    [Fact]
-    public void Equals_WithDifferentValues_ShouldNotBeEqual()
-    {
-        var money1 = Money.Create(100, "USD");
-        var money2 = Money.Create(100, "EUR");
-
-        money1.Should().NotBe(money2);
-    }
-
-    [Fact]
-    public void Zero_ShouldReturnZeroAmount()
-    {
-        var money = Money.Zero("EUR");
-
-        money.Amount.Should().Be(0);
-        money.Currency.Should().Be("EUR");
-    }
-
-    [Fact]
-    public void ToString_ShouldReturnFormattedString()
-    {
-        var money = Money.Create(99.99m, "USD");
-
-        var result = money.ToString();
-
-        result.Should().Be("99.99 USD");
+        // Assert
+        c1.Should().Be(c2);
+        (c1 == c2).Should().BeTrue();
     }
 }

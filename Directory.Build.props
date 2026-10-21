@@ -6,5 +6,24 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>$(NoWarn);NU1901;NU1902;NU1903;NU1904</NoWarn>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>All</AnalysisMode>
+    <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)analyzers.globalconfig" />
+  </ItemGroup>
+
+  <!-- Analyzer findings are real errors (IDE + build). To build/run despite them: dotnet build -p:StrictAnalyzers=false -->
+  <ItemGroup Condition="'$(StrictAnalyzers)' != 'false'">
+    <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)analyzers.errors.globalconfig" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(StrictAnalyzers)' == 'false'">
+    <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)analyzers.warnings.globalconfig" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(StrictAnalyzers)' == 'false'">
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
   </PropertyGroup>
 </Project>

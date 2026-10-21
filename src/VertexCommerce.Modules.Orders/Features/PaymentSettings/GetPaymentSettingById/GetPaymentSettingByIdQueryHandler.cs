@@ -1,5 +1,4 @@
 using VertexCommerce.Modules.Orders.Domain.Repositories;
-using VertexCommerce.Modules.Orders.Features.PaymentSettings.CreatePaymentSettings;
 using VertexCommerce.Shared.CQRS;
 using VertexCommerce.Modules.Orders.Domain.Errors;
 

@@ -40,7 +40,7 @@ public sealed class GetAllOrdersQueryHandler(OrdersDbContext dbContext)
         return Result.Success(new PagedResult<AllOrdersResponse>(
             Items: result,
             HasNextPage: count > query.Skip * query.Take,
-            HasPreviousPage: query.Skip * query.Take - query.Take > 0,
+            HasPreviousPage: query.Skip * query.Take > query.Take,
             TotalCount: count
         ));
     }

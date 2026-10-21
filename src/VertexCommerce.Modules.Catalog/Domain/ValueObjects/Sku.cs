@@ -33,7 +33,7 @@ public readonly partial record struct Sku
     {
         var timestamp = DateTime.UtcNow.ToString("yyyyMMdd");
         var random = Guid.NewGuid().ToString("N")[..6].ToUpperInvariant();
-        return new Sku($"--");
+        return new Sku($"{prefix}-{timestamp}-{random}");
     }
 
     [GeneratedRegex(@"^[A-Z0-9\-]+$")]

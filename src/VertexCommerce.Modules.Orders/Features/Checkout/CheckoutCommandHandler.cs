@@ -99,7 +99,7 @@ public sealed class CheckoutCommandHandler(
             );
         }
 
-        if (!order.Items.Any())
+        if (order.Items.Count == 0)
         {
             return Result.Failure<CheckoutResponse>(
                 OrderErrors.EmptyItems);

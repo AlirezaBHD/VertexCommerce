@@ -2,13 +2,7 @@ using VertexCommerce.Shared.Domain.Schema;
 
 namespace VertexCommerce.Modules.Orders.Domain.ValueObjects;
 
-/// <summary>
-/// An Iranian postal code: exactly ten ASCII digits.
-/// </summary>
-/// <remarks>
-/// This rule existed only as an intention before — the column was declared ten characters wide and
-/// fixed length, but nothing rejected a three-letter value. The Schema now enforces it.
-/// </remarks>
+
 public readonly record struct PostalCode
 {
     public static StringFieldSchema Schema { get; } = new(

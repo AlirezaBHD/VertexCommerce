@@ -1,5 +1,6 @@
 using HotChocolate.Types;
 using HotChocolate;
+using VertexCommerce.Modules.Orders.Domain.Entities;
 using VertexCommerce.Modules.Orders.GraphQL.Orders.Types;
 using VertexCommerce.Modules.Orders.Domain.Repositories;
 
@@ -34,7 +35,7 @@ public sealed class OrderQueries{
         return orders.Select(MapToOrderType);
     }
 
-    private static OrderType MapToOrderType(Modules.Orders.Domain.Entities.Order order) => new()
+    private static OrderType MapToOrderType(Order order) => new()
     {
         Id = order.Id,
         OrderNumber = order.OrderNumber.Value,

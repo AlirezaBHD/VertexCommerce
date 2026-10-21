@@ -3,7 +3,7 @@ using VertexCommerce.Modules.Orders.Domain.ValueObjects;
 
 namespace VertexCommerce.Modules.Orders.Features.CreateManualOrder;
 
-public sealed class CreateManualOrderCommandValidator : AbstractValidator<CreateManualOrderCommand>
+internal sealed class CreateManualOrderCommandValidator : AbstractValidator<CreateManualOrderCommand>
 {
     public CreateManualOrderCommandValidator()
     {
@@ -38,7 +38,7 @@ public sealed class CreateManualOrderCommandValidator : AbstractValidator<Create
             .MaximumLength(1000).WithMessage("Notes cannot exceed 1000 characters.");
     }
 
-    private sealed class ManualOrderAddressValidator : AbstractValidator<ManualOrderAddressDto>
+    private sealed class ManualOrderAddressValidator : AbstractValidator<CreateManualOrderCommand.Address>
     {
         public ManualOrderAddressValidator()
         {

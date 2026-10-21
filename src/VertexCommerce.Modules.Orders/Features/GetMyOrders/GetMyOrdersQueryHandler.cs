@@ -43,7 +43,7 @@ public sealed class GetMyOrdersQueryHandler(
         return Result.Success(new PagedResult<MyOrdersResponse>(
             Items: result,
             HasNextPage: count > query.Skip * query.Take,
-            HasPreviousPage: query.Skip * query.Take - query.Take > 0,
+            HasPreviousPage: query.Skip * query.Take > query.Take,
             TotalCount: count
         ));
     }

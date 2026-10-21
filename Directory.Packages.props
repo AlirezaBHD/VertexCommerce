@@ -37,6 +37,7 @@
     <PackageVersion Include="Bogus" Version="35.6.2" />
     <PackageVersion Include="Testcontainers.PostgreSql" Version="4.4.0" />
     <PackageVersion Include="Testcontainers.MongoDb" Version="4.4.0" />
+    <PackageVersion Include="NetArchTest.Rules" Version="1.3.2" />
     <!-- Utilities -->
     <PackageVersion Include="WebPush" Version="1.0.12" />
     <PackageVersion Include="CloudinaryDotNet" Version="1.29.3" />
@@ -48,5 +49,11 @@
     <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="8.15.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />
+  </ItemGroup>
+  <!-- Analyzers -->
+  <ItemGroup>
+    <GlobalPackageReference Include="Roslynator.Analyzers" Version="5.0.0" />
+    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.314" />
+    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.34.0.3385" />
   </ItemGroup>
 </Project>

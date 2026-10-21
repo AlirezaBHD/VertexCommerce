@@ -1,10 +1,9 @@
-using FluentAssertions;
 using NSubstitute;
 using VertexCommerce.Modules.Catalog.Domain.Categories;
 using VertexCommerce.Modules.Catalog.Domain.Products;
 using VertexCommerce.Modules.Catalog.Features.Products.Commands.CreateProduct;
 using VertexCommerce.Modules.Catalog.Persistence.Postgres;
-using VertexCommerce.Modules.Catalog.Tests.Fixtures; 
+using VertexCommerce.Modules.Catalog.Tests.Fixtures;
 
 namespace VertexCommerce.Modules.Catalog.Tests.Unit.Features.CreateProduct;
 
@@ -29,7 +28,7 @@ public class CreateProductCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WithValidCommand_ShouldCreateProduct()
+    public async Task Handle_WithValidCommand_ShouldCreateProductAndReturnResponse()
     {
         // Arrange
         var categoryId = Guid.NewGuid();
@@ -37,7 +36,7 @@ public class CreateProductCommandHandlerTests
 
         _categoryRepository.ExistsAsync(categoryId, Arg.Any<CancellationToken>())
             .Returns(true);
-        _productRepository.SkuExistsAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+        _productRepository.SlugExistsAsync(command.SeoMetadata.Slug, Arg.Any<CancellationToken>())
             .Returns(false);
 
         // Act
@@ -45,10 +44,13 @@ public class CreateProductCommandHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().NotBeEmpty();
+        result.Value.Should().NotBeNull();
+        result.Value.ProductId.Should().NotBeEmpty();
+        result.Value.Variants.Should().HaveCount(1);
+        result.Value.Variants[0].Sku.Should().StartWith("PRD-");
 
         await _productRepository.Received(1).AddAsync(
-            Arg.Is<Product>(p => p.Name == command.Name),
+            Arg.Is<Product>(p => p.Name.Value == command.Name && p.CategoryId == categoryId),
             Arg.Any<CancellationToken>()
         );
         await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
@@ -75,26 +77,19 @@ public class CreateProductCommandHandlerTests
             Arg.Any<Product>(),
             Arg.Any<CancellationToken>()
         );
+        await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
     [Fact]
-    public async Task Handle_WhenSkuExists_ShouldReturnFailure()
+    public async Task Handle_WhenSlugAlreadyExists_ShouldReturnConflictFailure()
     {
         // Arrange
         var categoryId = Guid.NewGuid();
-        var command = new CreateProductCommand(
-            "Test Product",
-            null,
-            "EXISTING-SKU",
-            99.99m,
-            "USD",
-            10,
-            categoryId
-        );
+        var command = CatalogFixtures.Products.CreateCommand(categoryId: categoryId);
 
         _categoryRepository.ExistsAsync(categoryId, Arg.Any<CancellationToken>())
             .Returns(true);
-        _productRepository.SkuExistsAsync("EXISTING-SKU", Arg.Any<CancellationToken>())
+        _productRepository.SlugExistsAsync(command.SeoMetadata.Slug, Arg.Any<CancellationToken>())
             .Returns(true);
 
         // Act
@@ -103,26 +98,49 @@ public class CreateProductCommandHandlerTests
         // Assert
         result.IsFailure.Should().BeTrue();
         result.Error.Code.Should().Contain("Conflict");
+
+        await _productRepository.DidNotReceive().AddAsync(
+            Arg.Any<Product>(),
+            Arg.Any<CancellationToken>()
+        );
+        await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
     [Fact]
-    public async Task Handle_WithoutSku_ShouldGenerateSku()
+    public async Task Handle_WithVariantsAndMedia_ShouldAttachVariantsAndMediaToProduct()
     {
         // Arrange
         var categoryId = Guid.NewGuid();
         var command = new CreateProductCommand(
-            "Test Product",
-            null,
-            null, // No SKU provided
-            99.99m,
-            "USD",
-            10,
-            categoryId
+            Name: "Smartphone Pro",
+            Description: "Flagship phone",
+            CategoryId: categoryId,
+            SeoMetadata: new SeoMetadataRequest("smartphone-pro", "Meta Title", "Meta Desc", "phone,tech"),
+            Variants:
+            [
+                new CreateVariantRequest(
+                    Price: 999m,
+                    Currency: "USD",
+                    StockQuantity: 50,
+                    SortOrder: 0,
+                    Attributes: [new ProductAttributeRequest("COLOR", "BLACK")]
+                )
+            ],
+            Media:
+            [
+                new CreateMediaRequest(
+                    Path: "/images/phone.png",
+                    SortOrder: 0,
+                    AltText: "Front view",
+                    AssociatedAttributeCode: null,
+                    AssociatedOptionCode: null
+                )
+            ]
         );
 
         _categoryRepository.ExistsAsync(categoryId, Arg.Any<CancellationToken>())
             .Returns(true);
-        _productRepository.SkuExistsAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+        _productRepository.SlugExistsAsync(command.SeoMetadata.Slug, Arg.Any<CancellationToken>())
             .Returns(false);
 
         // Act
@@ -130,9 +148,14 @@ public class CreateProductCommandHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeTrue();
+        result.Value.Variants.Should().HaveCount(1);
 
         await _productRepository.Received(1).AddAsync(
-            Arg.Is<Product>(p => p.Sku.Value.StartsWith("PRD-")),
+            Arg.Is<Product>(p =>
+                p.Name.Value == "Smartphone Pro" &&
+                p.Variants.Count == 1 &&
+                p.Media.Count == 1 &&
+                p.Variants.First().StockQuantity == 50),
             Arg.Any<CancellationToken>()
         );
     }

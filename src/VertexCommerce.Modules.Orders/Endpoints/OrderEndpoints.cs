@@ -91,11 +91,11 @@ public static class OrderEndpoints
     }
 
     private static async Task<IResult> CreateManualOrder(
-        [FromBody] CreateManualOrderCommand command,
+        [FromBody] CreateManualOrderRequest request,
         [FromServices] ISender sender,
         CancellationToken ct)
     {
-        var result = await sender.Send(command, ct);
+        var result = await sender.Send(request.ToCommand(), ct);
     
         return result.IsSuccess
             ? Results.Created($"/api/orders/{result.Value.OrderId}", result.Value)
@@ -135,7 +135,7 @@ public static class OrderEndpoints
             : result.Error.ToHttpResult();
     }
 
-    private async static Task<IResult> GetOrder(
+    private static async Task<IResult> GetOrder(
         Guid id,
         [FromServices] ISender sender,
         CancellationToken ct)
@@ -151,7 +151,6 @@ public static class OrderEndpoints
     private static async Task<IResult> CancelOrder(
         Guid id,
         [FromBody] CancelOrderRequest request,
-        HttpContext context,
         [FromServices] ISender sender,
         CancellationToken ct)
     {

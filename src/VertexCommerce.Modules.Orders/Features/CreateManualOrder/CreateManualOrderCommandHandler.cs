@@ -53,7 +53,7 @@ internal sealed class CreateManualOrderCommandHandler(
                     Error.Validation(
                         "Stock.Insufficient",
                         $"Insufficient stock for '{variant.Name}' ({variant.Sku}). " +
-                        $"Requested: {item.Quantity}, Available: {variant.StockQuantity}."));
+                        $"Requested: {item.Quantity.ToString()}, Available: {variant.StockQuantity.ToString()}."));
             }
 
             order.AddItem(
@@ -65,7 +65,7 @@ internal sealed class CreateManualOrderCommandHandler(
                 quantity: item.Quantity);
         }
 
-        if (!order.Items.Any())
+        if (order.Items.Count == 0)
         {
             return Result.Failure<CreateManualOrderResponse>(
                 OrderErrors.EmptyItems);
@@ -95,7 +95,7 @@ internal sealed class CreateManualOrderCommandHandler(
             order.TotalAmount.Currency));
     }
 
-    private static Address CreateAddress(ManualOrderAddressDto dto)
+    private static Address CreateAddress(CreateManualOrderCommand.Address dto)
     {
         return Address.Create(Province.Create(dto.Province), City.Create(dto.City), PostalAddress.Create(dto.PostalAddress), PostalCode.Create(dto.PostalCode), GeoLocation.Create(dto.Latitude, dto.Longitude), AddressLabel.CreateOrNull(dto.Label));
     }

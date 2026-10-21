@@ -1,7 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
       <ProjectReference Include="..\VertexCommerce.Shared\VertexCommerce.Shared.csproj" />
+      <InternalsVisibleTo Include="VertexCommerce.Modules.Catalog.Tests" />
     </ItemGroup>
     <PropertyGroup>
         <NuGetAudit>false</NuGetAudit>

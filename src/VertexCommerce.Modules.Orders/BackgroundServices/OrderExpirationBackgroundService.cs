@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using VertexCommerce.Modules.Orders.Domain.Enums;
 using VertexCommerce.Modules.Orders.Domain.Repositories;
 using VertexCommerce.Modules.Orders.Persistence;
 using VertexCommerce.Shared.Contracts.Catalog;

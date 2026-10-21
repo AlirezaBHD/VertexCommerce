@@ -20,8 +20,7 @@ internal sealed class GetSalesChartQueryHandler(
             .Where(o => o.PaymentStatus == PaymentStatus.Paid)
             .Select(o => new
             {
-                o.CreatedAt,
-                Amount = o.TotalAmount.Amount
+                o.CreatedAt, o.TotalAmount.Amount
             })
             .ToListAsync(ct);
 

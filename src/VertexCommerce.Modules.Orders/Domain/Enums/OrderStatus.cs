@@ -2,6 +2,7 @@ namespace VertexCommerce.Modules.Orders.Domain.Enums;
 
 public enum OrderStatus
 {
+    None = 0,
     Pending = 1,
     AwaitingPayment = 2,
     PaymentUnderReview = 3,

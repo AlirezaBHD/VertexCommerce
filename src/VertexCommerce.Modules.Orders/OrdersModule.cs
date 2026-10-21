@@ -13,7 +13,7 @@ using VertexCommerce.Shared.Persistence;
 
 namespace VertexCommerce.Modules.Orders;
 
-public class OrdersModule :IModule
+public class OrdersModule : IModule
 {
     public string Name => "Orders";
 
@@ -24,10 +24,9 @@ public class OrdersModule :IModule
         services.AddDbContext<OrdersDbContext>((sp, options) =>
         {
             options.UseNpgsql(
-                configuration.GetConnectionString("OrdersDb"),
-                npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "orders"));
-
-            options.AddInterceptors(sp.GetRequiredService<DomainEventInterceptor>());
+                    configuration.GetConnectionString("OrdersDb"),
+                    npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "orders"))
+                .AddInterceptors(sp.GetRequiredService<DomainEventInterceptor>());
         });
 
         services.AddScoped<IOrderRepository, OrderRepository>();
@@ -40,7 +39,7 @@ public class OrdersModule :IModule
         services.AddMediatR(cfg =>
             cfg.RegisterServicesFromAssembly(typeof(OrdersModule).Assembly));
 
-        services.AddValidatorsFromAssembly(typeof(OrdersModule).Assembly);
+        services.AddValidatorsFromAssembly(typeof(OrdersModule).Assembly, includeInternalTypes: true);
     }
 
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
@@ -53,14 +52,13 @@ public class OrdersModule :IModule
 
     public void ConfigureGraphQl(IRequestExecutorBuilder builder)
     {
-        
     }
 
     public async Task InitializeAsync(IServiceProvider serviceProvider, CancellationToken ct = default)
     {
-        using var scope = serviceProvider.CreateScope();
+        await using var scope = serviceProvider.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
-        var logger = scope.ServiceProvider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<OrdersModule>>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<OrdersModule>>();
 
         try
         {
@@ -70,8 +68,7 @@ public class OrdersModule :IModule
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to apply migrations for Orders module.");
-            throw;
+            throw new InvalidOperationException("Failed to apply migrations for Orders module.", ex);
         }
     }
 }

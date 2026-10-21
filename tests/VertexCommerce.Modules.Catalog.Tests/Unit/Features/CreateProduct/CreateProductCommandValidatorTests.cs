@@ -1,5 +1,5 @@
-using FluentAssertions;
 using VertexCommerce.Modules.Catalog.Features.Products.Commands.CreateProduct;
+using VertexCommerce.Modules.Catalog.Tests.Fixtures;
 
 namespace VertexCommerce.Modules.Catalog.Tests.Unit.Features.CreateProduct;
 
@@ -11,15 +11,7 @@ public class CreateProductCommandValidatorTests
     public void Validate_WithValidCommand_ShouldBeValid()
     {
         // Arrange
-        var command = new CreateProductCommand(
-            "Valid Product",
-            "Description",
-            "SKU-001",
-            99.99m,
-            "USD",
-            10,
-            Guid.NewGuid()
-        );
+        var command = CatalogFixtures.Products.CreateCommand();
 
         // Act
         var result = _validator.Validate(command);
@@ -31,17 +23,17 @@ public class CreateProductCommandValidatorTests
     [Theory]
     [InlineData("")]
     [InlineData(" ")]
-    public void Validate_WithEmptyName_ShouldBeInvalid(string name)
+    [InlineData(null)]
+    public void Validate_WithEmptyName_ShouldBeInvalid(string? name)
     {
         // Arrange
         var command = new CreateProductCommand(
-            name,
-            null,
-            null,
-            99.99m,
-            "USD",
-            10,
-            Guid.NewGuid()
+            Name: name!,
+            Description: "Valid Description",
+            CategoryId: Guid.NewGuid(),
+            SeoMetadata: new SeoMetadataRequest("valid-slug", "Title", "Desc", null),
+            Variants: null,
+            Media: null
         );
 
         // Act
@@ -49,144 +41,61 @@ public class CreateProductCommandValidatorTests
 
         // Assert
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.PropertyName == "Name");
+        result.Errors.Should().Contain(e => e.PropertyName == "Name" && e.ErrorMessage.Contains("required"));
     }
 
     [Fact]
     public void Validate_WithNameTooLong_ShouldBeInvalid()
     {
         // Arrange
-        var command = new CreateProductCommand(
-            new string('A', 201),
-            null,
-            null,
-            99.99m,
-            "USD",
-            10,
-            Guid.NewGuid()
-        );
+        var command = CatalogFixtures.Products.CreateCommand(name: new string('A', 201));
 
         // Act
         var result = _validator.Validate(command);
 
         // Assert
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.PropertyName == "Name");
+        result.Errors.Should().Contain(e => e.PropertyName == "Name" && e.ErrorMessage.Contains("200 characters"));
     }
 
     [Fact]
-    public void Validate_WithNegativePrice_ShouldBeInvalid()
+    public void Validate_WithDescriptionTooLong_ShouldBeInvalid()
     {
         // Arrange
-        var command = new CreateProductCommand(
-            "Product",
-            null,
-            null,
-            -10m,
-            "USD",
-            10,
-            Guid.NewGuid()
-        );
+        var command = CatalogFixtures.Products.CreateCommand(description: new string('A', 2001));
 
         // Act
         var result = _validator.Validate(command);
 
         // Assert
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.PropertyName == "Price");
+        result.Errors.Should().Contain(e => e.PropertyName == "Description" && e.ErrorMessage.Contains("2000 characters"));
     }
 
     [Fact]
-    public void Validate_WithNegativeStock_ShouldBeInvalid()
+    public void Validate_WithNullDescription_ShouldBeValid()
     {
         // Arrange
-        var command = new CreateProductCommand(
-            "Product",
-            null,
-            null,
-            99.99m,
-            "USD",
-            -5,
-            Guid.NewGuid()
-        );
+        var command = CatalogFixtures.Products.CreateCommand(description: null);
 
         // Act
         var result = _validator.Validate(command);
 
         // Assert
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.PropertyName == "StockQuantity");
-    }
-
-    [Theory]
-    [InlineData("")]
-    [InlineData("US")]
-    [InlineData("USDD")]
-    public void Validate_WithInvalidCurrency_ShouldBeInvalid(string currency)
-    {
-        // Arrange
-        var command = new CreateProductCommand(
-            "Product",
-            null,
-            null,
-            99.99m,
-            currency,
-            10,
-            Guid.NewGuid()
-        );
-
-        // Act
-        var result = _validator.Validate(command);
-
-        // Assert
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.PropertyName == "Currency");
+        result.IsValid.Should().BeTrue();
     }
 
     [Fact]
     public void Validate_WithEmptyCategoryId_ShouldBeInvalid()
     {
         // Arrange
-        var command = new CreateProductCommand(
-            "Product",
-            null,
-            null,
-            99.99m,
-            "USD",
-            10,
-            Guid.Empty
-        );
+        var command = CatalogFixtures.Products.CreateCommand(categoryId: Guid.Empty);
 
         // Act
         var result = _validator.Validate(command);
 
         // Assert
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.PropertyName == "CategoryId");
-    }
-
-    [Theory]
-    [InlineData("AB")]
-    [InlineData("SKU@123")]
-    [InlineData("SKU 123")]
-    public void Validate_WithInvalidSku_ShouldBeInvalid(string sku)
-    {
-        // Arrange
-        var command = new CreateProductCommand(
-            "Product",
-            null,
-            sku,
-            99.99m,
-            "USD",
-            10,
-            Guid.NewGuid()
-        );
-
-        // Act
-        var result = _validator.Validate(command);
-
-        // Assert
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.PropertyName == "Sku");
+        result.Errors.Should().Contain(e => e.PropertyName == "CategoryId" && e.ErrorMessage.Contains("required"));
     }
 }

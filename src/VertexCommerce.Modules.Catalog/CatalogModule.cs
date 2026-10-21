@@ -126,13 +126,20 @@ public class CatalogModule : IModule
             throw;
         }
 
-        var productRepo = serviceProvider.GetRequiredService<ProductIndexManager>();
-        await productRepo.EnsureIndexesAsync(ct);
+        try
+        {
+            var productRepo = serviceProvider.GetRequiredService<ProductIndexManager>();
+            await productRepo.EnsureIndexesAsync(ct);
 
-        var categoryRepo = serviceProvider.GetRequiredService<CategoryIndexManager>();
-        await categoryRepo.EnsureIndexesAsync(ct);
+            var categoryRepo = serviceProvider.GetRequiredService<CategoryIndexManager>();
+            await categoryRepo.EnsureIndexesAsync(ct);
 
-        var bannerRepo = serviceProvider.GetRequiredService<BannerIndexManager>();
-        await bannerRepo.EnsureIndexesAsync(ct);
+            var bannerRepo = serviceProvider.GetRequiredService<BannerIndexManager>();
+            await bannerRepo.EnsureIndexesAsync(ct);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to ensure MongoDB indexes for Catalog module. Check MongoDB Atlas Network Access (IP Whitelist).");
+        }
     }
 }

@@ -1,4 +1,3 @@
-using VertexCommerce.Modules.Orders.Features.PaymentSettings.CreatePaymentSettings;
 using DomainEntity = VertexCommerce.Modules.Orders.Domain.Entities.PaymentSettings;
 
 namespace VertexCommerce.Modules.Orders.Features.PaymentSettings;

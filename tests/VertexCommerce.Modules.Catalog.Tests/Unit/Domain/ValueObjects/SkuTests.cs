@@ -1,5 +1,5 @@
-using FluentAssertions;
-using VertexCommerce.Modules.Catalog.Domain.Products.ValueObjects;
+using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
+using VertexCommerce.Shared.Exceptions;
 
 namespace VertexCommerce.Modules.Catalog.Tests.Unit.Domain.ValueObjects;
 
@@ -28,8 +28,8 @@ public class SkuTests
         var act = () => Sku.Create(value!);
 
         // Assert
-        act.Should().Throw<ArgumentException>()
-            .WithMessage("*cannot be empty*");
+        act.Should().Throw<DomainValidationException>()
+            .WithMessage("*required*");
     }
 
     [Theory]
@@ -41,8 +41,8 @@ public class SkuTests
         var act = () => Sku.Create(value);
 
         // Assert
-        act.Should().Throw<ArgumentException>()
-            .WithMessage("*between 3 and 50*");
+        act.Should().Throw<DomainValidationException>()
+            .WithMessage("*at least 3 characters*");
     }
 
     [Fact]
@@ -55,8 +55,8 @@ public class SkuTests
         var act = () => Sku.Create(longSku);
 
         // Assert
-        act.Should().Throw<ArgumentException>()
-            .WithMessage("*between 3 and 50*");
+        act.Should().Throw<DomainValidationException>()
+            .WithMessage("*must not exceed 50 characters*");
     }
 
     [Theory]
@@ -69,15 +69,15 @@ public class SkuTests
         var act = () => Sku.Create(value);
 
         // Assert
-        act.Should().Throw<ArgumentException>()
+        act.Should().Throw<DomainValidationException>()
             .WithMessage("*only contain letters, numbers, and hyphens*");
     }
 
     [Fact]
-    public void Create_ShouldNormalizeToUpperCase()
+    public void Create_ShouldNormalizeToUpperCaseAndTrim()
     {
         // Act
-        var sku = Sku.Create("prd-001");
+        var sku = Sku.Create("  prd-001  ");
 
         // Assert
         sku.Value.Should().Be("PRD-001");
@@ -105,19 +105,6 @@ public class SkuTests
     }
 
     [Fact]
-    public void ImplicitConversion_ShouldReturnValue()
-    {
-        // Arrange
-        var sku = Sku.Create("TEST-123");
-
-        // Act
-        string value = sku;
-
-        // Assert
-        value.Should().Be("TEST-123");
-    }
-
-    [Fact]
     public void Equals_WithSameValue_ShouldBeEqual()
     {
         // Arrange
@@ -126,5 +113,18 @@ public class SkuTests
 
         // Assert
         sku1.Should().Be(sku2);
+        (sku1 == sku2).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Equals_WithDifferentValue_ShouldNotBeEqual()
+    {
+        // Arrange
+        var sku1 = Sku.Create("PRD-001");
+        var sku2 = Sku.Create("PRD-002");
+
+        // Assert
+        sku1.Should().NotBe(sku2);
+        (sku1 != sku2).Should().BeTrue();
     }
 }

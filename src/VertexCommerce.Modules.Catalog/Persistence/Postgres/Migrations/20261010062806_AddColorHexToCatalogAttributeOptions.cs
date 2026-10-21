@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -7,6 +7,20 @@ namespace VertexCommerce.Modules.Catalog.Persistence.Postgres.Migrations
     /// <inheritdoc />
     public partial class AddColorHexToCatalogAttributeOptions : Migration
     {
+        private static readonly Guid ColorAttributeId = new("c0108000-0000-0000-0000-000000000001");
+
+        private static readonly Guid[] ColorOptionIds =
+        [
+            new("c0108000-0000-0000-0000-000000000011"),
+            new("c0108000-0000-0000-0000-000000000012"),
+            new("c0108000-0000-0000-0000-000000000013"),
+            new("c0108000-0000-0000-0000-000000000014"),
+            new("c0108000-0000-0000-0000-000000000015"),
+            new("c0108000-0000-0000-0000-000000000016"),
+            new("c0108000-0000-0000-0000-000000000017"),
+            new("c0108000-0000-0000-0000-000000000018")
+        ];
+
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -18,50 +32,46 @@ namespace VertexCommerce.Modules.Catalog.Persistence.Postgres.Migrations
                 maxLength: 7,
                 nullable: true);
 
-            migrationBuilder.Sql("""
-                INSERT INTO catalog.catalog_attributes (id, code, default_name, type, created_at, updated_at, "IsDeleted")
-                VALUES (gen_random_uuid(), 'color', 'رنگ', NULL, CURRENT_TIMESTAMP, NULL, FALSE)
-                ON CONFLICT (code) DO NOTHING;
+            var seedTimestamp = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-                INSERT INTO catalog.catalog_attribute_options (id, attribute_id, code, default_name, media_path, color_hex, created_at, updated_at, "IsDeleted")
-                SELECT gen_random_uuid(), catalog_attribute.id, seed.code, seed.default_name, NULL, NULL, CURRENT_TIMESTAMP, NULL, FALSE
-                FROM catalog.catalog_attributes AS catalog_attribute
-                CROSS JOIN (VALUES
-                    ('black', 'مشکی', '#000000'),
-                    ('white', 'سفید', '#FFFFFF'),
-                    ('red', 'قرمز', '#FF0000'),
-                    ('blue', 'آبی', '#0000FF'),
-                    ('green', 'سبز', '#008000'),
-                    ('yellow', 'زرد', '#FFFF00'),
-                    ('gray', 'خاکستری', '#808080'),
-                    ('brown', 'قهوه‌ای', '#8B4513')
-                ) AS seed(code, default_name, color_hex)
-                WHERE catalog_attribute.code = 'color'
-                ON CONFLICT (attribute_id, code) DO NOTHING;
+            migrationBuilder.InsertData(
+                schema: "catalog",
+                table: "catalog_attributes",
+                columns: new[] { "id", "code", "default_name", "type", "created_at", "updated_at", "IsDeleted" },
+                values: new object[] { ColorAttributeId, "color", "رنگ", null, seedTimestamp, null, false });
 
-                UPDATE catalog.catalog_attribute_options AS catalog_option
-                SET color_hex = seed.color_hex, updated_at = CURRENT_TIMESTAMP
-                FROM catalog.catalog_attributes AS catalog_attribute
-                CROSS JOIN (VALUES
-                    ('black', '#000000'),
-                    ('white', '#FFFFFF'),
-                    ('red', '#FF0000'),
-                    ('blue', '#0000FF'),
-                    ('green', '#008000'),
-                    ('yellow', '#FFFF00'),
-                    ('gray', '#808080'),
-                    ('brown', '#8B4513')
-                ) AS seed(code, color_hex)
-                WHERE catalog_attribute.code = 'color'
-                    AND catalog_option.attribute_id = catalog_attribute.id
-                    AND catalog_option.code = seed.code
-                    AND catalog_option.color_hex IS NULL;
-                """);
+            migrationBuilder.InsertData(
+                schema: "catalog",
+                table: "catalog_attribute_options",
+                columns: new[] { "id", "attribute_id", "code", "default_name", "media_path", "color_hex", "created_at", "updated_at", "IsDeleted" },
+                values: new object[,]
+                {
+                    { ColorOptionIds[0], ColorAttributeId, "black", "Black", null, "#000000", seedTimestamp, null, false },
+                    { ColorOptionIds[1], ColorAttributeId, "white", "White", null, "#FFFFFF", seedTimestamp, null, false },
+                    { ColorOptionIds[2], ColorAttributeId, "red", "Red", null, "#FF0000", seedTimestamp, null, false },
+                    { ColorOptionIds[3], ColorAttributeId, "blue", "Blue", null, "#0000FF", seedTimestamp, null, false },
+                    { ColorOptionIds[4], ColorAttributeId, "green", "Green", null, "#008000", seedTimestamp, null, false },
+                    { ColorOptionIds[5], ColorAttributeId, "yellow", "Yellow", null, "#FFFF00", seedTimestamp, null, false },
+                    { ColorOptionIds[6], ColorAttributeId, "gray", "Gray", null, "#808080", seedTimestamp, null, false },
+                    { ColorOptionIds[7], ColorAttributeId, "brown", "Brown", null, "#8B4513", seedTimestamp, null, false }
+                });
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DeleteData(
+                schema: "catalog",
+                table: "catalog_attribute_options",
+                keyColumn: "attribute_id",
+                keyValue: ColorAttributeId);
+
+            migrationBuilder.DeleteData(
+                schema: "catalog",
+                table: "catalog_attributes",
+                keyColumn: "id",
+                keyValue: ColorAttributeId);
+
             migrationBuilder.DropColumn(
                 name: "color_hex",
                 schema: "catalog",

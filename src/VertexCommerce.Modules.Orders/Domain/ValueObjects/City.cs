@@ -2,7 +2,6 @@ using VertexCommerce.Shared.Domain.Schema;
 
 namespace VertexCommerce.Modules.Orders.Domain.ValueObjects;
 
-/// <summary>The city component of a postal address.</summary>
 public readonly record struct City
 {
     public static StringFieldSchema Schema { get; } = new(maxLength: 100);

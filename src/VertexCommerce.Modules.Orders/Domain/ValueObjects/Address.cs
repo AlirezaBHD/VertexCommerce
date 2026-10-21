@@ -38,7 +38,7 @@ public readonly record struct Address
         string pAddress = PostalAddress.Value;
         if (pAddress.Length > 10)
         {
-            pAddress = pAddress.Substring(0, 10) + "...";
+            pAddress = $"{pAddress.AsSpan(0, 10)}...";
         }
         return Province.Value + " - " + City.Value + " - " + pAddress;
     }

@@ -152,7 +152,7 @@ public sealed class Order : AggregateRoot<Guid>
         if (Status != OrderStatus.PaymentUnderReview)
             return Result.Failure(Error.Validation($"Cannot confirm order with status {Status}"));
 
-        if (!_items.Any())
+        if (_items.Count == 0)
             return Result.Failure(Error.Validation("Cannot confirm order without items"));
 
         var oldStatus = Status;
@@ -225,7 +225,7 @@ public sealed class Order : AggregateRoot<Guid>
         if (Status != OrderStatus.Pending)
             return Result.Failure(Error.Validation($"Cannot initiate payment for order with status {Status}"));
 
-        if (!_items.Any())
+        if (_items.Count == 0)
             return Result.Failure(Error.Validation("Cannot initiate payment order without items"));
 
         if (ExpiresAt.HasValue && DateTime.UtcNow > ExpiresAt.Value)
@@ -337,7 +337,7 @@ public sealed class Order : AggregateRoot<Guid>
         return Result.Success();
     }
 
-    #endregion
+    #endregion State Transitions
 
     #region Payment
 
@@ -363,7 +363,7 @@ public sealed class Order : AggregateRoot<Guid>
         return Result.Success();
     }
 
-    #endregion
+    #endregion Payment
 
     public void SetShippingCost(Money shippingCost)
     {
