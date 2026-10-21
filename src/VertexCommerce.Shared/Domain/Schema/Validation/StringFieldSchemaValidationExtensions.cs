@@ -1,4 +1,3 @@
-using FluentValidation;
 using VertexCommerce.Shared.Domain.Schema;
 
 namespace FluentValidation;

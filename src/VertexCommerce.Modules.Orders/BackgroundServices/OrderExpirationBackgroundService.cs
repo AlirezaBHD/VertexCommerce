@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -11,26 +12,34 @@ public class OrderExpirationBackgroundService(
     IServiceProvider serviceProvider,
     ILogger<OrderExpirationBackgroundService> logger) : BackgroundService
 {
+    [SuppressMessage("Design", "CA1031: Modify 'ExecuteAsync' to catch a more specific allowed exception type, or rethrow the exception", 
+        Justification = "At the BackgroundService level, catching all errors is essential to keep the loop alive.")]
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        using var timer = new PeriodicTimer(TimeSpan.FromMinutes(1));
+
+        while (await timer.WaitForNextTickAsync(stoppingToken))
         {
             try
             {
                 await ProcessExpiredOrdersAsync(stoppingToken);
             }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
+            // 
+            // #pragma warning disable CA1031
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error occurred while processing expired orders.");
             }
-
-            await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
         }
     }
 
     private async Task ProcessExpiredOrdersAsync(CancellationToken ct)
     {
-        using var scope = serviceProvider.CreateScope();
+        await using var scope = serviceProvider.CreateAsyncScope();
         var orderRepository = scope.ServiceProvider.GetRequiredService<IOrderRepository>();
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IOrdersUnitOfWork>();
         var stockService = scope.ServiceProvider.GetRequiredService<IStockService>();

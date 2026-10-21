@@ -126,7 +126,7 @@ internal sealed class ProductReadModelRepository(IMongoDatabase database) : IPro
             Price: variant.Price,
             StockQuantity: variant.StockQuantity - variant.ReservedQuantity,
             Attributes: variant.Attributes.Select(a =>
-                new ProductInfoAttribute(a.AttributeCode, a.OptionCode)).ToList()
+                new ProductAttributeInfo(a.AttributeCode, a.OptionCode)).ToList()
         );
     }
 

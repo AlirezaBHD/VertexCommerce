@@ -1,5 +1,5 @@
 is_global = true
-global_level = 100
+global_level = 200
 
 
 # Noise for an application (non-library) codebase; always silenced
@@ -24,6 +24,7 @@ dotnet_diagnostic.CA1307.severity = none
 dotnet_diagnostic.CA1308.severity = none
 dotnet_diagnostic.CA1310.severity = none
 dotnet_diagnostic.CA1311.severity = none
+dotnet_diagnostic.CA2225.severity = none
 dotnet_diagnostic.MA0002.severity = none
 dotnet_diagnostic.MA0006.severity = none
 dotnet_diagnostic.MA0009.severity = none

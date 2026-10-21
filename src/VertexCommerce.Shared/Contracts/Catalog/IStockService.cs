@@ -10,5 +10,3 @@ public interface IStockService
     Task<Result> ReleaseStocksAsync(IEnumerable<StockDeductionRequest> requests, CancellationToken ct = default);
     Task<Result> CommitStocksAsync(IEnumerable<StockDeductionRequest> requests, CancellationToken ct = default);
 }
-
-public record StockDeductionRequest(Guid VariantId, int Quantity);
