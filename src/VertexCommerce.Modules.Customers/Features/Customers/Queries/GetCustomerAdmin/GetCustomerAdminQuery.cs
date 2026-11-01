@@ -5,17 +5,3 @@ namespace VertexCommerce.Modules.Customers.Features.Customers.Queries.GetCustome
 
 public sealed record GetCustomerAdminQuery(Guid CustomerId)
     : IQuery<CustomerAdminDetailResponse>;
-
-public sealed record CustomerAdminDetailResponse(
-    Guid Id,
-    Guid? UserId,
-    string PhoneNumber,
-    string FirstName,
-    string LastName,
-    string FullName,
-    Guid? DefaultShippingAddressId,
-    Guid? DefaultBillingAddressId,
-    IReadOnlyList<AddressResponse> Addresses,
-    DateTime CreatedAt,
-    DateTime? UpdatedAt
-);

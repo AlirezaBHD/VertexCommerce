@@ -8,13 +8,3 @@ public sealed record CompleteRegistrationCommand(
     string FirstName,
     string LastName
 ) : ICommand<AuthResponse>;
-
-public sealed record AuthResponse(
-    Guid UserId,
-    string PhoneNumber,
-    string FullName,
-    string Role,
-    string AccessToken,
-    string RefreshToken,
-    DateTime ExpiresAt
-);

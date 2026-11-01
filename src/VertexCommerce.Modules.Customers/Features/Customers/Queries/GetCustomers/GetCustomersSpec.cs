@@ -38,7 +38,6 @@ public sealed class GetCustomersSpec : BaseSpecification<Customer, CustomerAdmin
                 if (sortDescending) OrderByDesc(c => c.PhoneNumber.Value);
                 else OrderByAsc(c => c.PhoneNumber.Value);
                 break;
-            case "createdat":
             default:
                 if (sortDescending) OrderByDesc(c => c.CreatedAt);
                 else OrderByAsc(c => c.CreatedAt);

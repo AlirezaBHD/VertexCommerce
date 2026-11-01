@@ -2,8 +2,6 @@ using Microsoft.Extensions.Caching.Memory;
 using VertexCommerce.Modules.Identity.Domain.Repositories;
 using VertexCommerce.Modules.Identity.Domain.ValueObjects;
 using VertexCommerce.Modules.Identity.Infrastructure.Authentication;
-using VertexCommerce.Modules.Identity.Infrastructure.Cryptography;
-using VertexCommerce.Modules.Identity.Infrastructure.Identity;
 using VertexCommerce.Shared.CQRS;
 using VertexCommerce.Modules.Identity.Domain.Errors;
 
@@ -26,7 +24,7 @@ internal sealed class SendOptCommandHandler(
             return Result.Failure<RegistrationTokenResponse>(IdentityErrors.PhoneAlreadyRegistered);
         }
 
-        var otp = otpService.GenerateOtpAsync(phoneNumber, ct);
+        var otp = otpService.GenerateOtp(phoneNumber, ct);
         await otpService.SendOtpAsync(phoneNumber, otp, ct);
         
         var registrationToken = Guid.NewGuid().ToString("N");

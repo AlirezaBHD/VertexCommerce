@@ -15,10 +15,6 @@ public sealed record AddressResponse(
     string? Label = null
 )
 {
-    /// <summary>
-    /// Flattens a saved address into its wire representation. Defined once so the four routes that
-    /// return an address cannot disagree about the shape.
-    /// </summary>
     public static AddressResponse From(CustomerAddress address)
     {
         ArgumentNullException.ThrowIfNull(address);

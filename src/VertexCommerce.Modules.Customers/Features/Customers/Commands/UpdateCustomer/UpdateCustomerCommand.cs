@@ -9,15 +9,3 @@ public sealed record UpdateCustomerCommand(
     string LastName
 ) : ICommand<UpdateCustomerResponse>;
 
-public sealed record UpdateCustomerResponse(
-    Guid Id,
-    string PhoneNumber,
-    string FirstName,
-    string LastName
-);
-
-public sealed record UpdateCustomerRequest(
-    string PhoneNumber,
-    string FirstName,
-    string LastName
-);

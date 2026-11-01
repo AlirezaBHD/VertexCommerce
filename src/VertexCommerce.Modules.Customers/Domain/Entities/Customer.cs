@@ -19,7 +19,10 @@ public sealed class Customer : AggregateRoot<Guid>
     public Guid? DefaultShippingAddressId { get; private set; }
     public Guid? DefaultBillingAddressId { get; private set; }
 
-    public bool CanAddAddress => _addresses.Count(a => !a.IsDeleted) < MaxAddresses;
+    public bool CanAddAddress => 
+        !_addresses.Where(a => !a.IsDeleted)
+            .Skip(MaxAddresses - 1)
+            .Any();
 
     private Customer()
     {
@@ -60,14 +63,18 @@ public sealed class Customer : AggregateRoot<Guid>
         }
 
         _addresses.Add(address);
-
+        
+        var activeAddresses = _addresses.Where(a => !a.IsDeleted);
+        var hasExactlyOneActiveAddress =
+            activeAddresses.Take(2).Count() == 1;
+        
         // First address becomes default
-        if (DefaultShippingAddressId is null || _addresses.Count(a => !a.IsDeleted) == 1)
+        if (DefaultShippingAddressId is null || hasExactlyOneActiveAddress)
         {
             DefaultShippingAddressId = address.Id;
         }
 
-        if (DefaultBillingAddressId is null || _addresses.Count(a => !a.IsDeleted) == 1)
+        if (DefaultBillingAddressId is null || hasExactlyOneActiveAddress)
         {
             DefaultBillingAddressId = address.Id;
         }
@@ -96,7 +103,7 @@ public sealed class Customer : AggregateRoot<Guid>
 
     public void SetDefaultShippingAddress(Guid addressId)
     {
-        if (!_addresses.Any(a => a.Id == addressId && !a.IsDeleted))
+        if (!_addresses.Exists(a => a.Id == addressId && !a.IsDeleted))
             throw new BusinessRuleException("Customer.AddressNotOwned", "Address not found or does not belong to customer.");
 
         DefaultShippingAddressId = addressId;
@@ -105,7 +112,7 @@ public sealed class Customer : AggregateRoot<Guid>
 
     public void SetDefaultBillingAddress(Guid addressId)
     {
-        if (!_addresses.Any(a => a.Id == addressId && !a.IsDeleted))
+        if (!_addresses.Exists(a => a.Id == addressId && !a.IsDeleted))
             throw new BusinessRuleException("Customer.AddressNotOwned", "Address not found or does not belong to customer.");
 
         DefaultBillingAddressId = addressId;

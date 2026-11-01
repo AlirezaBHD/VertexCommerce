@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
 
 namespace VertexCommerce.Modules.Identity.Infrastructure.Authentication;
@@ -6,7 +7,7 @@ internal sealed class OtpService(ILogger<OtpService> logger) : IOtpService
 {
     private const int _otpLength = 6;
 
-    public string GenerateOtpAsync(string phoneNumber, CancellationToken ct)
+    public string GenerateOtp(string phoneNumber, CancellationToken ct)
     {
         var otp = GenerateRandomOtp();
         
@@ -22,10 +23,10 @@ internal sealed class OtpService(ILogger<OtpService> logger) : IOtpService
         await Task.CompletedTask;
     }
 
-    private string GenerateRandomOtp()
+    private static string GenerateRandomOtp()
     {
-        var random = Random.Shared;
-        var otp = random.Next(0, (int)Math.Pow(10, _otpLength)).ToString($"D{_otpLength}");
-        return otp;
+        return RandomNumberGenerator
+            .GetInt32(0, (int)Math.Pow(10, _otpLength))
+            .ToString($"D{_otpLength}");
     }
 }

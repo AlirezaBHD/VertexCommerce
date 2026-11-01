@@ -4,10 +4,10 @@ using VertexCommerce.Shared.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using VertexCommerce.Modules.Identity.Features.Commands;
 using VertexCommerce.Modules.Identity.Features.Commands.ChangePassword;
 using VertexCommerce.Modules.Identity.Features.Commands.Login;
 using VertexCommerce.Modules.Identity.Features.Commands.RefreshToken;
-using VertexCommerce.Modules.Identity.Features.Commands.Registration;
 using VertexCommerce.Modules.Identity.Features.Commands.Registration.CompleteRegistration;
 using VertexCommerce.Modules.Identity.Features.Commands.Registration.SendOpt;
 using VertexCommerce.Modules.Identity.Features.Commands.Registration.VerifyOtp;
@@ -127,7 +127,7 @@ public static class IdentityEndpoints
         var result = await sender.Send(command, ct);
 
         return result.IsSuccess
-            ? Results.Created($"/api/auth/profile", result.Value)
+            ? Results.Created("/api/auth/profile", result.Value)
             : result.Error.ToHttpResult();
     }
 

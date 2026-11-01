@@ -3,14 +3,11 @@ using VertexCommerce.Modules.Customers.Domain.Entities;
 
 namespace VertexCommerce.Modules.Customers.Persistence;
 
-public sealed class CustomersDbContext : DbContext, ICustomerUnitOfWork
+public sealed class CustomersDbContext(DbContextOptions<CustomersDbContext> options)
+    : DbContext(options), ICustomerUnitOfWork
 {
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<CustomerAddress> CustomerAddresses => Set<CustomerAddress>();
-
-    public CustomersDbContext(DbContextOptions<CustomersDbContext> options) : base(options)
-    {
-    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

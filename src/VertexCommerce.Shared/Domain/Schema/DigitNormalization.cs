@@ -3,12 +3,6 @@ namespace VertexCommerce.Shared.Domain.Schema;
 /// <summary>
 /// Folds Persian and Arabic-Indic digits into their ASCII equivalents.
 /// </summary>
-/// <remarks>
-/// Numeric domain values such as phone numbers and postal codes must be normalized before they are
-/// validated or stored: a Persian-digit phone number is a legitimate thing for a user to type, but
-/// storing it verbatim would make equality lookups miss. Specs therefore match on <c>[0-9]</c>
-/// rather than <c>\d</c>, which in .NET also matches non-ASCII digits.
-/// </remarks>
 public static class DigitNormalization
 {
     private const char PersianZero = '\u06F0';
@@ -36,15 +30,7 @@ public static class DigitNormalization
 
     private static bool ContainsNonAsciiDigit(string value)
     {
-        foreach (var c in value)
-        {
-            if (Fold(c) != c)
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return value.Any(c => Fold(c) != c);
     }
 
     private static char Fold(char c) => c switch

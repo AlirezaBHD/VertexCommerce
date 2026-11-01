@@ -2,10 +2,6 @@ using VertexCommerce.Shared.Domain.Schema;
 
 namespace VertexCommerce.Modules.Customers.Domain.ValueObjects;
 
-/// <summary>
-/// A phone number formatted in international E.164 form (e.g. <c>+989XXXXXXXXX</c>, <c>+12025550123</c>).
-/// Automatically normalizes Iranian local numbers (<c>09XXXXXXXXX</c>) to international format (<c>+989XXXXXXXXX</c>).
-/// </summary>
 public readonly record struct PhoneNumber
 {
     public static StringFieldSchema Schema { get; } = new(
@@ -35,7 +31,11 @@ public readonly record struct PhoneNumber
         }
 
         var ascii = DigitNormalization.ToAsciiDigits(value.Trim());
-        var cleaned = ascii.Replace(" ", "").Replace("-", "").Replace("(", "").Replace(")", "");
+        var cleaned = ascii
+            .Replace(" ", "", StringComparison.Ordinal)
+            .Replace("-", "", StringComparison.Ordinal)
+            .Replace("(", "", StringComparison.Ordinal)
+            .Replace(")", "", StringComparison.Ordinal);
 
         if (cleaned.StartsWith('+'))
         {

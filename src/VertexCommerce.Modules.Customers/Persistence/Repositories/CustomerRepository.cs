@@ -2,8 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using VertexCommerce.Modules.Customers.Domain.Entities;
 using VertexCommerce.Modules.Customers.Domain.Repositories;
 using VertexCommerce.Modules.Customers.Domain.ValueObjects;
-using VertexCommerce.Modules.Customers.Services;
-using VertexCommerce.Shared.Contracts.Customers;
 using VertexCommerce.Shared.Contracts.Pagination;
 using VertexCommerce.Shared.Domain.Schema;
 using VertexCommerce.Shared.Specifications;

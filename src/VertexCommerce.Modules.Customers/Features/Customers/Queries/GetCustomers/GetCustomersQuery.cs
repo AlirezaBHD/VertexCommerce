@@ -8,12 +8,3 @@ public sealed record GetCustomersQuery(
     string? SortBy = null,
     bool SortDescending = true
 ) : PagedQuery, IQuery<PagedResult<CustomerAdminListItem>>;
-
-public sealed record CustomerAdminListItem(
-    Guid Id,
-    Guid? UserId,
-    string PhoneNumber,
-    string FirstName,
-    string LastName,
-    DateTime CreatedAt
-);

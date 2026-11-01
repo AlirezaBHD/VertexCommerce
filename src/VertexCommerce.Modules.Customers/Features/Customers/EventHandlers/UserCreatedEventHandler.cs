@@ -7,7 +7,7 @@ using VertexCommerce.Shared.IntegrationEvents;
 
 namespace VertexCommerce.Modules.Customers.Features.Customers.EventHandlers;
 
-public class UserCreatedEventHandler(ICustomerRepository customerRepository, ICustomerUnitOfWork unitOfWork) : INotificationHandler<UserCreatedEvent>
+internal sealed class UserCreatedEventHandler(ICustomerRepository customerRepository, ICustomerUnitOfWork unitOfWork) : INotificationHandler<UserCreatedEvent>
 {
     public async Task Handle(UserCreatedEvent notification, CancellationToken cancellationToken)
     {

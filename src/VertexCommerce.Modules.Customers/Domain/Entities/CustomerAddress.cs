@@ -11,9 +11,7 @@ namespace VertexCommerce.Modules.Customers.Domain.Entities;
 public sealed class CustomerAddress : Entity<Guid>
 {
     public Guid CustomerId { get; private set; }
-    public Address Address { get; private set; } = default!;
-
-    /// <summary>The customer's own name for this entry, such as "خانه". Absent when unnamed.</summary>
+    public Address Address { get; private set; }
     public AddressLabel? Label { get; private set; }
 
     private CustomerAddress()

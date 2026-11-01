@@ -5,7 +5,6 @@ using VertexCommerce.Modules.Identity.Domain.Repositories;
 using VertexCommerce.Modules.Identity.Persistence;
 using VertexCommerce.Modules.Identity.Infrastructure.Authentication;
 using VertexCommerce.Modules.Identity.Infrastructure.Cryptography;
-using VertexCommerce.Modules.Identity.Infrastructure.Identity;
 using VertexCommerce.Shared.CQRS;
 using VertexCommerce.Modules.Identity.Domain.Errors;
 

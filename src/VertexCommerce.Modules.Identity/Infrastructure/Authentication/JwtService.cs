@@ -8,24 +8,9 @@ using VertexCommerce.Modules.Identity.Domain.Entities;
 
 namespace VertexCommerce.Modules.Identity.Infrastructure.Authentication;
 
-public sealed class JwtSettings
+internal sealed class JwtService(IOptions<JwtSettings> settings) : IJwtService
 {
-    public const string SectionName = "Jwt";
-    public string Secret { get; init; } = default!;
-    public string Issuer { get; init; } = default!;
-    public string Audience { get; init; } = default!;
-    public int AccessTokenExpirationMinutes { get; init; } = 15;
-    public int RefreshTokenExpirationDays { get; init; } = 7;
-}
-
-internal sealed class JwtService : IJwtService
-{
-    private readonly JwtSettings _settings;
-
-    public JwtService(IOptions<JwtSettings> settings)
-    {
-        _settings = settings.Value;
-    }
+    private readonly JwtSettings _settings = settings.Value;
 
     public string GenerateAccessToken(User user)
     {

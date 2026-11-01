@@ -5,7 +5,7 @@ namespace VertexCommerce.Modules.Customers.Infrastructure.Services;
 
 internal class CustomerResolver(ICustomerRepository repository) : ICustomerResolver
 {
-    public async Task<Guid> GetCustomerIdByUserIdAsync(Guid userId, CancellationToken ct)
+    public async Task<Guid> GetCustomerIdByUserIdAsync(Guid userId, CancellationToken ct = default)
     {
         return await repository.GetIdByUserIdAsync(userId, ct);
     }

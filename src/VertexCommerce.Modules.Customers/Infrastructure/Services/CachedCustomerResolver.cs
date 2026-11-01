@@ -5,7 +5,7 @@ namespace VertexCommerce.Modules.Customers.Infrastructure.Services;
 
 internal class CachedCustomerResolver(ICustomerResolver inner, IMemoryCache cache) : ICustomerResolver
 {
-    public async Task<Guid> GetCustomerIdByUserIdAsync(Guid userId, CancellationToken ct)
+    public async Task<Guid> GetCustomerIdByUserIdAsync(Guid userId, CancellationToken ct = default)
     {
         var key = $"customer:user:{userId}";
 

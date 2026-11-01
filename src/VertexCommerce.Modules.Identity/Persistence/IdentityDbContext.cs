@@ -4,16 +4,13 @@ using VertexCommerce.Shared.Persistence.Outbox;
 
 namespace VertexCommerce.Modules.Identity.Persistence;
 
-public sealed class IdentityDbContext : DbContext, IIdentityUnitOfWork, IOutboxDbContext
+public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> options)
+    : DbContext(options), IIdentityUnitOfWork, IOutboxDbContext
 {
 
     public DbSet<User> Users => Set<User>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
-
-    public IdentityDbContext(DbContextOptions<IdentityDbContext> options) : base(options)
-    {
-    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

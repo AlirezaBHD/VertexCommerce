@@ -16,8 +16,6 @@ using VertexCommerce.Shared.Contracts.Customers;
 
 namespace VertexCommerce.Modules.Customers;
 
-public interface ICustomersModule { }
-
 public class CustomersModule : IModule
 {
     public string Name => "Customers";
@@ -63,9 +61,9 @@ public class CustomersModule : IModule
 
     public async Task InitializeAsync(IServiceProvider serviceProvider, CancellationToken ct = default)
     {
-        using var scope = serviceProvider.CreateScope();
+        await using var scope = serviceProvider.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<CustomersDbContext>();
-        var logger = scope.ServiceProvider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<CustomersModule>>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<CustomersModule>>();
 
         try
         {
@@ -75,8 +73,7 @@ public class CustomersModule : IModule
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to apply migrations for Customers module.");
-            throw;
+            throw new InvalidOperationException("Failed to apply migrations for Customers module.", ex);
         }
     }
 }

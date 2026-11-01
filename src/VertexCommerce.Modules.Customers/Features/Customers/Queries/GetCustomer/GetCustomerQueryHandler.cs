@@ -1,5 +1,4 @@
 using VertexCommerce.Modules.Customers.Domain.Repositories;
-using VertexCommerce.Shared.Contracts.Customers;
 using VertexCommerce.Shared.Contracts.Identity;
 using VertexCommerce.Shared.CQRS;
 using VertexCommerce.Modules.Customers.Domain.Errors;

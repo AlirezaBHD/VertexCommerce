@@ -5,18 +5,11 @@ using VertexCommerce.Modules.Identity.Domain.ValueObjects;
 
 namespace VertexCommerce.Modules.Identity.Persistence.Repositories;
 
-internal sealed class UserRepository : IUserRepository
+internal sealed class UserRepository(IdentityDbContext context) : IUserRepository
 {
-    private readonly IdentityDbContext _context;
-
-    public UserRepository(IdentityDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task<User?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        return await _context.Users
+        return await context.Users
             .Include(u => u.RefreshTokens)
             .FirstOrDefaultAsync(u => u.Id == id, ct);
     }
@@ -24,31 +17,31 @@ internal sealed class UserRepository : IUserRepository
     public async Task<User?> GetByPhoneNumberAsync(string phoneNumber, CancellationToken ct = default)
     {
         var normalized = PhoneNumber.Normalize(phoneNumber);
-        return await _context.Users
+        return await context.Users
             .Include(u => u.RefreshTokens)
             .FirstOrDefaultAsync(u => u.PhoneNumber.Value == normalized || u.PhoneNumber.Value == phoneNumber, ct);
     }
 
     public async Task<User?> GetByRefreshTokenAsync(string refreshToken, CancellationToken ct = default)
     {
-        return await _context.Users
+        return await context.Users
             .Include(u => u.RefreshTokens)
             .FirstOrDefaultAsync(u => u.RefreshTokens.Any(rt => rt.Token == refreshToken), ct);
     }
 
     public async Task AddAsync(User user, CancellationToken ct = default)
     {
-        await _context.Users.AddAsync(user, ct);
+        await context.Users.AddAsync(user, ct);
     }
 
     public void Update(User user)
     {
-        _context.Users.Update(user);
+        context.Users.Update(user);
     }
 
     public async Task<bool> PhoneExistsAsync(string phoneNumber, CancellationToken ct)
     {
         var normalized = PhoneNumber.Normalize(phoneNumber);
-        return await _context.Users.AnyAsync(u => u.PhoneNumber.Value == normalized || u.PhoneNumber.Value == phoneNumber, ct);
+        return await context.Users.AnyAsync(u => u.PhoneNumber.Value == normalized || u.PhoneNumber.Value == phoneNumber, ct);
     }
 }

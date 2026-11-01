@@ -7,10 +7,3 @@ public sealed record CreateCustomerCommand(
     string FirstName,
     string LastName
 ) : ICommand<CreateCustomerResponse>;
-
-public sealed record CreateCustomerResponse(
-    Guid Id,
-    string PhoneNumber,
-    string FirstName,
-    string LastName
-);

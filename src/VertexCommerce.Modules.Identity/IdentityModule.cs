@@ -87,20 +87,23 @@ public class IdentityModule : IModule
                     {
                         var accessToken = context.Request.Query["access_token"];
                         var path = context.HttpContext.Request.Path;
-                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/api/notifications/stream"))
+
+                        if (!string.IsNullOrEmpty(accessToken) &&
+                            path.StartsWithSegments(
+                                "/api/notifications/stream",
+                                StringComparison.OrdinalIgnoreCase))
                         {
                             context.Token = accessToken;
                         }
+
                         return Task.CompletedTask;
                     }
                 };
             });
 
-        services.AddAuthorization(options =>
-        {
-            options.AddPolicy(AppRoles.Admin, policy =>
+        services.AddAuthorizationBuilder()
+            .AddPolicy(AppRoles.Admin, policy =>
                 policy.RequireRole(AppRoles.Admin));
-        });
 
         services.AddMediatR(cfg =>
             cfg.RegisterServicesFromAssembly(typeof(IdentityModule).Assembly));
@@ -119,9 +122,9 @@ public class IdentityModule : IModule
 
     public async Task InitializeAsync(IServiceProvider serviceProvider, CancellationToken ct = default)
     {
-        using var scope = serviceProvider.CreateScope();
+        await using var scope =serviceProvider.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
-        var logger = scope.ServiceProvider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<IdentityModule>>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<IdentityModule>>();
 
         try
         {
@@ -131,8 +134,7 @@ public class IdentityModule : IModule
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to apply migrations for Identity module.");
-            throw;
+            throw new InvalidOperationException("Failed to apply migrations for Identity module.", ex);
         }
     }
 }
