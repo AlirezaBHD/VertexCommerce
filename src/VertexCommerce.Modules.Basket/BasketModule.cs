@@ -8,7 +8,6 @@ using VertexCommerce.Modules.Basket.Contract;
 using VertexCommerce.Modules.Basket.Endpoints;
 using VertexCommerce.Modules.Basket.Features;
 using VertexCommerce.Modules.Basket.GraphQL;
-using VertexCommerce.Modules.Basket.GraphQL.Types;
 using VertexCommerce.Modules.Basket.Persistence;
 using VertexCommerce.Modules.Basket.Persistence.Configuration;
 using VertexCommerce.Modules.Basket.Services;

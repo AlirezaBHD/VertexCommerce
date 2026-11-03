@@ -21,7 +21,7 @@ internal sealed class StockService(
                 "Stock.Insufficient",
                 $"Insufficient stock for variant {variantId}. Requested: {quantity}, Available: {variant.StockQuantity}"));
 
-        productRepository.UpdateVariantAsync(variant);
+        productRepository.UpdateVariant(variant);
         await unitOfWork.SaveChangesAsync(ct);
 
         return Result.Success();
@@ -46,7 +46,7 @@ internal sealed class StockService(
 
         foreach (var variant in variantsToUpdate)
         {
-            productRepository.UpdateVariantAsync(variant);
+            productRepository.UpdateVariant(variant);
         }
 
         await unitOfWork.SaveChangesAsync(ct);
@@ -74,7 +74,7 @@ internal sealed class StockService(
 
         foreach (var variant in variantsToUpdate)
         {
-            productRepository.UpdateVariantAsync(variant);
+            productRepository.UpdateVariant(variant);
         }
 
         await unitOfWork.SaveChangesAsync(ct);
@@ -89,7 +89,7 @@ internal sealed class StockService(
             if (variant is not null)
             {
                 variant.ReleaseReservedStock(req.Quantity);
-                productRepository.UpdateVariantAsync(variant);
+                productRepository.UpdateVariant(variant);
             }
         }
 
@@ -117,7 +117,7 @@ internal sealed class StockService(
 
         foreach (var variant in variantsToUpdate)
         {
-            productRepository.UpdateVariantAsync(variant);
+            productRepository.UpdateVariant(variant);
         }
 
         await unitOfWork.SaveChangesAsync(ct);

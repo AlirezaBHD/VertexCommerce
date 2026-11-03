@@ -1,4 +1,3 @@
-using HotChocolate.Authorization;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories.Documents;
 using VertexCommerce.Shared.Contracts.Identity;
 
@@ -102,25 +101,5 @@ public sealed class CategoryType : ObjectType<CategoryReadModel>
         descriptor
             .Field(c => c.Keywords)
             .Type<StringType>();
-    }
-}
-
-public sealed class CategoryBreadcrumbType : ObjectType<CategoryBreadcrumb>
-{
-    protected override void Configure(IObjectTypeDescriptor<CategoryBreadcrumb> descriptor)
-    {
-        descriptor.Name("CategoryBreadcrumb");
-
-        descriptor
-            .Field(c => c.Id)
-            .Type<NonNullType<UuidType>>();
-
-        descriptor
-            .Field(c => c.Name)
-            .Type<NonNullType<StringType>>();
-
-        descriptor
-            .Field(c => c.Slug)
-            .Type<NonNullType<StringType>>();
     }
 }

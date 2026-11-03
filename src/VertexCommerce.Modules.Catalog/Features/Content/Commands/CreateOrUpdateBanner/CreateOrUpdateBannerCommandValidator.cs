@@ -55,14 +55,14 @@ public sealed class CreateOrUpdateBannerCommandValidator : AbstractValidator<Cre
         {
             RuleFor(x => x.Target.InternalPath)
                 .NotEmpty().WithMessage("InternalPath is required.")
-                .Must(path => path != null && path.StartsWith('/'))
+                .Must(path => path?.StartsWith('/') == true)
                 .WithMessage("InternalPath must start with '/'.")
-                .Must(path => path != null && !path.StartsWith("//"))
+                .Must(path => path?.StartsWith("//", StringComparison.OrdinalIgnoreCase) == false)
                 .WithMessage("InternalPath must not start with '//'.")
                 .Must(path =>
                 {
                     if (string.IsNullOrEmpty(path)) return true;
-                    return !Uri.TryCreate(path, UriKind.Absolute, out var uri) || !uri.Scheme.StartsWith("http");
+                    return !Uri.TryCreate(path, UriKind.Absolute, out var uri) || !uri.Scheme.StartsWith("http", StringComparison.OrdinalIgnoreCase);
                 })
                 .WithMessage("InternalPath must not be an absolute URL.")
                 .MaximumLength(500);

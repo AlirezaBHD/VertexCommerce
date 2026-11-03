@@ -5,7 +5,7 @@ using VertexCommerce.Shared.Exceptions;
 
 namespace VertexCommerce.Api.Middleware;
 
-public sealed class GlobalExceptionHandler(
+internal sealed class GlobalExceptionHandler(
     ILogger<GlobalExceptionHandler> logger,
     IHostEnvironment environment)
     : IExceptionHandler

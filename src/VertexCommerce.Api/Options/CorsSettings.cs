@@ -1,6 +1,6 @@
 namespace VertexCommerce.Api.Options;
 
-public sealed class CorsSettings
+internal sealed class CorsSettings
 {
     public const string SectionName = "Cors";
 

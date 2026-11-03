@@ -85,8 +85,8 @@ internal sealed class ProductSyncService(
         var categoryName = category?.Name.Value ?? "Unknown";
 
         var readModels = products
-            .Select(p => ProductReadModelMapper.Map(p, categoryName, categoryPath))
-            .ToList();
+            .ConvertAll(p => ProductReadModelMapper.Map(p, categoryName, categoryPath))
+;
 
         await readModelRepository.UpsertManyAsync(readModels, ct);
 

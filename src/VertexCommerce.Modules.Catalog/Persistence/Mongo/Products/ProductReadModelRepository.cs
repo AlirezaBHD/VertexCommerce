@@ -75,7 +75,7 @@ internal sealed class ProductReadModelRepository(IMongoDatabase database) : IPro
         return query.AsExecutable();
     }
 
-    public IExecutable<ProductReadModel> GetBySlugAsync(string slug)
+    public IExecutable<ProductReadModel> GetBySlug(string slug)
     {
         if (Guid.TryParse(slug, out var id))
         {
@@ -113,9 +113,12 @@ internal sealed class ProductReadModelRepository(IMongoDatabase database) : IPro
             return null;
 
         var variant = result.Variant;
-        var atr = variant.Attributes.First(); //TODO
+        var atr = variant.Attributes[0]; //TODO
         var imagePath = result.Media
-            .FirstOrDefault(m => m.AssociatedAttributeCode == atr.AttributeCode && m.AssociatedOptionCode == atr.OptionCode)?.Path ?? result.Media.First().Path;
+                            .FirstOrDefault(m =>
+                                m.AssociatedAttributeCode == atr.AttributeCode &&
+                                m.AssociatedOptionCode == atr.OptionCode)?.Path ??
+                        result.Media[0].Path;
 
         return new ProductVariantInfo(
             ProductId: result.Id,
@@ -125,12 +128,12 @@ internal sealed class ProductReadModelRepository(IMongoDatabase database) : IPro
             ImagePath: imagePath,
             Price: variant.Price,
             StockQuantity: variant.StockQuantity - variant.ReservedQuantity,
-            Attributes: variant.Attributes.Select(a =>
-                new ProductAttributeInfo(a.AttributeCode, a.OptionCode)).ToList()
-        );
+            Attributes: variant.Attributes.ConvertAll(a =>
+                new ProductAttributeInfo(a.AttributeCode, a.OptionCode)));
     }
 
-    public async Task<IReadOnlyList<ProductReadModel>> SearchAsync(string? searchTerm, int limit, CancellationToken ct = default)
+    public async Task<IReadOnlyList<ProductReadModel>> SearchAsync(string? searchTerm, int limit,
+        CancellationToken ct = default)
     {
         var filter = Builders<ProductReadModel>.Filter.Empty;
         if (!string.IsNullOrWhiteSpace(searchTerm))

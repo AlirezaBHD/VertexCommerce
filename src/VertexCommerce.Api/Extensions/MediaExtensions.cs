@@ -3,7 +3,7 @@ using Path = System.IO.Path;
 
 namespace VertexCommerce.Api.Extensions;
 
-public static class MediaExtensions
+internal static class MediaExtensions
 {
     public static IServiceCollection AddVertexMedia(
         this IServiceCollection services,

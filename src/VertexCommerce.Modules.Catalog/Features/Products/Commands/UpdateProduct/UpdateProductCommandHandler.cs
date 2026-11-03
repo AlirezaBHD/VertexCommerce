@@ -1,4 +1,5 @@
 using VertexCommerce.Modules.Catalog.Domain.Categories;
+using VertexCommerce.Modules.Catalog.Domain.Medias;
 using VertexCommerce.Modules.Catalog.Domain.Products;
 using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
 using VertexCommerce.Modules.Catalog.Persistence.Postgres;
@@ -54,8 +55,8 @@ internal sealed class UpdateProductCommandHandler(
             foreach (var variantDto in command.Variants)
             {
                 var attributes = variantDto.Attributes
-                    .Select(a => ProductAttribute.Create(AttributeCode.Create(a.AttributeCode), OptionCode.Create(a.OptionCode)))
-                    .ToList();
+                    .ConvertAll(a => ProductAttribute.Create(AttributeCode.Create(a.AttributeCode), OptionCode.Create(a.OptionCode)))
+;
             
                 if (variantDto.Id.HasValue)
                 {
@@ -75,7 +76,7 @@ internal sealed class UpdateProductCommandHandler(
                             order: variantDto.SortOrder,
                             price: price,
                             attributes: attributes);
-                         productRepository.UpdateVariantAsync(existingVariant);
+                         productRepository.UpdateVariant(existingVariant);
 
                     }
                 }
@@ -105,7 +106,7 @@ internal sealed class UpdateProductCommandHandler(
         // Update media
         if (command.Media is { Count: > 0 })
         {
-            var medias = command.Media.Select(m =>
+            var medias = command.Media.ConvertAll(m =>
                 ProductMedia.Create(
                     path: ImagePath.Create(m.Path),
                     type: MediaType.Image,
@@ -113,7 +114,7 @@ internal sealed class UpdateProductCommandHandler(
                     altText: AltText.CreateOrNull(m.AltText),
                     associatedAttributeCode: m.AssociatedAttributeCode != null ? AttributeCode.Create(m.AssociatedAttributeCode) : null,
                     associatedOptionCode: m.AssociatedOptionCode != null ? OptionCode.Create(m.AssociatedOptionCode) : null
-                )).ToList();
+                ));
 
             product.SetMedia(medias);
         }

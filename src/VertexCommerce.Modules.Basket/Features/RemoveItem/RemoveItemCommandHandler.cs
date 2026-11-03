@@ -3,14 +3,9 @@ using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Basket.Features.RemoveItem;
 
-public sealed class RemoveItemCommandHandler : ICommandHandler<RemoveItemCommand>
+public sealed class RemoveItemCommandHandler(IBasketRepository basketRepository) : ICommandHandler<RemoveItemCommand>
 {
-    private readonly IBasketRepository _basketRepository;
-
-    public RemoveItemCommandHandler(IBasketRepository basketRepository)
-    {
-        _basketRepository = basketRepository;
-    }
+    private readonly IBasketRepository _basketRepository = basketRepository;
 
     public Task<Result> Handle(RemoveItemCommand command, CancellationToken ct)
     {

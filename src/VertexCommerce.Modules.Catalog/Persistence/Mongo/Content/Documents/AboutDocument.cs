@@ -4,8 +4,7 @@ namespace VertexCommerce.Modules.Catalog.Persistence.Mongo.Content.Documents;
 
 public sealed class AboutDocument
 {
-    [BsonId]
-    public Guid Id { get; set; } = Guid.Parse("00000000-0000-0000-0000-000000000001");
+    [BsonId] public Guid Id { get; set; } = new(0, 0, 0, [1]);
 
     [BsonElement("hero")]
     public AboutHeroSection Hero { get; set; } = new();
@@ -30,7 +29,7 @@ public sealed class AboutDocument
 
     public static AboutDocument CreateDefault() => new()
     {
-        Id = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+        Id = new Guid(0, 0, 0, [1]),
         Hero = new AboutHeroSection
         {
             Badge = "درباره ما",

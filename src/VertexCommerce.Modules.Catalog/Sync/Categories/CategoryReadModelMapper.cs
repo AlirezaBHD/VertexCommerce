@@ -43,7 +43,7 @@ internal static class CategoryReadModelMapper
 
     private static (List<CategoryBreadcrumb> Breadcrumb, int Depth) BuildPath(
         Category category,
-        IReadOnlyDictionary<Guid, Category> categoriesById)
+        Dictionary<Guid, Category> categoriesById)
     {
         var breadcrumb = new List<CategoryBreadcrumb>();
 

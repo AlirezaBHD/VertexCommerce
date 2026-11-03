@@ -14,7 +14,6 @@ public static class MongoDbConfiguration
         {
             if (_configured) return;
 
-            // ✅ فقط ClassMap های مربوط به Basket Module
             if (!BsonClassMap.IsClassMapRegistered(typeof(BasketDocument)))
             {
                 BsonClassMap.RegisterClassMap<BasketDocument>(cm =>

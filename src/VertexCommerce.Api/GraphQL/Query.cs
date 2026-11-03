@@ -1,5 +1,3 @@
 namespace VertexCommerce.Api.GraphQL;
 
-public sealed class Query
-{
-}
+public sealed class Query;

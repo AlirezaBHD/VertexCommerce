@@ -5,7 +5,7 @@ namespace VertexCommerce.Modules.Catalog.Persistence.Mongo.Content.Documents;
 public sealed class ContactDocument
 {
     [BsonId]
-    public Guid Id { get; set; } = Guid.Parse("00000000-0000-0000-0000-000000000002");
+    public Guid Id { get; set; } = new(0, 0, 0, [2]);
 
     [BsonElement("header")]
     public ContactHeaderSection Header { get; set; } = new();

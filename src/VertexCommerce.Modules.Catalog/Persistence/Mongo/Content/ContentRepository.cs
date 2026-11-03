@@ -98,14 +98,14 @@ internal sealed class ContentRepository(IMongoDatabase database) : IContentRepos
 
     public async Task<AboutDocument?> GetAboutAsync(CancellationToken ct = default)
     {
-        var doc = await _about.Find(a => a.Id == Guid.Parse("00000000-0000-0000-0000-000000000001"))
+        var doc = await _about.Find(a => a.Id == new Guid(0, 0, 0, new byte[] { 1 }))
             .FirstOrDefaultAsync(ct);
         return doc ?? AboutDocument.CreateDefault();
     }
 
     public async Task UpsertAboutAsync(AboutDocument about, CancellationToken ct = default)
     {
-        about.Id = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        about.Id = new Guid(0, 0, 0, [1]);
         about.UpdatedAt = DateTime.UtcNow;
         await _about.ReplaceOneAsync(
             a => a.Id == about.Id,
@@ -118,14 +118,14 @@ internal sealed class ContentRepository(IMongoDatabase database) : IContentRepos
 
     public async Task<ContactDocument?> GetContactAsync(CancellationToken ct = default)
     {
-        var doc = await _contact.Find(c => c.Id == Guid.Parse("00000000-0000-0000-0000-000000000002"))
+        var doc = await _contact.Find(c => c.Id == new Guid(0, 0, 0, new byte[] { 2 }))
             .FirstOrDefaultAsync(ct);
         return doc ?? ContactDocument.CreateDefault();
     }
 
     public async Task UpsertContactAsync(ContactDocument contact, CancellationToken ct = default)
     {
-        contact.Id = Guid.Parse("00000000-0000-0000-0000-000000000002");
+        contact.Id = new Guid(0, 0, 0, [2]);
         contact.UpdatedAt = DateTime.UtcNow;
         await _contact.ReplaceOneAsync(
             c => c.Id == contact.Id,

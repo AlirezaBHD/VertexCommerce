@@ -110,9 +110,9 @@ public class CatalogModule : IModule
 
     public async Task InitializeAsync(IServiceProvider serviceProvider, CancellationToken ct = default)
     {
-        using var scope = serviceProvider.CreateScope();
+        await using var scope = serviceProvider.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
-        var logger = scope.ServiceProvider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<CatalogModule>>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<CatalogModule>>();
 
         try
         {
@@ -123,7 +123,7 @@ public class CatalogModule : IModule
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to apply migrations for Catalog module.");
-            throw;
+            throw new InvalidOperationException("Failed to apply migrations for Catalog module.", ex);
         }
 
         try
@@ -139,7 +139,7 @@ public class CatalogModule : IModule
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to ensure MongoDB indexes for Catalog module. Check MongoDB Atlas Network Access (IP Whitelist).");
+            throw new InvalidOperationException("Failed to apply migrations for Catalog module.", ex);
         }
     }
 }

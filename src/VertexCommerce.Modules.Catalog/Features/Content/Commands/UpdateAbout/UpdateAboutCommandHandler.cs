@@ -13,7 +13,7 @@ internal sealed class UpdateAboutCommandHandler(IContentRepository contentReposi
 
         var doc = new AboutDocument
         {
-            Id = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+            Id = new Guid(0, 0, 0, [1]),
             Hero = new AboutHeroSection
             {
                 Badge = command.Hero?.Badge ?? existing.Hero.Badge,
@@ -29,24 +29,24 @@ internal sealed class UpdateAboutCommandHandler(IContentRepository contentReposi
                 Badge = command.Commitments?.Badge ?? existing.Commitments.Badge,
                 Title = command.Commitments?.Title ?? existing.Commitments.Title,
                 Subtitle = command.Commitments?.Subtitle ?? existing.Commitments.Subtitle,
-                Items = (command.Commitments?.Items ?? new()).Select(i => new AboutCommitmentItem
+                Items = (command.Commitments?.Items ?? []).ConvertAll(i => new AboutCommitmentItem
                 {
                     Title = i.Title ?? string.Empty,
                     Description = i.Description ?? string.Empty,
                     Badge = i.Badge ?? string.Empty,
                     Icon = i.Icon ?? string.Empty,
-                }).ToList(),
+                })
             },
             Quality = new AboutQualitySection
             {
                 Badge = command.Quality?.Badge ?? existing.Quality.Badge,
                 Title = command.Quality?.Title ?? existing.Quality.Title,
                 Paragraphs = command.Quality?.Paragraphs ?? existing.Quality.Paragraphs,
-                Features = (command.Quality?.Features ?? new()).Select(f => new AboutQualityFeatureItem
+                Features = (command.Quality?.Features ?? []).ConvertAll(f => new AboutQualityFeatureItem
                 {
                     Title = f.Title ?? string.Empty,
                     Description = f.Description ?? string.Empty,
-                }).ToList(),
+                }),
                 ImagePath = command.Quality?.ImagePath ?? existing.Quality.ImagePath,
                 ImageBadgeTitle = command.Quality?.ImageBadgeTitle ?? existing.Quality.ImageBadgeTitle,
                 ImageBadgeSubtitle = command.Quality?.ImageBadgeSubtitle ?? existing.Quality.ImageBadgeSubtitle,
@@ -56,12 +56,12 @@ internal sealed class UpdateAboutCommandHandler(IContentRepository contentReposi
                 Badge = command.Process?.Badge ?? existing.Process.Badge,
                 Title = command.Process?.Title ?? existing.Process.Title,
                 Subtitle = command.Process?.Subtitle ?? existing.Process.Subtitle,
-                Steps = (command.Process?.Steps ?? new()).Select(s => new AboutProcessStepItem
+                Steps = (command.Process?.Steps ?? new()).ConvertAll(s => new AboutProcessStepItem
                 {
                     Title = s.Title ?? string.Empty,
                     Description = s.Description ?? string.Empty,
                     Icon = s.Icon ?? string.Empty,
-                }).ToList(),
+                })
             },
             Story = new AboutStorySection
             {

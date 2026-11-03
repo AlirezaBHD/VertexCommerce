@@ -11,12 +11,12 @@ internal sealed class CategoryDeletedEventHandler(
     : INotificationHandler<CategoryDeletedEvent>
 {
     public async Task Handle(
-        CategoryDeletedEvent notification, CancellationToken ct)
+        CategoryDeletedEvent notification, CancellationToken cancellationToken)
     {
         logger.LogInformation(
             "Deleting category {CategoryId} from MongoDB",
             notification.CategoryId);
 
-        await syncService.DeleteCategoryAsync(notification.CategoryId, ct);
+        await syncService.DeleteCategoryAsync(notification.CategoryId, cancellationToken);
     }
 }

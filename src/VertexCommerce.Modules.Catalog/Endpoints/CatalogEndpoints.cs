@@ -224,7 +224,7 @@ public static class CatalogEndpoints
             : result.Error.ToHttpResult();
     }
 
-    #endregion
+    #endregion Products
 
     #region Categories
 
@@ -333,5 +333,5 @@ public static class CatalogEndpoints
             : result.Error.ToHttpResult();
     }
 
-    #endregion
+    #endregion Categories
 }

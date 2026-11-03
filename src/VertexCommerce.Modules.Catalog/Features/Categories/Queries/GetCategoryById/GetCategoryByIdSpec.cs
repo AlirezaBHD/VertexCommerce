@@ -30,5 +30,5 @@ public sealed class GetCategoryByIdSpec : BaseSpecification<Category, CategoryDt
     }
 
     private static SeoMetadataResponse MapSeoMetadata(SeoMetadata seo) =>
-        new(seo.Slug.Value, seo.MetaTitle.HasValue ? seo.MetaTitle.Value.Value : string.Empty, seo.MetaDescription.HasValue ? seo.MetaDescription.Value.Value : string.Empty, seo.Keywords.HasValue ? seo.Keywords.Value.Value : null);
+        new(seo.Slug.Value, seo.MetaTitle.HasValue ? seo.MetaTitle.Value.Value : string.Empty, seo.MetaDescription.HasValue ? seo.MetaDescription.Value.Value : string.Empty, seo.Keywords?.Value);
 }

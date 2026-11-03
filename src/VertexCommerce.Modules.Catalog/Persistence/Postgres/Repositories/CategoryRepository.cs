@@ -66,14 +66,14 @@ public sealed class CategoryRepository(CatalogDbContext context) : ICategoryRepo
         return await query.AnyAsync(ct);
     }
 
-    public async Task AddAsync(Category entity, CancellationToken ct = default)
+    public async Task AddAsync(Category category, CancellationToken ct = default)
     {
-        await context.Categories.AddAsync(entity, ct);
+        await context.Categories.AddAsync(category, ct);
     }
 
-    public void Update(Category entity)
+    public void Update(Category category)
     {
-        context.Categories.Update(entity);
+        context.Categories.Update(category);
     }
 
     public async Task<IReadOnlyList<TResult>> ListAsync<TResult>(

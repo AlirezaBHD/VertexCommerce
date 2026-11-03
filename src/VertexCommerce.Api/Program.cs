@@ -32,7 +32,7 @@ static void ConfigureServices(WebApplicationBuilder builder)
             ctx.ProblemDetails.Instance = ctx.HttpContext.Request.Path;
             ctx.ProblemDetails.Extensions["traceId"] = Activity.Current?.TraceId.ToString();
             ctx.ProblemDetails.Extensions["requestId"] = ctx.HttpContext.TraceIdentifier;
-            ctx.ProblemDetails.Extensions.TryAdd("requestId", System.Diagnostics.Activity.Current?.Id);
+            ctx.ProblemDetails.Extensions.TryAdd("requestId", Activity.Current?.Id);
         };
     });
     builder.Services.AddAntiforgery();
@@ -87,4 +87,4 @@ static void ConfigureEndpoints(WebApplication app)
 
 await app.Services.InitializeModulesAsync();
 
-app.Run();
+await app.RunAsync();

@@ -28,7 +28,7 @@ public sealed class GetProductByIdSpec : BaseSpecification<Product, ProductRespo
     }
 
     private static SeoMetadataResponse MapSeoMetadata(SeoMetadata seo) =>
-        new(seo.Slug.Value, seo.MetaTitle.HasValue ? seo.MetaTitle.Value.Value : string.Empty, seo.MetaDescription.HasValue ? seo.MetaDescription.Value.Value : string.Empty, seo.Keywords.HasValue ? seo.Keywords.Value.Value : null);
+        new(seo.Slug.Value, seo.MetaTitle.HasValue ? seo.MetaTitle.Value.Value : string.Empty, seo.MetaDescription.HasValue ? seo.MetaDescription.Value.Value : string.Empty, seo.Keywords?.Value);
 
     private static List<ProductVariantDto> MapVariants(IEnumerable<ProductVariant> variants) =>
         variants.Select(v => new ProductVariantDto(

@@ -1,4 +1,5 @@
 using VertexCommerce.Modules.Catalog.Domain.Categories;
+using VertexCommerce.Modules.Catalog.Domain.Medias;
 using VertexCommerce.Modules.Catalog.Domain.Products;
 using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
 using VertexCommerce.Modules.Catalog.Persistence.Postgres;
@@ -38,10 +39,10 @@ internal sealed class CreateProductCommandHandler(
         if (command.Media is not null)
         {
             var mediaList = command.Media
-                .Select(m => 
+                .ConvertAll(m => 
                     ProductMedia.Create(ImagePath.Create(m.Path), MediaType.Image,
                         m.SortOrder, AltText.CreateOrNull(m.AltText), m.AssociatedAttributeCode != null ? AttributeCode.Create(m.AssociatedAttributeCode) : null, m.AssociatedOptionCode != null ? OptionCode.Create(m.AssociatedOptionCode) : null))
-                .ToList();
+;
             product.SetMedia(mediaList);
         }
 
@@ -52,8 +53,9 @@ internal sealed class CreateProductCommandHandler(
             foreach (var v in command.Variants)
             {
                 var attributes = v.Attributes
-                    .Select(a => ProductAttribute.Create(AttributeCode.Create(a.AttributeCode), OptionCode.Create(a.OptionCode)))
-                    .ToList();
+                    .ConvertAll(a => 
+                        ProductAttribute.Create(AttributeCode.Create(a.AttributeCode),
+                        OptionCode.Create(a.OptionCode))) ;
 
                 var price = Money.Create(v.Price, Currency.Create(v.Currency ?? "USD"));
                 var sku = Sku.Generate();

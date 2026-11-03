@@ -1,5 +1,4 @@
 using HotChocolate;
-using VertexCommerce.Modules.Catalog.GraphQL.Content.Types;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Content;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Content.Documents;
 

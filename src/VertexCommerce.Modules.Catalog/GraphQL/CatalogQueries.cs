@@ -19,7 +19,7 @@ public sealed class CatalogQueries
         string slug,
         [Service] IProductReadModelRepository repository)
     {
-        return repository.GetBySlugAsync(slug);
+        return repository.GetBySlug(slug);
     }
     
     [UseOffsetPaging(IncludeTotalCount = true, MaxPageSize = 50)]
@@ -41,7 +41,7 @@ public sealed class CatalogQueries
         bool? isActive,
         CancellationToken ct)
     {
-        return repository.GetAllAsync(isActive, ct);
+        return repository.GetAll(isActive, ct);
     }
 
     [UseProjection]
@@ -50,7 +50,7 @@ public sealed class CatalogQueries
         Guid id,
         CancellationToken ct)
     {
-        return repository.GetByIdAsync(id, ct);
+        return repository.GetById(id, ct);
     }
 
     [UseProjection]
@@ -60,7 +60,7 @@ public sealed class CatalogQueries
         [Service] ICategoryReadModelRepository repository,
         CancellationToken ct)
     {
-        return repository.GetBySlugAsync(slug, ct);
+        return repository.GetBySlug(slug, ct);
     }
 
     [GraphQLType(typeof(HomePageType))]

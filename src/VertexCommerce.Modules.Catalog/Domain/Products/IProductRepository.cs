@@ -15,6 +15,6 @@ public interface IProductRepository
     Task<bool> HasProductsInCategoryAsync(Guid categoryId, CancellationToken ct = default);
     Task<Product?> GetByIdWithVariantsAsync(Guid id, CancellationToken ct);
     Task<bool> SlugExistsAsync(string slug, CancellationToken ct);
-    void UpdateVariantAsync(ProductVariant variant);
+    void UpdateVariant(ProductVariant variant);
     Task<ProductVariant?> GetVariantByIdAsync(Guid variantId, CancellationToken ct = default);
 }

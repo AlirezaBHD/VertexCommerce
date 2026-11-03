@@ -2,7 +2,7 @@ using VertexCommerce.Api.Options;
 
 namespace VertexCommerce.Api.Extensions;
 
-public static class CorsExtensions
+internal static class CorsExtensions
 {
     public const string PolicyName = "VertexCorsPolicy";
 
@@ -20,10 +20,14 @@ public static class CorsExtensions
             options.AddPolicy(PolicyName, policy =>
             {
                 if (settings.AllowedOrigins.Contains("*"))
+                {
                     policy.AllowAnyOrigin();
+                }
                 else
+                {
                     policy.WithOrigins(settings.AllowedOrigins)
-                          .SetIsOriginAllowedToAllowWildcardSubdomains();
+                                          .SetIsOriginAllowedToAllowWildcardSubdomains();
+                }
 
                 if (settings.AllowedMethods.Contains("*"))
                     policy.AllowAnyMethod();

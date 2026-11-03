@@ -11,7 +11,7 @@ public sealed class Product : AggregateRoot<Guid>
     public ProductDescription? Description { get; private set; }
     public bool IsActive { get; private set; }
     public Guid CategoryId { get; private set; }
-    public Category? Category { get; private set; }
+    public Category? Category { get; }
     public SeoMetadata Seo { get; private set; }
     
     private readonly List<ProductVariant> _variants = [];
@@ -94,7 +94,7 @@ public sealed class Product : AggregateRoot<Guid>
         SetUpdatedAt();
     }
 
-    #endregion
+    #endregion Core Operations
     
     #region Variant Management
 
@@ -116,7 +116,7 @@ public sealed class Product : AggregateRoot<Guid>
             SetUpdatedAt();
         }
     }
-    #endregion
+    #endregion Variant Management
 
     #region Media Management
 
@@ -134,8 +134,8 @@ public sealed class Product : AggregateRoot<Guid>
     
     public void ReplaceMedia(List<ProductMedia> newMedias)
     {
-        _media.RemoveAll(m => !newMedias.Any(newM => newM.Path == m.Path));
-        var toAdd = newMedias.Where(newM => !_media.Any(m => m.Path == newM.Path));
+        _media.RemoveAll(m => !newMedias.Exists(newM => newM.Path == m.Path));
+        var toAdd = newMedias.Where(newM => !_media.Exists(m => m.Path == newM.Path));
         _media.AddRange(toAdd);
     
         var sorted = _media.OrderBy(m => m.SortOrder).ToList();
@@ -155,5 +155,5 @@ public sealed class Product : AggregateRoot<Guid>
         }
     }
 
-    #endregion
+    #endregion Media Management
 }

@@ -15,7 +15,7 @@ internal static class ProductReadModelMapper
         var variants = MapVariants(product.Variants);
         var activeVariants = variants.Where(v => v.IsActive).ToList();
 
-        var prices = activeVariants.Select(v => v.Price).ToList();
+        var prices = activeVariants.ConvertAll(v => v.Price);
         var minPrice = prices.Count > 0 ? prices.Min() : 0m;
         var maxPrice = prices.Count > 0 ? prices.Max() : 0m;
         var totalStock = activeVariants.Sum(v => v.StockQuantity - v.ReservedQuantity);
@@ -109,7 +109,7 @@ internal static class ProductReadModelMapper
             .OrderBy(x => x.Key)
             .ToDictionary(
                 x => x.Key, 
-                x => x.Value.OrderBy(v => v).ToList()
+                x => x.Value.Order().ToList()
             );    }
 
     private static string BuildSearchText(
@@ -128,6 +128,6 @@ internal static class ProductReadModelMapper
             parts.AddRange(variant.Attributes.Select(a => $"{a.AttributeCode} {a.OptionCode}"));
         }
 
-        return string.Join(" ", parts).ToLowerInvariant();
+        return string.Join(' ', parts).ToLowerInvariant();
     }
 }

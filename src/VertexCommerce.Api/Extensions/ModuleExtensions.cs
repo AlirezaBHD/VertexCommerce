@@ -9,17 +9,17 @@ using VertexCommerce.Shared.Contracts;
 
 namespace VertexCommerce.Api.Extensions;
 
-public static class ModuleExtensions
+internal static class ModuleExtensions
 {
-    private static readonly List<IModule> Modules = new()
-    {
+    private static readonly List<IModule> Modules =
+    [
         new BasketModule(),
         new CatalogModule(),
         new CustomersModule(),
         new IdentityModule(),
         new NotificationsModule(),
         new OrdersModule()
-    };
+    ];
 
     public static IServiceCollection RegisterModules(this IServiceCollection services, IConfiguration configuration)
     {

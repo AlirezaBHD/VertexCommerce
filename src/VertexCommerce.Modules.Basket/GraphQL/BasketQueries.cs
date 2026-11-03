@@ -32,7 +32,7 @@ public sealed class BasketQueries{
             TotalItems = basket.TotalItems,
             CreatedAt =  basket.CreatedAt,
             ExpiresAt =  basket.ExpiresAt,
-            Items = basket.Items.Select(i => new BasketItemDocument
+            Items = basket.Items.ConvertAll(i => new BasketItemDocument
             {
                 ProductId = i.ProductId,
                 ProductName = i.ProductName,
@@ -44,7 +44,6 @@ public sealed class BasketQueries{
                 StockQuantity = i.StockQuantity,
                 TotalPrice = i.TotalPrice,
                 AddedAt = i.AddedAt
-            }).ToList()
-        };
+            })        };
     }
 }

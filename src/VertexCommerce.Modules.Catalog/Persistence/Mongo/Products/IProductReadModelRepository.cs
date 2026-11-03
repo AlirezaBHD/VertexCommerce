@@ -18,7 +18,7 @@ public interface IProductReadModelRepository
     Task UpsertManyAsync(IEnumerable<ProductReadModel> models, CancellationToken ct = default);
     Task DeleteAsync(Guid id, CancellationToken ct = default);
     IExecutable<ProductReadModel> GetLatestProducts(int limit);
-    IExecutable<ProductReadModel> GetBySlugAsync(string slug);
+    IExecutable<ProductReadModel> GetBySlug(string slug);
     IExecutable<ProductReadModel> GetAll();
     Task<IReadOnlyList<ProductReadModel>> SearchAsync(string? searchTerm, int limit, CancellationToken ct = default);
 }

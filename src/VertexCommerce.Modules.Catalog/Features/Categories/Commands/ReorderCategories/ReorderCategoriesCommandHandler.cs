@@ -14,12 +14,12 @@ internal sealed class ReorderCategoriesCommandHandler(
         var allCategories = await categoryRepository.GetAllAsync(ct);
         var categoryDict = allCategories.ToDictionary(c => c.Id);
 
-        foreach (var item in command.Items)
-        {
-            if (!categoryDict.ContainsKey(item.CategoryId))
-                return Result.Failure(Error.NotFound("Category", item.CategoryId));
-        }
+        var missingCategory = command.Items
+            .FirstOrDefault(item => !categoryDict.ContainsKey(item.CategoryId));
 
+        if (missingCategory is not null)
+            return Result.Failure(Error.NotFound("Category", missingCategory.CategoryId));
+        
         foreach (var item in command.Items)
         {
             categoryDict[item.CategoryId].SetSortOrder(item.SortOrder);

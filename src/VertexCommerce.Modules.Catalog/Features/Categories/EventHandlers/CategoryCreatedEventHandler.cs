@@ -11,12 +11,12 @@ internal sealed class CategoryCreatedEventHandler(
     : INotificationHandler<CategoryCreatedEvent>
 {
     public async Task Handle(
-        CategoryCreatedEvent notification, CancellationToken ct)
+        CategoryCreatedEvent notification, CancellationToken cancellationToken)
     {
         logger.LogInformation(
             "Syncing created category {CategoryId} to MongoDB",
             notification.CategoryId);
 
-        await syncService.SyncCategoryAsync(notification.CategoryId, ct);
+        await syncService.SyncCategoryAsync(notification.CategoryId, cancellationToken);
     }
 }

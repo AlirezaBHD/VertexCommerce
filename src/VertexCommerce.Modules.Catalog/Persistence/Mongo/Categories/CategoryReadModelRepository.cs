@@ -12,21 +12,21 @@ internal sealed class CategoryReadModelRepository(
     private readonly IMongoCollection<CategoryReadModel> _collection = database.GetCollection<CategoryReadModel>("categories");
     private readonly CategoryIndexManager _indexManager = indexManager;
 
-    public IExecutable<CategoryReadModel> GetByIdAsync(Guid id, CancellationToken ct = default)
+    public IExecutable<CategoryReadModel> GetById(Guid id, CancellationToken ct = default)
     {
         return  _collection
             .Find(c => c.Id == id)
             .AsExecutable();
     }
 
-    public IExecutable<CategoryReadModel> GetBySlugAsync(string slug, CancellationToken ct = default)
+    public IExecutable<CategoryReadModel> GetBySlug(string slug, CancellationToken ct = default)
     {
         return _collection
             .Find(c => c.Slug == slug && c.IsActive)
             .AsExecutable();
     }
 
-    public IExecutable<CategoryReadModel> GetAllAsync(
+    public IExecutable<CategoryReadModel> GetAll(
         bool? isActive = null, CancellationToken ct = default)
     {
         var filter = CategoryQueryFilterBuilder.BuildListFilter(isActive);

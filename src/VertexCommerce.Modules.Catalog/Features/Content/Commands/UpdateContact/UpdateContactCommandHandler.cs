@@ -11,14 +11,14 @@ internal sealed class UpdateContactCommandHandler(IContentRepository contentRepo
     {
         var doc = new ContactDocument
         {
-            Header = command.Header ?? new(),
-            Phones = command.Phones ?? new(),
-            Emails = command.Emails ?? new(),
-            WorkingHours = command.WorkingHours ?? new(),
-            Location = command.Location ?? new(),
-            Photos = command.Photos ?? new(),
-            Socials = command.Socials ?? new(),
-            Faqs = command.Faqs ?? new(),
+            Header = command.Header,
+            Phones = command.Phones ?? [],
+            Emails = command.Emails ?? [],
+            WorkingHours = command.WorkingHours ?? new ContactWorkingHoursSection(),
+            Location = command.Location,
+            Photos = command.Photos ?? [],
+            Socials = command.Socials ?? [],
+            Faqs = command.Faqs ?? [],
             UpdatedAt = DateTime.UtcNow,
         };
 

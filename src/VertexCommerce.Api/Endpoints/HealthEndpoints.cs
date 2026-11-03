@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Routing;
 
 namespace VertexCommerce.Api.Endpoints;
 
-public static class HealthEndpoints
+internal static class HealthEndpoints
 {
     public static void MapHealthEndpoints(this IEndpointRouteBuilder app)
     {

@@ -1,4 +1,3 @@
-using HotChocolate.Authorization;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Products.Documents;
 using VertexCommerce.Shared.Contracts.Identity;
 

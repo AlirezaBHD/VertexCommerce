@@ -29,25 +29,19 @@ internal sealed class TargetResolver(IMongoDatabase database) : ITargetResolver
 
             case TargetType.Product:
                 var slug = target.ProductSlugSnapshot;
-                if (string.IsNullOrEmpty(slug))
+                if (string.IsNullOrEmpty(slug) && target.ProductId.HasValue)
                 {
-                    if (target.ProductId.HasValue)
-                    {
-                        var product = _products.Find(p => p.Id == target.ProductId.Value).FirstOrDefault();
-                        slug = product?.Slug;
-                    }
+                    var product = _products.Find(p => p.Id == target.ProductId.Value).FirstOrDefault();
+                    slug = product?.Slug;
                 }
                 return string.IsNullOrEmpty(slug) ? null : $"/products/{slug}";
 
             case TargetType.Category:
                 var catSlug = target.CategorySlugSnapshot;
-                if (string.IsNullOrEmpty(catSlug))
+                if (string.IsNullOrEmpty(catSlug) && target.CategoryId.HasValue)
                 {
-                    if (target.CategoryId.HasValue)
-                    {
-                        var category = _categories.Find(c => c.Id == target.CategoryId.Value).FirstOrDefault();
-                        catSlug = category?.Slug;
-                    }
+                    var category = _categories.Find(c => c.Id == target.CategoryId.Value).FirstOrDefault();
+                    catSlug = category?.Slug;
                 }
                 return string.IsNullOrEmpty(catSlug) ? null : $"/categories/{catSlug}";
 

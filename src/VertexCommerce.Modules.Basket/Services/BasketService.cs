@@ -19,17 +19,15 @@ public sealed class BasketService(IBasketRepository basketRepository) : IBasketS
         return new BasketDto(
             Id: basket.Id,
             CustomerId: basket.CustomerId,
-            Items: basket.Items.Select(i => new BasketItemDto(
+            Items: basket.Items.ConvertAll(i => new BasketItemDto(
                 ProductId: i.ProductId,
                 VariantId: i.VariantId,
                 Sku: i.Sku,
                 ProductName: i.ProductName,
                 UnitPrice: i.Price,
                 Quantity: i.Quantity,
-                Attributes: i.Attributes.Select(a => new BasketItemAttributeDto(
-                    AttributeCode: a.AttributeCode, OptionCode: a.OptionCode)).ToList()
-            )).ToList()
-        );
+                Attributes: i.Attributes.ConvertAll(a => new BasketItemAttributeDto(
+                    AttributeCode: a.AttributeCode, OptionCode: a.OptionCode))            ))        );
     }
 
     public async Task ClearBasketAsync(Guid customerId, CancellationToken ct = default)

@@ -58,8 +58,8 @@ public sealed class ProductVariant : Entity<Guid>
         StockQuantity = stockQuantity;
         SortOrder = order;
 
-        _attributes.RemoveAll(o => !_attributes.Any(newO => newO.AttributeCode == o.AttributeCode && newO.OptionCode == o.OptionCode));
-        var newOptions = _attributes.Where(newO => !_attributes.Any(o => o.AttributeCode == newO.AttributeCode && o.OptionCode == newO.OptionCode));
+        _attributes.RemoveAll(o => !_attributes.Exists(newO => newO.AttributeCode == o.AttributeCode && newO.OptionCode == o.OptionCode));
+        var newOptions = _attributes.Where(newO => !_attributes.Exists(o => o.AttributeCode == newO.AttributeCode && o.OptionCode == newO.OptionCode));
         _attributes.AddRange(newOptions);
     
         SetUpdatedAt();

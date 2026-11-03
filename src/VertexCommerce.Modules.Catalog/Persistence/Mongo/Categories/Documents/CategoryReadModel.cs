@@ -70,15 +70,3 @@ public sealed class CategoryReadModel
     [BsonElement("keywords")]
     public string? Keywords { get; set; }
 }
-
-public class CategoryBreadcrumb
-{
-    [BsonElement("id")]
-    public Guid Id { get; set; }
-
-    [BsonElement("name")]
-    public string Name { get; set; } = string.Empty;
-
-    [BsonElement("slug")]
-    public string Slug { get; set; } = string.Empty;
-}

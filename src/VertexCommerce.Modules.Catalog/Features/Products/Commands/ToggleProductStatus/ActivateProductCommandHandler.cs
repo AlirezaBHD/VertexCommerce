@@ -1,6 +1,5 @@
-using VertexCommerce.Modules.Catalog.Domain.Products;
+﻿using VertexCommerce.Modules.Catalog.Domain.Products;
 using VertexCommerce.Modules.Catalog.Persistence.Postgres;
-using VertexCommerce.Modules.Catalog.Sync;
 using VertexCommerce.Modules.Catalog.Sync.Products;
 using VertexCommerce.Shared.CQRS;
 
@@ -19,26 +18,6 @@ internal sealed class ActivateProductCommandHandler(
             return Result.Failure(Error.NotFound("Product", command.Id));
 
         product.Activate();
-        await unitOfWork.SaveChangesAsync(ct);
-        await syncService.SyncProductAsync(command.Id, ct);
-
-        return Result.Success();
-    }
-}
-
-internal sealed class DeactivateProductCommandHandler(
-    IProductRepository productRepository,
-    ICatalogUnitOfWork unitOfWork,
-    IProductSyncService syncService)
-    : ICommandHandler<DeactivateProductCommand>
-{
-    public async Task<Result> Handle(DeactivateProductCommand command, CancellationToken ct)
-    {
-        var product = await productRepository.GetByIdAsync(command.Id, ct);
-        if (product is null)
-            return Result.Failure(Error.NotFound("Product", command.Id));
-
-        product.Deactivate();
         await unitOfWork.SaveChangesAsync(ct);
         await syncService.SyncProductAsync(command.Id, ct);
 

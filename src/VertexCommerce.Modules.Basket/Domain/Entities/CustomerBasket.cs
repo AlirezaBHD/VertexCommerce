@@ -106,7 +106,7 @@ public sealed class CustomerBasket
 
     public bool IsEmpty => Items.Count == 0;
 
-    public bool HasItem(Guid productId) => Items.Any(i => i.ProductId == productId);
+    public bool HasItem(Guid productId) => Items.Exists(i => i.ProductId == productId);
 
     public BasketItem? GetItem(Guid productId) => Items.FirstOrDefault(i => i.ProductId == productId);
 

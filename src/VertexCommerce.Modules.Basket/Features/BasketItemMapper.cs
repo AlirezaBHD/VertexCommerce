@@ -20,11 +20,11 @@ internal static class BasketItemMapper
             Quantity = quantity,
             StockQuantity = variant.StockQuantity,
             ImagePath = variant.ImagePath,
-            Attributes = variant.Attributes.Select(a => new BasketItemAttributeDocument
+            Attributes = variant.Attributes.ConvertAll(a => new BasketItemAttributeDocument
             {
                 AttributeCode = a.AttributeCode,
                 OptionCode = a.OptionCode
-            }).ToList(),
+            }),
             AddedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };

@@ -2,7 +2,7 @@ using Microsoft.OpenApi;
 
 namespace VertexCommerce.Api.Extensions;
 
-public static class OpenApiExtensions
+internal static class OpenApiExtensions
 {
     public static IServiceCollection AddVertexOpenApi(this IServiceCollection services)
     {
@@ -25,7 +25,7 @@ public static class OpenApiExtensions
         
         services.AddOpenApi("v1", options =>
         {
-            options.AddDocumentTransformer((document, context, cancellationToken) =>
+            options.AddDocumentTransformer((document, _, _) =>
             {
                 document.Components ??= new OpenApiComponents();
 

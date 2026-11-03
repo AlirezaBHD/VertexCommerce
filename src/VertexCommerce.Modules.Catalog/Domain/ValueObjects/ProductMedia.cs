@@ -1,12 +1,7 @@
+using VertexCommerce.Modules.Catalog.Domain.Medias;
 using VertexCommerce.Shared.Domain.Schema;
 
 namespace VertexCommerce.Modules.Catalog.Domain.ValueObjects;
-
-public enum MediaType
-{
-    Image = 1,
-    Video = 2
-}
 
 public sealed record ProductMedia
 {

@@ -1,5 +1,3 @@
-using HotChocolate.Authorization;
-using VertexCommerce.Modules.Catalog.Domain.Banners;
 using VertexCommerce.Modules.Catalog.Persistence.Mongo.Content.Documents;
 using VertexCommerce.Modules.Catalog.Services;
 using VertexCommerce.Shared.Contracts.Identity;

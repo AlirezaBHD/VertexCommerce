@@ -3,14 +3,9 @@ using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Basket.Features.ClearBasket;
 
-public sealed class ClearBasketCommandHandler : ICommandHandler<ClearBasketCommand>
+public sealed class ClearBasketCommandHandler(IBasketRepository basketRepository) : ICommandHandler<ClearBasketCommand>
 {
-    private readonly IBasketRepository _basketRepository;
-
-    public ClearBasketCommandHandler(IBasketRepository basketRepository)
-    {
-        _basketRepository = basketRepository;
-    }
+    private readonly IBasketRepository _basketRepository = basketRepository;
 
     public Task<Result> Handle(ClearBasketCommand command, CancellationToken ct)
     {

@@ -35,9 +35,9 @@ public sealed class ProductRepository(CatalogDbContext context) : IProductReposi
             .ApplySpecification(query, spec).ToListAsync(ct);
     }
 
-    public async Task AddAsync(Product entity, CancellationToken ct = default)
+    public async Task AddAsync(Product product, CancellationToken ct = default)
     {
-        await context.Products.AddAsync(entity, ct);
+        await context.Products.AddAsync(product, ct);
     }
 
     public async Task AddVariantAsync(ProductVariant variant, CancellationToken ct = default)
@@ -45,9 +45,9 @@ public sealed class ProductRepository(CatalogDbContext context) : IProductReposi
        await context.Set<ProductVariant>().AddAsync(variant, ct);
     }
 
-    public void Delete(Product entity)
+    public void Delete(Product product)
     {
-        context.Products.Remove(entity);
+        context.Products.Remove(product);
     }
     
     public async Task<bool> HasProductsInCategoryAsync(Guid categoryId, CancellationToken ct = default)
@@ -71,7 +71,7 @@ public sealed class ProductRepository(CatalogDbContext context) : IProductReposi
         return await context.Products.AnyAsync(p => p.Seo.Slug == slugVo, ct);
     }
 
-    public void UpdateVariantAsync(ProductVariant variant)
+    public void UpdateVariant(ProductVariant variant)
     {
         context.Set<ProductVariant>().Update(variant);
     }

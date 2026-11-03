@@ -1,4 +1,3 @@
-using VertexCommerce.Modules.Catalog.Features.Products.Commands.CreateProduct;
 using VertexCommerce.Modules.Catalog.Features.Products.Queries.GetProductById.DTOs;
 
 namespace VertexCommerce.Modules.Catalog.Features.Categories.Queries.GetCategoryById.DTOs;

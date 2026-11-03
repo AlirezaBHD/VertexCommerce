@@ -5,37 +5,29 @@ using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Catalog.Features.Categories.Commands.CreateCategory;
 
-public sealed class CreateCategoryCommandHandler : ICommandHandler<CreateCategoryCommand, Guid>
+public sealed class CreateCategoryCommandHandler(
+    ICategoryRepository categoryRepository,
+    ICatalogUnitOfWork unitOfWork)
+    : ICommandHandler<CreateCategoryCommand, Guid>
 {
-    private readonly ICategoryRepository _categoryRepository;
-    private readonly ICatalogUnitOfWork _unitOfWork;
-
-    public CreateCategoryCommandHandler(
-        ICategoryRepository categoryRepository,
-        ICatalogUnitOfWork unitOfWork)
-    {
-        _categoryRepository = categoryRepository;
-        _unitOfWork = unitOfWork;
-    }
-
     public async Task<Result<Guid>> Handle(CreateCategoryCommand command, CancellationToken ct)
     {
         if (command.ParentId.HasValue)
         {
-            var parentExists = await _categoryRepository.ExistsAsync(command.ParentId.Value, ct);
+            var parentExists = await categoryRepository.ExistsAsync(command.ParentId.Value, ct);
             if (!parentExists)
             {
                 return Result.Failure<Guid>(Error.NotFound("Parent Category", command.ParentId.Value));
             }
         }
 
-        var nameExists = await _categoryRepository.NameExistsAsync(command.Name, null, ct);
+        var nameExists = await categoryRepository.NameExistsAsync(command.Name, null, ct);
         if (nameExists)
         {
             return Result.Failure<Guid>(Error.Conflict($"Category with name '{command.Name}' already exists."));
         }
 
-        var slugExists = await _categoryRepository.SlugExistsAsync(command.Seo.Slug, null, ct);
+        var slugExists = await categoryRepository.SlugExistsAsync(command.Seo.Slug, null, ct);
         if (slugExists)
         {
             return Result.Failure<Guid>(Error.Conflict($"Category with slug '{Slug.Create(command.Seo.Slug)}' already exists."));
@@ -61,8 +53,8 @@ public sealed class CreateCategoryCommandHandler : ICommandHandler<CreateCategor
             sortOrder: command.SortOrder
         );
 
-        await _categoryRepository.AddAsync(category, ct);
-        await _unitOfWork.SaveChangesAsync(ct);
+        await categoryRepository.AddAsync(category, ct);
+        await unitOfWork.SaveChangesAsync(ct);
 
         return Result.Success(category.Id);
     }

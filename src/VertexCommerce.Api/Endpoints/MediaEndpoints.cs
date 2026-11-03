@@ -5,7 +5,7 @@ using VertexCommerce.Shared.Services;
 
 namespace VertexCommerce.Api.Endpoints;
 
-public static class MediaEndpoints
+internal static class MediaEndpoints
 {
     public static void MapMediaEndpoints(this IEndpointRouteBuilder app)
     {
@@ -90,11 +90,3 @@ public static class MediaEndpoints
         return null;
     }
 }
-
-public sealed record MediaUploadResponse(
-    Guid MediaFileId,
-    string Path,
-    string FileName,
-    string ContentType,
-    long Size
-);
