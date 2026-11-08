@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using VertexCommerce.Modules.Orders.Features.ShippingSettings;
-using VertexCommerce.Modules.Orders.Features.ShippingSettings.GetShippingSettings;
-using VertexCommerce.Modules.Orders.Features.ShippingSettings.UpdateShippingSettings;
+using VertexCommerce.Modules.Orders.Features.ShippingSetting;
+using VertexCommerce.Modules.Orders.Features.ShippingSetting.GetShippingSettings;
+using VertexCommerce.Modules.Orders.Features.ShippingSetting.UpdateShippingSettings;
 using VertexCommerce.Shared.Contracts.Identity;
 using VertexCommerce.Shared.Extensions;
 

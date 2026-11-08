@@ -1,0 +1,21 @@
+using VertexCommerce.Modules.Orders.Domain.Errors;
+using VertexCommerce.Modules.Orders.Domain.Repositories;
+using VertexCommerce.Shared.CQRS;
+
+namespace VertexCommerce.Modules.Orders.Features.PaymentSetting.GetPaymentSettingById;
+
+internal sealed class GetPaymentSettingByIdQueryHandler(IPaymentSettingsRepository repository)
+    : IQueryHandler<GetPaymentSettingByIdQuery, PaymentSettingsResponse>
+{
+    public async Task<Result<PaymentSettingsResponse>> Handle(
+        GetPaymentSettingByIdQuery query, CancellationToken ct)
+    {
+        var result = await repository.GetByIdAsync(query.Id, ct);
+        if (result == null)
+        {
+            return Result.Failure<PaymentSettingsResponse>(PaymentSettingsErrors.NotFound(query.Id));
+        }
+        return Result.Success(
+            result.ToResponse());
+    }
+}

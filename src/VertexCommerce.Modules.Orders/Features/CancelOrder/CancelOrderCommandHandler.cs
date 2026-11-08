@@ -5,22 +5,14 @@ using VertexCommerce.Modules.Orders.Domain.Errors;
 
 namespace VertexCommerce.Modules.Orders.Features.CancelOrder;
 
-internal sealed class CancelOrderCommandHandler : ICommandHandler<CancelOrderCommand>
+internal sealed class CancelOrderCommandHandler(
+    IOrderRepository orderRepository,
+    IOrdersUnitOfWork unitOfWork)
+    : ICommandHandler<CancelOrderCommand>
 {
-    private readonly IOrderRepository _orderRepository;
-    private readonly IOrdersUnitOfWork _unitOfWork;
-
-    public CancelOrderCommandHandler(
-        IOrderRepository orderRepository,
-        IOrdersUnitOfWork unitOfWork)
-    {
-        _orderRepository = orderRepository;
-        _unitOfWork = unitOfWork;
-    }
-
     public async Task<Result> Handle(CancelOrderCommand command, CancellationToken ct)
     {
-        var order = await _orderRepository.GetByIdAsync(command.OrderId, ct);
+        var order = await orderRepository.GetByIdAsync(command.OrderId, ct);
         if (order is null)
             return Result.Failure(OrderErrors.NotFound(command.OrderId));
 
@@ -28,7 +20,7 @@ internal sealed class CancelOrderCommandHandler : ICommandHandler<CancelOrderCom
         if (result.IsFailure)
             return result;
 
-        await _unitOfWork.SaveChangesAsync(ct);
+        await unitOfWork.SaveChangesAsync(ct);
         return Result.Success();
     }
 }
