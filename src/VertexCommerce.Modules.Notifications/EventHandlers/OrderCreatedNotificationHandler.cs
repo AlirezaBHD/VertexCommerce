@@ -40,14 +40,14 @@ public sealed class OrderCreatedNotificationHandler : INotificationHandler<Order
         _logger = logger;
     }
 
-    public async Task Handle(OrderCreatedIntegrationEvent notification, CancellationToken ct)
+    public async Task Handle(OrderCreatedIntegrationEvent notification, CancellationToken cancellationToken)
     {
         try
         {
             CustomerInfoDto? customer = null;
             try
             {
-                customer = await _customerService.GetCustomerInfo(notification.CustomerId, ct);
+                customer = await _customerService.GetCustomerInfo(notification.CustomerId, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -73,8 +73,8 @@ public sealed class OrderCreatedNotificationHandler : INotificationHandler<Order
                     type: "OrderCreated",
                     payloadJson: payloadJson);
 
-                await _notificationRepository.AddAsync(entity, ct);
-                await _unitOfWork.SaveChangesAsync(ct);
+                await _notificationRepository.AddAsync(entity, cancellationToken);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                 var sseMessage = new NotificationMessage(
                     Id: entity.Id,
@@ -86,7 +86,7 @@ public sealed class OrderCreatedNotificationHandler : INotificationHandler<Order
                     IsRead: entity.IsRead,
                     CreatedAt: entity.CreatedAt);
 
-                await _sseManager.BroadcastToUserAsync(entity.UserId, sseMessage, ct);
+                await _sseManager.BroadcastToUserAsync(entity.UserId, sseMessage, cancellationToken);
 
                 await _webPushService.SendPushToUserAsync(
                     userId: entity.UserId,
@@ -98,7 +98,7 @@ public sealed class OrderCreatedNotificationHandler : INotificationHandler<Order
                         orderId = notification.OrderId,
                         orderNumber = notification.OrderNumber
                     },
-                    ct: ct);
+                    ct: cancellationToken);
 
                 _logger.LogInformation("OrderCreated notification dispatched for Customer {UserId} on Order {OrderNumber}",
                     customerUserId, notification.OrderNumber);
@@ -114,7 +114,7 @@ public sealed class OrderCreatedNotificationHandler : INotificationHandler<Order
                 var adminTitle = "سفارش جدید ثبت شد";
                 var adminMessage = $"کاربر {customerName} سفارش جدید با شماره {notification.OrderNumber} به مبلغ {notification.TotalAmount:N0} {notification.Currency} ثبت کرد.";
 
-                var adminIds = await _identityService.GetAdminUserIdsAsync(ct);
+                var adminIds = await _identityService.GetAdminUserIdsAsync(cancellationToken);
                 _logger.LogInformation("Found {Count} admin user(s) to notify for Order {OrderNumber}", adminIds.Count, notification.OrderNumber);
 
                 foreach (var adminId in adminIds)
@@ -126,8 +126,8 @@ public sealed class OrderCreatedNotificationHandler : INotificationHandler<Order
                         type: "AdminOrderCreated",
                         payloadJson: payloadJson);
 
-                    await _notificationRepository.AddAsync(adminNotification, ct);
-                    await _unitOfWork.SaveChangesAsync(ct);
+                    await _notificationRepository.AddAsync(adminNotification, cancellationToken);
+                    await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                     var adminSseMsg = new NotificationMessage(
                         Id: adminNotification.Id,
@@ -139,7 +139,7 @@ public sealed class OrderCreatedNotificationHandler : INotificationHandler<Order
                         IsRead: adminNotification.IsRead,
                         CreatedAt: adminNotification.CreatedAt);
 
-                    await _sseManager.BroadcastToUserAsync(adminId, adminSseMsg, ct);
+                    await _sseManager.BroadcastToUserAsync(adminId, adminSseMsg, cancellationToken);
 
                     await _webPushService.SendPushToUserAsync(
                         userId: adminId,
@@ -152,7 +152,7 @@ public sealed class OrderCreatedNotificationHandler : INotificationHandler<Order
                             orderNumber = notification.OrderNumber,
                             isAdmin = true
                         },
-                        ct: ct);
+                        ct: cancellationToken);
                 }
 
                 _logger.LogInformation("OrderCreated notification dispatched to {Count} admin(s) for Order {OrderNumber}",

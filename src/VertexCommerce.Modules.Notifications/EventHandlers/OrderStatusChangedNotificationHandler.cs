@@ -40,14 +40,14 @@ public sealed class OrderStatusChangedNotificationHandler : INotificationHandler
         _logger = logger;
     }
 
-    public async Task Handle(OrderStatusChangedIntegrationEvent notification, CancellationToken ct)
+    public async Task Handle(OrderStatusChangedIntegrationEvent notification, CancellationToken cancellationToken)
     {
         try
         {
             CustomerInfoDto? customer = null;
             try
             {
-                customer = await _customerService.GetCustomerInfo(notification.CustomerId, ct);
+                customer = await _customerService.GetCustomerInfo(notification.CustomerId, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -65,7 +65,7 @@ public sealed class OrderStatusChangedNotificationHandler : INotificationHandler
                 "OrderStatusChanged",
                 notification.OrderNumber,
                 notification.NewStatus,
-                ct);
+                cancellationToken);
 
             if (exists)
             {
@@ -88,8 +88,8 @@ public sealed class OrderStatusChangedNotificationHandler : INotificationHandler
                     type: "OrderStatusChanged",
                     payloadJson: payloadJson);
 
-                await _notificationRepository.AddAsync(entity, ct);
-                await _unitOfWork.SaveChangesAsync(ct);
+                await _notificationRepository.AddAsync(entity, cancellationToken);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                 // 4. Real-time In-App notification via SSE for Customer
                 var sseMessage = new NotificationMessage(
@@ -102,7 +102,7 @@ public sealed class OrderStatusChangedNotificationHandler : INotificationHandler
                     IsRead: entity.IsRead,
                     CreatedAt: entity.CreatedAt);
 
-                await _sseManager.BroadcastToUserAsync(entity.UserId, sseMessage, ct);
+                await _sseManager.BroadcastToUserAsync(entity.UserId, sseMessage, cancellationToken);
 
                 // 5. Background Web Push notification to browser for Customer
                 var orderUrl = $"/account";
@@ -117,7 +117,7 @@ public sealed class OrderStatusChangedNotificationHandler : INotificationHandler
                         orderNumber = notification.OrderNumber,
                         status = notification.NewStatus
                     },
-                    ct: ct);
+                    ct: cancellationToken);
 
                 _logger.LogInformation("Notification dispatched successfully to customer {UserId} for Order {OrderNumber} status {Status}",
                     customerUserId, notification.OrderNumber, notification.NewStatus);
@@ -135,7 +135,7 @@ public sealed class OrderStatusChangedNotificationHandler : INotificationHandler
                     var adminTitle = "رسید پرداخت جدید دریافت شد";
                     var adminMessage = $"کاربر {customerName} فیش واریزی برای سفارش {notification.OrderNumber} را ارسال کرد و در انتظار بررسی است.";
 
-                    var adminIds = await _identityService.GetAdminUserIdsAsync(ct);
+                    var adminIds = await _identityService.GetAdminUserIdsAsync(cancellationToken);
                     _logger.LogInformation("Found {Count} admin user(s) to notify for receipt submission on Order {OrderNumber}", adminIds.Count, notification.OrderNumber);
 
                     foreach (var adminId in adminIds)
@@ -147,8 +147,8 @@ public sealed class OrderStatusChangedNotificationHandler : INotificationHandler
                             type: "AdminPaymentReceiptSubmitted",
                             payloadJson: payloadJson);
 
-                        await _notificationRepository.AddAsync(adminNotification, ct);
-                        await _unitOfWork.SaveChangesAsync(ct);
+                        await _notificationRepository.AddAsync(adminNotification, cancellationToken);
+                        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                         var adminSseMsg = new NotificationMessage(
                             Id: adminNotification.Id,
@@ -160,7 +160,7 @@ public sealed class OrderStatusChangedNotificationHandler : INotificationHandler
                             IsRead: adminNotification.IsRead,
                             CreatedAt: adminNotification.CreatedAt);
 
-                        await _sseManager.BroadcastToUserAsync(adminId, adminSseMsg, ct);
+                        await _sseManager.BroadcastToUserAsync(adminId, adminSseMsg, cancellationToken);
 
                         await _webPushService.SendPushToUserAsync(
                             userId: adminId,
@@ -173,7 +173,7 @@ public sealed class OrderStatusChangedNotificationHandler : INotificationHandler
                                 orderNumber = notification.OrderNumber,
                                 isAdmin = true
                             },
-                            ct: ct);
+                            ct: cancellationToken);
                     }
 
                     _logger.LogInformation("Receipt submission notification dispatched to {Count} admin(s) for Order {OrderNumber}",

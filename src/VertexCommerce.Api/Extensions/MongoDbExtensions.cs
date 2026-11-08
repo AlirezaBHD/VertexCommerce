@@ -6,7 +6,7 @@ using MongoDB.Driver;
 
 namespace VertexCommerce.Api.Extensions;
 
-public static class MongoDbExtensions
+internal static class MongoDbExtensions
 {
     public static IServiceCollection AddMongoDb(
         this IServiceCollection services,
