@@ -15,7 +15,7 @@ public sealed class GetMyOrderByIdQueryHandler(
 {
     public async Task<Result<MyOrderResponse>> Handle(GetMyOrderByIdQuery query, CancellationToken ct)
     {
-        var customerId = await customerResolver.GetCustomerIdByUserIdAsync(currentUser.UserId, ct);
+        var customerId = await customerResolver.GetCustomerIdByUserIdAsync(currentUser.GetUserId(), ct);
 
         var order = await dbContext.Orders
             .AsNoTracking()

@@ -21,10 +21,11 @@ internal sealed class AddItemCommandHandler(
 
     public async Task<Result> Handle(AddItemCommand command, CancellationToken ct)
     {
-        var customerId = await ResolveCustomerIdAsync(ct);
+        var userId = currentUser.GetUserId();
+        var customerId = await ResolveCustomerIdAsync(userId, ct);
 
         if (customerId is null)
-            return Result.Failure(BasketErrors.CustomerNotFound(currentUser.UserId));
+            return Result.Failure(BasketErrors.CustomerNotFound(userId));
 
         var variant = await productService.GetProductVariantInfoAsync(
             command.ProductId,
@@ -50,10 +51,9 @@ internal sealed class AddItemCommandHandler(
     }
 
 
-    private async Task<Guid?> ResolveCustomerIdAsync(CancellationToken ct)
+    private async Task<Guid?> ResolveCustomerIdAsync(Guid userId, CancellationToken ct)
     {
-        var customerId = await customerResolver.GetCustomerIdByUserIdAsync(
-            currentUser.UserId, ct);
+        var customerId = await customerResolver.GetCustomerIdByUserIdAsync(userId, ct);
 
         return customerId == Guid.Empty ? null : customerId;
     }

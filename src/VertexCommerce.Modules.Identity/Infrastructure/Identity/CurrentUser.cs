@@ -1,26 +1,17 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using VertexCommerce.Shared.Contracts.Identity;
+using VertexCommerce.Shared.Exceptions;
+using VertexCommerce.Shared.Extensions;
 
 namespace VertexCommerce.Modules.Identity.Infrastructure.Identity;
 
-internal class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentUser
+internal sealed class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentUser
 {
-    public Guid UserId
+    public Guid GetUserId()
     {
-        get
-        {
-            var user = httpContextAccessor.HttpContext?.User;
-            var userIdClaim = user?.FindFirstValue(ClaimTypes.NameIdentifier)
-                ?? user?.FindFirstValue("sub")
-                ?? user?.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub);
+        var user = httpContextAccessor.HttpContext?.User
+                   ?? throw new UnauthorizedException("No HTTP context is available for the current request.");
 
-            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
-            {
-                throw new UnauthorizedAccessException("User is not authenticated.");
-            }
-
-            return userId;
-        }
+        return user.GetUserId();
     }
 }

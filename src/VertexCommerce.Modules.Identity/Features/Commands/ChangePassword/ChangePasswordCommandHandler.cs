@@ -18,7 +18,7 @@ internal sealed class ChangePasswordCommandHandler(
 {
     public async Task<Result> Handle(ChangePasswordCommand command, CancellationToken ct)
     {
-        var userId = currentUser.UserId;
+        var userId = currentUser.GetUserId();
         var user = await userRepository.GetByIdAsync(userId, ct);
         if (user is null)
         {

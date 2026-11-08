@@ -16,7 +16,7 @@ internal sealed class SetDefaultBillingAddressCommandHandler(
 {
     public async Task<Result> Handle(SetDefaultBillingAddressCommand command, CancellationToken ct)
     {
-        var userId = currentUser.UserId;
+        var userId = currentUser.GetUserId();
         var customerId = await customerResolver.GetCustomerIdByUserIdAsync(userId, ct);
         var customer = await customerRepository.GetByIdAsync(customerId, ct);
 

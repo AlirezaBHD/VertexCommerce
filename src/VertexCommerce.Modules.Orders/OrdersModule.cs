@@ -63,7 +63,7 @@ public class OrdersModule : IModule
         try
         {
             logger.LogInformation("Applying migrations for Orders module...");
-            await db.Database.MigrateAsync(ct);
+            // await db.Database.MigrateAsync(ct);
             logger.LogInformation("Orders migrations applied successfully.");
         }
         catch (Exception ex)

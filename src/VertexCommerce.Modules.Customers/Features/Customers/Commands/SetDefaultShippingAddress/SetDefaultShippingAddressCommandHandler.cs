@@ -16,7 +16,7 @@ internal sealed class SetDefaultShippingAddressCommandHandler(
 {
     public async Task<Result> Handle(SetDefaultShippingAddressCommand command, CancellationToken ct)
     {
-        var userId = currentUser.UserId;
+        var userId = currentUser.GetUserId();
         var customerId = await customerResolver.GetCustomerIdByUserIdAsync(userId, ct);
         var customer = await customerRepository.GetByIdAsync(customerId, ct);
 

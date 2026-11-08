@@ -1,11 +1,10 @@
-using VertexCommerce.Modules.Identity.Domain.Repositories;
-using VertexCommerce.Modules.Identity.Features.Commands.Registration.CompleteRegistration;
-using VertexCommerce.Modules.Identity.Persistence;
-using VertexCommerce.Modules.Identity.Infrastructure.Authentication;
-using VertexCommerce.Shared.CQRS;
 using VertexCommerce.Modules.Identity.Domain.Errors;
+using VertexCommerce.Modules.Identity.Domain.Repositories;
+using VertexCommerce.Modules.Identity.Infrastructure.Authentication;
+using VertexCommerce.Modules.Identity.Persistence;
+using VertexCommerce.Shared.CQRS;
 
-namespace VertexCommerce.Modules.Identity.Features.Commands.RefreshToken;
+namespace VertexCommerce.Modules.Identity.Features.Commands.RefreshAccessToken;
 
 internal sealed class RefreshTokenCommandHandler(
     IUserRepository userRepository,

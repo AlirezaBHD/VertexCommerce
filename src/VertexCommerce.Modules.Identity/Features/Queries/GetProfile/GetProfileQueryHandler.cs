@@ -10,7 +10,7 @@ internal sealed class GetProfileQueryHandler(IUserRepository userRepository, ICu
 {
     public async Task<Result<ProfileResponse>> Handle(GetProfileQuery query, CancellationToken ct)
     {
-        var userId = currentUser.UserId;
+        var userId = currentUser.GetUserId();
         var user = await userRepository.GetByIdAsync(userId, ct);
 
         if (user is null)

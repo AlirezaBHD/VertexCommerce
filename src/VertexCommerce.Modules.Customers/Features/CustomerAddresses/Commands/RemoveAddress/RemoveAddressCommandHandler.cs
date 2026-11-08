@@ -14,7 +14,7 @@ internal sealed class RemoveAddressCommandHandler(
 {
     public async Task<Result> Handle(RemoveAddressCommand command, CancellationToken ct)
     {
-        var userId = currentUser.UserId;
+        var userId = currentUser.GetUserId();
         var customer = await customerRepository.GetByUserIdAsync(userId, ct);
 
         if (customer is null)

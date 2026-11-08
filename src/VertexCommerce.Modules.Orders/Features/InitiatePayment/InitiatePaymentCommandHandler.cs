@@ -16,7 +16,7 @@ public sealed class InitiatePaymentCommandHandler(
 {
     public async Task<Result> Handle(InitiatePaymentCommand command, CancellationToken ct)
     {
-        var customerId = await customerResolver.GetCustomerIdByUserIdAsync(currentUser.UserId, ct);
+        var customerId = await customerResolver.GetCustomerIdByUserIdAsync(currentUser.GetUserId(), ct);
 
         var order = await orderRepository.GetByIdAsync(command.OrderId, ct);
 

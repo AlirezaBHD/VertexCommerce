@@ -16,7 +16,7 @@ public sealed class BasketQueries{
         [Service] ICustomerResolver customerResolver,
         CancellationToken ct = default)
     {
-        var userId = currentUser.UserId;
+        var userId = currentUser.GetUserId();
         var customerId = await customerResolver.GetCustomerIdByUserIdAsync(userId, ct);
         
         var basket = await basketRepository.GetByCustomerIdAsync(customerId, ct);

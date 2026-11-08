@@ -19,7 +19,7 @@ internal sealed class AddAddressCommandHandler(
 {
     public async Task<Result<AddressSummaryResponse>> Handle(AddAddressCommand command, CancellationToken ct)
     {
-        var userId = currentUser.UserId;
+        var userId = currentUser.GetUserId();
         var customerId = await customerResolver.GetCustomerIdByUserIdAsync(userId, ct);
         var customer = await customerRepository.GetByIdAsync(customerId, ct);
 

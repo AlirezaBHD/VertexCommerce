@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Routing;
 using VertexCommerce.Modules.Identity.Features.Commands;
 using VertexCommerce.Modules.Identity.Features.Commands.ChangePassword;
 using VertexCommerce.Modules.Identity.Features.Commands.Login;
-using VertexCommerce.Modules.Identity.Features.Commands.RefreshToken;
+using VertexCommerce.Modules.Identity.Features.Commands.RefreshAccessToken;
 using VertexCommerce.Modules.Identity.Features.Commands.Registration.CompleteRegistration;
 using VertexCommerce.Modules.Identity.Features.Commands.Registration.SendOpt;
 using VertexCommerce.Modules.Identity.Features.Commands.Registration.VerifyOtp;

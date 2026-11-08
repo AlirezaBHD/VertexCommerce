@@ -14,7 +14,7 @@ internal sealed class GetAddressByIdQueryHandler(
 {
     public async Task<Result<AddressResponse>> Handle(GetAddressByIdQuery query, CancellationToken ct)
     {
-        var userId = currentUser.UserId;
+        var userId = currentUser.GetUserId();
         
         var customerId = await customerResolver.GetCustomerIdByUserIdAsync(userId, ct);
 

@@ -17,7 +17,7 @@ internal sealed class EditAddressCommandHandler(
 {
     public async Task<Result> Handle(EditAddressCommand command, CancellationToken ct)
     {
-        var userId = currentUser.UserId;
+        var userId = currentUser.GetUserId();
         var customerId = await customerResolver.GetCustomerIdByUserIdAsync(userId, ct);
         var customer = await customerRepository.GetByIdAsync(customerId, ct);
 

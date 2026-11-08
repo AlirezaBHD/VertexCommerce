@@ -21,10 +21,11 @@ internal sealed class UpdateItemQuantityCommandHandler(
 
     public async Task<Result> Handle(UpdateItemQuantityCommand command, CancellationToken ct)
     {
-        var customerId = await ResolveCustomerIdAsync(ct);
+        var userId = currentUser.GetUserId();
+        var customerId = await ResolveCustomerIdAsync(userId, ct);
 
         if (customerId is null)
-            return Result.Failure(BasketErrors.CustomerNotFound(currentUser.UserId));
+            return Result.Failure(BasketErrors.CustomerNotFound(userId));
 
         var basket = await basketRepository.GetByCustomerIdAsync(customerId.Value, ct)
                      ?? basketFactory.CreateNew(customerId.Value);
@@ -62,10 +63,9 @@ internal sealed class UpdateItemQuantityCommandHandler(
         return Result.Success();
     }
 
-    private async Task<Guid?> ResolveCustomerIdAsync(CancellationToken ct)
+    private async Task<Guid?> ResolveCustomerIdAsync(Guid userId, CancellationToken ct)
     {
-        var customerId = await customerResolver.GetCustomerIdByUserIdAsync(
-            currentUser.UserId, ct);
+        var customerId = await customerResolver.GetCustomerIdByUserIdAsync(userId, ct);
 
         return customerId == Guid.Empty ? null : customerId;
     }

@@ -25,7 +25,7 @@ public sealed class CheckoutCommandHandler(
 {
     public async Task<Result<CheckoutResponse>> Handle(CheckoutCommand command, CancellationToken ct)
     {
-        var customerId = await customerResolver.GetCustomerIdByUserIdAsync(currentUser.UserId, ct);
+        var customerId = await customerResolver.GetCustomerIdByUserIdAsync(currentUser.GetUserId(), ct);
 
         var basket = await basketService.GetBasketAsync(
             customerId: customerId,

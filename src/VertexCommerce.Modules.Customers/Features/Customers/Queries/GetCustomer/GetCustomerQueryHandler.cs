@@ -10,7 +10,7 @@ internal sealed class GetCustomerQueryHandler(ICustomerRepository customerReposi
 {
     public async Task<Result<CustomerResponse>> Handle(GetCustomerQuery query, CancellationToken ct)
     {
-        var userId = currentUser.UserId;
+        var userId = currentUser.GetUserId();
         var spec = new GetCustomerSpec(userId: userId);
 
         var customer = await customerRepository.GetAsync(spec, ct);

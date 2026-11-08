@@ -54,7 +54,7 @@ public static class NotificationEndpoints
         pageNumber = pageNumber <= 0 ? 1 : pageNumber;
         size = size <= 0 ? 20 : Math.Min(size, 50);
 
-        var notifications = await repository.GetUserNotificationsAsync(currentUser.UserId, pageNumber, size, ct);
+        var notifications = await repository.GetUserNotificationsAsync(currentUser.GetUserId(), pageNumber, size, ct);
         return Results.Ok(notifications);
     }
 
@@ -63,7 +63,7 @@ public static class NotificationEndpoints
         [FromServices] INotificationRepository repository,
         CancellationToken ct)
     {
-        var count = await repository.GetUnreadCountAsync(currentUser.UserId, ct);
+        var count = await repository.GetUnreadCountAsync(currentUser.GetUserId(), ct);
         return Results.Ok(new { count });
     }
 
@@ -73,7 +73,7 @@ public static class NotificationEndpoints
         [FromServices] ISseConnectionManager sseManager,
         CancellationToken ct)
     {
-        var userId = currentUser.UserId;
+        var userId = currentUser.GetUserId();
 
         context.Response.Headers.Append("Content-Type", "text/event-stream");
         context.Response.Headers.Append("Cache-Control", "no-cache");
@@ -139,7 +139,7 @@ public static class NotificationEndpoints
         }
 
         var subscription = PushSubscription.Create(
-            userId: currentUser.UserId,
+            userId: currentUser.GetUserId(),
             endpoint: request.Endpoint,
             p256DhKey: request.P256dh,
             authKey: request.Auth,
@@ -172,7 +172,7 @@ public static class NotificationEndpoints
         CancellationToken ct)
     {
         var notification = await repository.GetByIdAsync(id, ct);
-        if (notification is null || notification.UserId != currentUser.UserId)
+        if (notification is null || notification.UserId != currentUser.GetUserId())
         {
             return Results.NotFound();
         }
@@ -188,7 +188,7 @@ public static class NotificationEndpoints
         [FromServices] INotificationRepository repository,
         CancellationToken ct)
     {
-        await repository.MarkAllAsReadAsync(currentUser.UserId, ct);
+        await repository.MarkAllAsReadAsync(currentUser.GetUserId(), ct);
         return Results.NoContent();
     }
 }
