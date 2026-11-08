@@ -63,18 +63,3 @@ public sealed class ProductType : ObjectType<ProductReadModel>
         descriptor.Field(p => p.Keywords).Type<NonNullType<StringType>>();
     }
 }
-
-public sealed class AvailableOptionType : ObjectType<AvailableOption>
-{
-    protected override void Configure(IObjectTypeDescriptor<AvailableOption> descriptor)
-    {
-        descriptor.Field(x => x.Key).Type<NonNullType<StringType>>();
-        descriptor.Field(x => x.Values).Type<ListType<NonNullType<StringType>>>();
-    }
-}
-
-public sealed class AvailableOption
-{
-    public string Key { get; set; } = default!;
-    public List<string> Values { get; set; } = [];
-}

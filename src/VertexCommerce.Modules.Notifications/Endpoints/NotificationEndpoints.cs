@@ -192,14 +192,3 @@ public static class NotificationEndpoints
         return Results.NoContent();
     }
 }
-
-public sealed record PushSubscribeRequest(
-    string Endpoint,
-    string P256dh,
-    string Auth,
-    string? UserAgent
-);
-
-public sealed record PushUnsubscribeRequest(
-    string Endpoint
-);

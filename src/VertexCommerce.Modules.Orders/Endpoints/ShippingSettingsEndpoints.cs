@@ -54,10 +54,3 @@ public static class ShippingSettingsEndpoints
         return result.IsSuccess ? Results.Ok(result.Value) : result.Error.ToHttpResult();
     }
 }
-
-public sealed record UpdateShippingSettingsRequest(
-    decimal Cost,
-    string? Currency = "USD",
-    decimal? FreeShippingThreshold = null,
-    string? Description = null,
-    bool IsActive = true);

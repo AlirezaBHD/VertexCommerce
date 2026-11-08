@@ -20,14 +20,3 @@ public sealed class OrderType
     public DateTime? DeliveredAt { get; init; }
     public List<OrderItemType> Items { get; init; } = [];
 }
-
-public sealed class OrderItemType
-{
-    public Guid Id { get; init; }
-    public Guid ProductId { get; init; }
-    public string ProductName { get; init; } = default!;
-    public string? ProductSku { get; init; }
-    public decimal UnitPrice { get; init; }
-    public int Quantity { get; init; }
-    public decimal TotalPrice { get; init; }
-}

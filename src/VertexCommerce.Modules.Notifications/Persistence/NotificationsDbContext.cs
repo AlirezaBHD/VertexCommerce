@@ -19,8 +19,8 @@ public sealed class NotificationsDbContext : DbContext, INotificationsUnitOfWork
         base.OnModelCreating(modelBuilder);
     }
 
-    public override Task<int> SaveChangesAsync(CancellationToken ct = default)
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        return base.SaveChangesAsync(ct);
+        return base.SaveChangesAsync(cancellationToken);
     }
 }

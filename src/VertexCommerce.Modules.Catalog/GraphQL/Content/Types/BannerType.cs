@@ -44,35 +44,3 @@ public sealed class BannerType : ObjectType<BannerDocument>
             });
     }
 }
-
-public sealed class BannerTargetType : ObjectType<BannerTarget>
-{
-    protected override void Configure(IObjectTypeDescriptor<BannerTarget> descriptor)
-    {
-        descriptor.Name("BannerTarget");
-
-        descriptor.Field(t => t.Type).Type<NonNullType<BannerTargetTypeEnum>>();
-        descriptor.Field(t => t.ProductId).Type<UuidType>();
-        descriptor.Field(t => t.ProductTitleSnapshot).Type<StringType>();
-        descriptor.Field(t => t.ProductSlugSnapshot).Type<StringType>();
-        descriptor.Field(t => t.ProductSkuSnapshot).Type<StringType>();
-        descriptor.Field(t => t.CategoryId).Type<UuidType>();
-        descriptor.Field(t => t.CategoryTitleSnapshot).Type<StringType>();
-        descriptor.Field(t => t.CategorySlugSnapshot).Type<StringType>();
-        descriptor.Field(t => t.InternalPath).Type<StringType>();
-        descriptor.Field(t => t.ExternalUrl).Type<StringType>();
-    }
-}
-
-public sealed class BannerTargetTypeEnum : EnumType<TargetType>
-{
-    protected override void Configure(IEnumTypeDescriptor<TargetType> descriptor)
-    {
-        descriptor.Name("BannerTargetType");
-        descriptor.Value(TargetType.None).Name("None");
-        descriptor.Value(TargetType.Product).Name("Product");
-        descriptor.Value(TargetType.Category).Name("Category");
-        descriptor.Value(TargetType.InternalPath).Name("InternalPath");
-        descriptor.Value(TargetType.ExternalUrl).Name("ExternalUrl");
-    }
-}

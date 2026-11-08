@@ -42,7 +42,7 @@ public class LocalMediaService : IMediaService
         await using var fileStreamOutput = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true);
         await fileStream.CopyToAsync(fileStreamOutput, cancellationToken);
 
-        return Path.Combine(_uploadPath,sanitizedFolder, uniqueFileName).Replace("\\", "/");
+        return Path.Combine(_uploadPath,sanitizedFolder, uniqueFileName).Replace('\\', '/');
     }
 
     public Task<bool> DeleteFileAsync(string filePath, CancellationToken cancellationToken = default)

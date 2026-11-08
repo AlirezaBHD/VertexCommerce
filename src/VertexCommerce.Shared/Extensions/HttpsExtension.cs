@@ -6,11 +6,11 @@ public static class HttpsExtension
 {
     public static int GetStatusCode(string errorCode) => errorCode switch
     {
-        _ when errorCode.Contains("NotFound") => StatusCodes.Status404NotFound,
-        _ when errorCode.Contains("Validation") => StatusCodes.Status400BadRequest,
-        _ when errorCode.Contains("Conflict") => StatusCodes.Status409Conflict,
-        _ when errorCode.Contains("Authentication") => StatusCodes.Status400BadRequest,
-        _ when errorCode.Contains("Error.NullValue") => StatusCodes.Status400BadRequest,
+        _ when errorCode.Contains("NotFound", StringComparison.Ordinal) => StatusCodes.Status404NotFound,
+        _ when errorCode.Contains("Validation", StringComparison.Ordinal) => StatusCodes.Status400BadRequest,
+        _ when errorCode.Contains("Conflict", StringComparison.Ordinal) => StatusCodes.Status409Conflict,
+        _ when errorCode.Contains("Authentication", StringComparison.Ordinal) => StatusCodes.Status400BadRequest,
+        _ when errorCode.Contains("Error.NullValue", StringComparison.Ordinal) => StatusCodes.Status400BadRequest,
         _ => StatusCodes.Status500InternalServerError
     };
     

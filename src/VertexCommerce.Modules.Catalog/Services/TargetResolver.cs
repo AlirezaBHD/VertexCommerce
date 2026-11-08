@@ -5,11 +5,6 @@ using VertexCommerce.Modules.Catalog.Persistence.Mongo.Products.Documents;
 
 namespace VertexCommerce.Modules.Catalog.Services;
 
-public interface ITargetResolver
-{
-    string? ResolveHref(BannerTarget target, out bool isExternal);
-}
-
 internal sealed class TargetResolver(IMongoDatabase database) : ITargetResolver
 {
     private readonly IMongoCollection<ProductReadModel> _products =
