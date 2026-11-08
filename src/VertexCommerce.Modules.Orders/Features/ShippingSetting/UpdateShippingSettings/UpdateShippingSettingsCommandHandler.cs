@@ -16,8 +16,8 @@ internal sealed class UpdateShippingSettingsCommandHandler(
     {
         var currency = string.IsNullOrWhiteSpace(command.Currency) ? "USD" : command.Currency;
         var costMoney = Money.Create(command.Cost, currency);
-        var thresholdMoney = command.FreeShippingThreshold.HasValue && command.FreeShippingThreshold.Value > 0
-            ? Money.Create(command.FreeShippingThreshold.Value, currency)
+        var thresholdMoney = command.FreeShippingThreshold is > 0 and var threshold
+            ? Money.Create(threshold, currency)
             : (Money?)null;
 
         var existing = await repository.GetAsync(ct);

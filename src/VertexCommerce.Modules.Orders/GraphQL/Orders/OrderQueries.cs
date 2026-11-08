@@ -7,8 +7,8 @@ using VertexCommerce.Modules.Orders.Domain.Repositories;
 namespace VertexCommerce.Modules.Orders.GraphQL.Orders;
 
 [ExtendObjectType("Query")]
-public sealed class OrderQueries{
-    public async Task<OrderType?> GetOrderById(
+public static class OrderQueries{
+    public static async Task<OrderType?> GetOrderById(
         [Service] IOrderRepository orderRepository,
         Guid id,
         CancellationToken ct = default)
@@ -17,7 +17,7 @@ public sealed class OrderQueries{
         return order is null ? null : MapToOrderType(order);
     }
 
-    public async Task<OrderType?> GetOrderByNumber(
+    public static async Task<OrderType?> GetOrderByNumber(
         [Service] IOrderRepository orderRepository,
         string orderNumber,
         CancellationToken ct = default)
@@ -26,7 +26,7 @@ public sealed class OrderQueries{
         return order is null ? null : MapToOrderType(order);
     }
 
-    public async Task<IEnumerable<OrderType>> GetOrdersByCustomer(
+    public static async Task<IEnumerable<OrderType>> GetOrdersByCustomer(
         [Service] IOrderRepository orderRepository,
         Guid customerId,
         CancellationToken ct = default)
