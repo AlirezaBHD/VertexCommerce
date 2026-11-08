@@ -1,17 +1,24 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace VertexCommerce.Shared.Domain;
 
-public abstract class ValueObject : IEquatable<ValueObject>
+/// <summary>
+/// Base type for value objects: immutable objects defined entirely by their components.
+/// </summary>
+/// <remarks>
+/// Two value objects are equal when they are of the same concrete type and their
+/// <see cref="GetEqualityComponents"/> sequences are equal.
+/// </remarks>
+[SuppressMessage("Major Code Smell", "S3875:\"operator==\" should not be overloaded on reference types",
+    Justification = "Value semantics are the defining trait of a value object; callers compare them with == and !=.")]
+public abstract class ValueObject
 {
     protected abstract IEnumerable<object?> GetEqualityComponents();
 
-    public bool Equals(ValueObject? other)
-    {
-        if (other is null) return false;
-        if (GetType() != other.GetType()) return false;
-        return GetEqualityComponents().SequenceEqual(other.GetEqualityComponents());
-    }
-
-    public override bool Equals(object? obj) => Equals(obj as ValueObject);
+    public override bool Equals(object? obj) =>
+        obj is ValueObject other
+        && other.GetType() == GetType()
+        && GetEqualityComponents().SequenceEqual(other.GetEqualityComponents());
 
     public override int GetHashCode()
     {

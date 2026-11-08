@@ -11,6 +11,12 @@ namespace VertexCommerce.Shared.Domain.Schema;
 /// </summary>
 public static class StringFieldGuard
 {
+    /// <summary>
+    /// Upper bound for a single pattern match. Input length is already capped by
+    /// <see cref="StringFieldSchema.MaxLength"/>; this guards against catastrophic backtracking.
+    /// </summary>
+    private static readonly TimeSpan MatchTimeout = TimeSpan.FromMilliseconds(250);
+
     private static readonly ConcurrentDictionary<string, Regex> Patterns = new();
 
     /// <summary>
@@ -50,7 +56,7 @@ public static class StringFieldGuard
                 field, $"{field} must be at least {schema.MinLength} characters.");
         }
 
-        if (schema.Pattern is not null && !Compiled(schema.Pattern).IsMatch(normalized))
+        if (schema.Pattern is not null && !IsMatch(schema.Pattern, normalized))
         {
             throw new DomainValidationException(field, $"{field} has an invalid format.");
         }
@@ -58,7 +64,20 @@ public static class StringFieldGuard
         return normalized;
     }
 
+    /// <remarks>A match that exceeds <see cref="MatchTimeout"/> is treated as invalid input, not a server error.</remarks>
+    private static bool IsMatch(string pattern, string value)
+    {
+        try
+        {
+            return Compiled(pattern).IsMatch(value);
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return false;
+        }
+    }
+
     private static Regex Compiled(string pattern) =>
         Patterns.GetOrAdd(pattern, static p =>
-            new Regex(p, RegexOptions.Compiled | RegexOptions.CultureInvariant));
+            new Regex(p, RegexOptions.Compiled | RegexOptions.CultureInvariant, MatchTimeout));
 }

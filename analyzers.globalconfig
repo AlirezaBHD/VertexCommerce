@@ -48,3 +48,8 @@ dotnet_diagnostic.MA0076.severity = none
 dotnet_diagnostic.MA0182.severity = none
 
 # MA0048 (file name must match type name) is kept on purpose: it finds misnamed files
+
+# Exceptions derive from DomainException, whose constructors pin StatusCode/ErrorCode.
+# The standard (), (message) and (message, inner) constructors demanded here (and by CA1032 above)
+# would let callers create exceptions that bypass that contract.
+dotnet_diagnostic.RCS1194.severity = none
