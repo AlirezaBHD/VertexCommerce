@@ -22,7 +22,7 @@ internal sealed class AddItemCommandHandler(
     public async Task<Result> Handle(AddItemCommand command, CancellationToken ct)
     {
         var userId = currentUser.GetUserId();
-        var customerId = await ResolveCustomerIdAsync(userId, ct);
+        var customerId = await customerResolver.ResolveCustomerIdAsync(userId, ct);
 
         if (customerId is null)
             return Result.Failure(BasketErrors.CustomerNotFound(userId));
@@ -50,29 +50,14 @@ internal sealed class AddItemCommandHandler(
         return Result.Success();
     }
 
-
-    private async Task<Guid?> ResolveCustomerIdAsync(Guid userId, CancellationToken ct)
-    {
-        var customerId = await customerResolver.GetCustomerIdByUserIdAsync(userId, ct);
-
-        return customerId == Guid.Empty ? null : customerId;
-    }
-
     private Result TryAddOrUpdateItem(
         BasketDocument basket,
         ProductVariantInfo variant,
         int quantity)
     {
-        var existingItem = basket.Items.FirstOrDefault(i =>
-            i.ProductId == variant.ProductId &&
-            i.VariantId == variant.VariantId);
+        var existingItem = basket.FindItem(variant.ProductId, variant.VariantId);
 
         var totalQuantity = (existingItem?.Quantity ?? 0) + quantity;
-
-        if (totalQuantity <= 0 && existingItem is not null)
-        {
-            basket.Items.Remove(existingItem);
-        }
 
         if (totalQuantity > _settings.MaxQuantityPerItem)
             return Result.Failure(BasketErrors.MaxQuantityExceeded(_settings.MaxQuantityPerItem));
@@ -100,8 +85,7 @@ internal sealed class AddItemCommandHandler(
             basket.Items.Add(BasketItemMapper.ToDocument(variant, quantity));
         }
 
-        basket.TotalItems = basket.Items.Sum(i => i.Quantity);
-        basket.TotalAmount = basket.Items.Sum(i => i.Price);
+        basket.RecalculateTotals();
         return Result.Success();
     }
 }

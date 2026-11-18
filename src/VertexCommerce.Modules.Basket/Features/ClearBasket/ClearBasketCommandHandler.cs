@@ -1,26 +1,25 @@
 using VertexCommerce.Modules.Basket.Contract;
+using VertexCommerce.Shared.Contracts.Customers;
+using VertexCommerce.Shared.Contracts.Identity;
 using VertexCommerce.Shared.CQRS;
 
 namespace VertexCommerce.Modules.Basket.Features.ClearBasket;
 
-public sealed class ClearBasketCommandHandler(IBasketRepository basketRepository) : ICommandHandler<ClearBasketCommand>
+internal sealed class ClearBasketCommandHandler(
+    IBasketRepository basketRepository,
+    ICurrentUser currentUser,
+    ICustomerResolver customerResolver) : ICommandHandler<ClearBasketCommand>
 {
-    private readonly IBasketRepository _basketRepository = basketRepository;
-
-    public Task<Result> Handle(ClearBasketCommand command, CancellationToken ct)
+    public async Task<Result> Handle(ClearBasketCommand command, CancellationToken ct)
     {
-        throw new NotImplementedException();
-        // var basket = await _basketRepository.GetOrCreateAsync(command.CustomerId, ct);
-        //
-        // if (basket is null)
-        // {
-        //     return Result.Success(); // Already empty
-        // }
-        //
-        // basket.Clear();
-        //
-        // await _basketRepository.UpdateAsync(basket, ct);
-        //
-        // return Result.Success();
+        var userId = currentUser.GetUserId();
+        var customerId = await customerResolver.ResolveCustomerIdAsync(userId, ct);
+
+        if (customerId is null)
+            return Result.Failure(BasketErrors.CustomerNotFound(userId));
+        
+        await basketRepository.DeleteAsync(customerId.Value, ct);
+
+        return Result.Success();
     }
 }

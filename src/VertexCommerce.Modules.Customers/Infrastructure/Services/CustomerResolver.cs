@@ -3,7 +3,7 @@ using VertexCommerce.Shared.Contracts.Customers;
 
 namespace VertexCommerce.Modules.Customers.Infrastructure.Services;
 
-internal class CustomerResolver(ICustomerRepository repository) : ICustomerResolver
+internal sealed class CustomerResolver(ICustomerRepository repository) : ICustomerResolver
 {
     public async Task<Guid> GetCustomerIdByUserIdAsync(Guid userId, CancellationToken ct = default)
     {

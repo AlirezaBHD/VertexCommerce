@@ -53,3 +53,10 @@ dotnet_diagnostic.MA0182.severity = none
 # The standard (), (message) and (message, inner) constructors demanded here (and by CA1032 above)
 # would let callers create exceptions that bypass that contract.
 dotnet_diagnostic.RCS1194.severity = none
+
+# HotChocolate [ExtendObjectType] classes must stay instantiable (HC instantiates the class;
+# dependencies arrive via [Service] parameters), so "make the resolver method static" is a
+# false-positive for this pattern (CA1822 is already silenced above). S1118 would similarly
+# nag when a resolver class happens to have only static members but still can't be a static class.
+dotnet_diagnostic.MA0038.severity = none
+dotnet_diagnostic.S1118.severity = none

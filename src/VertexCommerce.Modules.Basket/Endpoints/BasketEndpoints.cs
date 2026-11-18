@@ -30,7 +30,7 @@ public static class BasketEndpoints
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status404NotFound);
 
-        group.MapDelete("/items/{productId:guid}", RemoveItem)
+        group.MapDelete("/items/{variantId:guid}", RemoveItem)
             .WithName("RemoveBasketItem")
             .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound);
@@ -80,13 +80,11 @@ public static class BasketEndpoints
     }
 
     private static async Task<IResult> RemoveItem(
-        HttpContext context,
-        Guid productId,
+        Guid variantId,
         [FromServices] ISender sender,
         CancellationToken ct)
     {
-        var customerId = context.User.GetUserId();
-        var result = await sender.Send(new RemoveItemCommand(customerId, productId), ct);
+        var result = await sender.Send(new RemoveItemCommand(variantId), ct);
 
         return result.IsSuccess
             ? Results.Ok(new { Message = "Item removed" })
@@ -94,12 +92,10 @@ public static class BasketEndpoints
     }
 
     private static async Task<IResult> ClearBasket(
-        HttpContext context,
         [FromServices] ISender sender,
         CancellationToken ct)
     {
-        var customerId = context.User.GetUserId();
-        var result = await sender.Send(new ClearBasketCommand(customerId), ct);
+        var result = await sender.Send(new ClearBasketCommand(), ct);
 
         return result.IsSuccess
             ? Results.Ok(new { Message = "Basket cleared" })

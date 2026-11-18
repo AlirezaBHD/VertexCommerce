@@ -8,6 +8,14 @@ internal static class BasketErrors
         Error.NotFound("Basket.CustomerNotFound",
             $"No customer profile found for user '{userId}'");
 
+    public static Error BasketNotFound(Guid customerId) =>
+        Error.NotFound("Basket.BasketNotFound",
+            $"No basket found for customer '{customerId}'");
+
+    public static Error ItemNotFound(Guid variantId) =>
+        Error.NotFound("Basket.ItemNotFound",
+            $"Basket does not contain an item for variant '{variantId}'");
+
     public static Error VariantNotFound(Guid productId, Guid variantId) =>
         Error.NotFound("Basket.VariantNotFound",
             $"Product variant '{variantId}' not found for product '{productId}'");

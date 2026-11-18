@@ -22,7 +22,7 @@ internal sealed class UpdateItemQuantityCommandHandler(
     public async Task<Result> Handle(UpdateItemQuantityCommand command, CancellationToken ct)
     {
         var userId = currentUser.GetUserId();
-        var customerId = await ResolveCustomerIdAsync(userId, ct);
+        var customerId = await customerResolver.ResolveCustomerIdAsync(userId, ct);
 
         if (customerId is null)
             return Result.Failure(BasketErrors.CustomerNotFound(userId));
@@ -30,9 +30,7 @@ internal sealed class UpdateItemQuantityCommandHandler(
         var basket = await basketRepository.GetByCustomerIdAsync(customerId.Value, ct)
                      ?? basketFactory.CreateNew(customerId.Value);
 
-        var existingItem = basket.Items.FirstOrDefault(i =>
-            i.ProductId == command.ProductId &&
-            i.VariantId == command.VariantId);
+        var existingItem = basket.FindItem(command.ProductId, command.VariantId);
 
         if (existingItem is null)
             return Result.Failure(BasketErrors.VariantNotFound(command.ProductId, command.VariantId));
@@ -53,21 +51,13 @@ internal sealed class UpdateItemQuantityCommandHandler(
         if (result.IsFailure)
             return result;
 
-        basket.TotalItems = basket.Items.Sum(i => i.Quantity);
-        basket.TotalAmount = basket.Items.Sum(i => i.Price * i.Quantity);
+        basket.RecalculateTotals();
 
         basketFactory.RefreshExpiration(basket);
 
         await basketRepository.UpsertAsync(basket, ct);
 
         return Result.Success();
-    }
-
-    private async Task<Guid?> ResolveCustomerIdAsync(Guid userId, CancellationToken ct)
-    {
-        var customerId = await customerResolver.GetCustomerIdByUserIdAsync(userId, ct);
-
-        return customerId == Guid.Empty ? null : customerId;
     }
 
     private Result TryUpdateItemQuantity(
@@ -96,8 +86,7 @@ internal sealed class UpdateItemQuantityCommandHandler(
         CancellationToken ct)
     {
         basket.Items.Remove(item);
-        basket.TotalItems = basket.Items.Sum(i => i.Quantity);
-        basket.TotalAmount = basket.Items.Sum(i => i.Price * i.Quantity);
+        basket.RecalculateTotals();
 
         basketFactory.RefreshExpiration(basket);
 

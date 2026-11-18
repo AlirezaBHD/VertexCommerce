@@ -22,23 +22,13 @@ public class BasketModule : IModule
 
     public void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {
-        MongoDbConfiguration.Configure();
-
         services.Configure<BasketSettings>(
             configuration.GetSection(BasketSettings.SectionName));
         services.Configure<MongoDbSettings>(
             configuration.GetSection($"{BasketSettings.SectionName}:MongoDB"));
 
-        // Infrastructure
-        // services.AddSingleton<MongoDbContext>();
-
-        // Domain Services
-        services.AddScoped<BasketFactory>();
-        
-        
-        // services.Configure<MongoDbSettings>(
-        //     configuration.GetSection("MongoDb"));
-
+        // Infrastructure — the Mongo client/database singletons are provided by the host (AddMongoDb).
+        services.AddSingleton<BasketIndexManager>();
         services.AddScoped<IBasketRepository, BasketRepository>();
 
         services.AddScoped<IBasketService, BasketService>();
@@ -57,5 +47,18 @@ public class BasketModule : IModule
     public void ConfigureGraphQl(IRequestExecutorBuilder builder)
     {
         builder.AddTypeExtension<BasketQueries>();
+    }
+
+    public async Task InitializeAsync(IServiceProvider serviceProvider, CancellationToken ct = default)
+    {
+        try
+        {
+            await serviceProvider.GetRequiredService<BasketIndexManager>()
+                .EnsureIndexesAsync(ct);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("Failed to create indexes for Basket module.", ex);
+        }
     }
 }

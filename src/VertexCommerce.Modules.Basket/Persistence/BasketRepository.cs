@@ -6,37 +6,16 @@ using VertexCommerce.Modules.Basket.Persistence.Documents;
 
 namespace VertexCommerce.Modules.Basket.Persistence;
 
-internal sealed class BasketRepository : IBasketRepository
+/// <summary>
+/// MongoDB-backed basket store. The <see cref="IMongoDatabase"/> singleton is provided
+/// by the host; this repository owns no client and creates no connections itself.
+/// </summary>
+internal sealed class BasketRepository(
+    IMongoDatabase database,
+    IOptions<MongoDbSettings> settings) : IBasketRepository
 {
-    private readonly IMongoCollection<BasketDocument> _baskets;
-
-    public BasketRepository(IOptions<MongoDbSettings> settings)
-    {
-        var client = new MongoClient(settings.Value.ConnectionString);
-        var database = client.GetDatabase(settings.Value.DatabaseName);
-        _baskets = database.GetCollection<BasketDocument>(settings.Value.BasketsCollectionName);
-
-        CreateIndexes();
-    }
-
-    private void CreateIndexes()
-    {
-        // ─── CustomerId unique index ───
-        var customerIdIndex = Builders<BasketDocument>.IndexKeys
-            .Ascending(b => b.CustomerId);
-
-        _baskets.Indexes.CreateOne(new CreateIndexModel<BasketDocument>(
-            customerIdIndex,
-            new CreateIndexOptions { Unique = true }));
-
-        // ─── TTL index ───
-        var ttlIndex = Builders<BasketDocument>.IndexKeys
-            .Ascending(b => b.ExpiresAt);
-
-        _baskets.Indexes.CreateOne(new CreateIndexModel<BasketDocument>(
-            ttlIndex,
-            new CreateIndexOptions { ExpireAfter = TimeSpan.Zero }));
-    }
+    private readonly IMongoCollection<BasketDocument> _baskets =
+        database.GetCollection<BasketDocument>(settings.Value.BasketsCollectionName);
 
     public async Task<BasketDocument?> GetByCustomerIdAsync(Guid customerId, CancellationToken ct = default)
     {

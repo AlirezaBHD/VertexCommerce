@@ -3,7 +3,7 @@ using VertexCommerce.Shared.Contracts.Customers;
 
 namespace VertexCommerce.Modules.Customers.Infrastructure.Services;
 
-internal class CachedCustomerResolver(ICustomerResolver inner, IMemoryCache cache) : ICustomerResolver
+internal sealed class CachedCustomerResolver(ICustomerResolver inner, IMemoryCache cache) : ICustomerResolver
 {
     public async Task<Guid> GetCustomerIdByUserIdAsync(Guid userId, CancellationToken ct = default)
     {

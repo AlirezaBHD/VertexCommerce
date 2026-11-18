@@ -6,10 +6,7 @@ public sealed class RemoveItemCommandValidator : AbstractValidator<RemoveItemCom
 {
     public RemoveItemCommandValidator()
     {
-        RuleFor(x => x.CustomerId)
-            .NotEmpty().WithMessage("Customer ID is required.");
-
-        RuleFor(x => x.ProductId)
-            .NotEmpty().WithMessage("Product ID is required.");
+        RuleFor(x => x.VariantId)
+            .NotEmpty().WithMessage("Variant ID is required.");
     }
 }
