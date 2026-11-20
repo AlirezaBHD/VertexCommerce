@@ -9,14 +9,16 @@ public class LocalMediaService : IMediaService
 
     public LocalMediaService(IOptions<MediaOptions> options)
     {
+        ArgumentNullException.ThrowIfNull(options);
+
         if (string.IsNullOrWhiteSpace(options.Value.RootPath))
         {
-            throw new ArgumentException("RootPath is not configured in MediaOptions.");
+            throw new ArgumentException("RootPath is not configured in MediaOptions.", nameof(options));
         }
 
         _uploadPath = "uploads";
         _basePath = Path.Combine(options.Value.RootPath, _uploadPath);
-        
+
         if (!Directory.Exists(_basePath))
         {
             Directory.CreateDirectory(_basePath);
@@ -28,8 +30,8 @@ public class LocalMediaService : IMediaService
         ArgumentNullException.ThrowIfNull(fileStream);
         ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
 
-        var sanitizedFolder = Path.GetFileName(folder); 
-        
+        var sanitizedFolder = Path.GetFileName(folder);
+
         var folderPath = Path.Combine(_basePath, sanitizedFolder);
         if (!Directory.Exists(folderPath))
         {
@@ -42,13 +44,13 @@ public class LocalMediaService : IMediaService
         await using var fileStreamOutput = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true);
         await fileStream.CopyToAsync(fileStreamOutput, cancellationToken);
 
-        return Path.Combine(_uploadPath,sanitizedFolder, uniqueFileName).Replace('\\', '/');
+        return Path.Combine(_uploadPath, sanitizedFolder, uniqueFileName).Replace('\\', '/');
     }
 
     public Task<bool> DeleteFileAsync(string filePath, CancellationToken cancellationToken = default)
     {
         var fullPath = GetValidatedFullPath(filePath);
-        
+
         if (File.Exists(fullPath))
         {
             File.Delete(fullPath);
@@ -60,7 +62,7 @@ public class LocalMediaService : IMediaService
     public Task<Stream> GetFileAsync(string filePath, CancellationToken cancellationToken = default)
     {
         var fullPath = GetValidatedFullPath(filePath);
-        
+
         if (!File.Exists(fullPath))
             throw new FileNotFoundException("Media file not found.", filePath);
 
@@ -77,12 +79,13 @@ public class LocalMediaService : IMediaService
     private string GetValidatedFullPath(string filePath)
     {
         var fullPath = Path.GetFullPath(Path.Combine(_basePath, filePath));
-        
-        if (!fullPath.StartsWith(_basePath, StringComparison.OrdinalIgnoreCase))
+        var relativePath = Path.GetRelativePath(_basePath, fullPath);
+
+        if (relativePath.StartsWith("..", StringComparison.Ordinal) || Path.IsPathRooted(relativePath))
         {
             throw new UnauthorizedAccessException("Invalid file path.");
         }
-        
+
         return fullPath;
     }
 }

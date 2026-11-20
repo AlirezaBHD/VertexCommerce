@@ -19,7 +19,7 @@ public sealed class CatalogAttributeConfiguration : IEntityTypeConfiguration<Cat
             .ValueGeneratedNever();
 
         builder.Property(a => a.Code).HasConversion(x => x.Value, v => AttributeCode.Create(v)).HasColumnName("code").HasSchema(AttributeCode.Schema).IsRequired();
-        
+
         builder.HasMany(a => a.Options)
             .WithOne()
             .HasForeignKey(o => o.AttributeId)

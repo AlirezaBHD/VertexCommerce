@@ -18,7 +18,7 @@ public readonly record struct MetaDescription
         if (string.IsNullOrWhiteSpace(value)) return default;
         return new(StringFieldGuard.Apply(value, Schema, nameof(MetaDescription)));
     }
-    
+
     public static MetaDescription Create(string? value) =>
         new(StringFieldGuard.Apply(value, Schema, nameof(MetaDescription)));
 }

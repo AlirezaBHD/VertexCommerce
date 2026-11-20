@@ -31,9 +31,9 @@ internal sealed class SetDefaultShippingAddressCommandHandler(
         {
             return Result.Failure(CustomerErrors.AddressNotFound(command.AddressId));
         }
-        
+
         customer.SetDefaultShippingAddress(address.Id);
-        
+
         await unitOfWork.SaveChangesAsync(ct);
 
         return Result.Success();

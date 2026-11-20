@@ -16,11 +16,5 @@ public sealed class NotificationsDbContext : DbContext, INotificationsUnitOfWork
     {
         modelBuilder.HasDefaultSchema("notifications");
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(NotificationsDbContext).Assembly);
-        base.OnModelCreating(modelBuilder);
-    }
-
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        return base.SaveChangesAsync(cancellationToken);
     }
 }

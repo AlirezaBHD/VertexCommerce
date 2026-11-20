@@ -42,10 +42,31 @@ public static class StringFieldSchemaMappingExtensions
     /// type, which is how an optional string-backed value object has to be mapped until EF Core
     /// supports optional complex types.
     /// </summary>
-    public static ComplexTypePropertyBuilder<TValueObject> HasSchema<TValueObject>(this ComplexTypePropertyBuilder<TValueObject> property, StringFieldSchema schema) { ArgumentNullException.ThrowIfNull(schema); return property.HasMaxLength(schema.MaxLength).IsUnicode(schema.IsUnicode).IsFixedLength(schema.IsFixedLength); }
+    /// <typeparam name="TValueObject">The type of the value object.</typeparam>
+    /// <param name="property">The complex type property builder.</param>
+    /// <param name="schema">The string field schema defining storage constraints.</param>
+    /// <returns>The configured property builder.</returns>
+    public static ComplexTypePropertyBuilder<TValueObject> HasSchema<TValueObject>(
+        this ComplexTypePropertyBuilder<TValueObject> property,
+        StringFieldSchema schema)
+    {
+        ArgumentNullException.ThrowIfNull(schema);
+        return property
+            .HasMaxLength(schema.MaxLength)
+            .IsUnicode(schema.IsUnicode)
+            .IsFixedLength(schema.IsFixedLength);
+    }
 
+    /// <summary>
+    /// Applies a spec to a property builder.
+    /// </summary>
+    /// <typeparam name="TValueObject">The type of the value object.</typeparam>
+    /// <param name="property">The property builder.</param>
+    /// <param name="schema">The string field schema defining storage constraints.</param>
+    /// <returns>The configured property builder.</returns>
     public static PropertyBuilder<TValueObject> HasSchema<TValueObject>(
-        this PropertyBuilder<TValueObject> property, StringFieldSchema schema)
+        this PropertyBuilder<TValueObject> property,
+        StringFieldSchema schema)
     {
         ArgumentNullException.ThrowIfNull(schema);
 

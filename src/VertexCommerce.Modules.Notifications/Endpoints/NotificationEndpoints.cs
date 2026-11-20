@@ -1,13 +1,19 @@
 using System.Text.Json;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using VertexCommerce.Modules.Notifications.Domain.Entities;
-using VertexCommerce.Modules.Notifications.Domain.Repositories;
-using VertexCommerce.Modules.Notifications.Persistence;
+using VertexCommerce.Modules.Notifications.Features.Notifications.Commands.MarkAllAsRead;
+using VertexCommerce.Modules.Notifications.Features.Notifications.Commands.MarkAsRead;
+using VertexCommerce.Modules.Notifications.Features.Notifications.Queries.GetNotifications;
+using VertexCommerce.Modules.Notifications.Features.Notifications.Queries.GetUnreadCount;
+using VertexCommerce.Modules.Notifications.Features.PushSubscriptions.Commands.SubscribeToPush;
+using VertexCommerce.Modules.Notifications.Features.PushSubscriptions.Commands.UnsubscribeFromPush;
+using VertexCommerce.Modules.Notifications.Features.PushSubscriptions.Queries.GetVapidPublicKey;
 using VertexCommerce.Modules.Notifications.Services;
 using VertexCommerce.Shared.Contracts.Identity;
+using VertexCommerce.Shared.Extensions;
 
 namespace VertexCommerce.Modules.Notifications.Endpoints;
 
@@ -37,34 +43,41 @@ public static class NotificationEndpoints
         return app;
     }
 
-    private static IResult GetVapidPublicKey([FromServices] IWebPushService webPushService)
+    private static async Task<IResult> GetVapidPublicKey(
+        [FromServices] ISender sender,
+        CancellationToken ct)
     {
-        return Results.Ok(new { publicKey = webPushService.PublicKey });
+        var result = await sender.Send(new GetVapidPublicKeyQuery(), ct);
+        return result.IsSuccess
+            ? Results.Ok(new { publicKey = result.Value })
+            : result.Error.ToHttpResult();
     }
 
     private static async Task<IResult> GetNotifications(
         [FromQuery] int? page,
         [FromQuery] int? pageSize,
-        [FromServices] ICurrentUser currentUser,
-        [FromServices] INotificationRepository repository,
+        [FromServices] ISender sender,
         CancellationToken ct)
     {
-        var pageNumber = page.GetValueOrDefault(1);
-        var size = pageSize.GetValueOrDefault(20);
-        pageNumber = pageNumber <= 0 ? 1 : pageNumber;
-        size = size <= 0 ? 20 : Math.Min(size, 50);
+        var pageNumber = page ?? 1;
+        var size = pageSize ?? 20;
 
-        var notifications = await repository.GetUserNotificationsAsync(currentUser.GetUserId(), pageNumber, size, ct);
-        return Results.Ok(notifications);
+        var query = new GetNotificationsQuery(pageNumber, size);
+        var result = await sender.Send(query, ct);
+
+        return result.IsSuccess
+            ? Results.Ok(result.Value)
+            : result.Error.ToHttpResult();
     }
 
     private static async Task<IResult> GetUnreadCount(
-        [FromServices] ICurrentUser currentUser,
-        [FromServices] INotificationRepository repository,
+        [FromServices] ISender sender,
         CancellationToken ct)
     {
-        var count = await repository.GetUnreadCountAsync(currentUser.GetUserId(), ct);
-        return Results.Ok(new { count });
+        var result = await sender.Send(new GetUnreadCountQuery(), ct);
+        return result.IsSuccess
+            ? Results.Ok(new { count = result.Value })
+            : result.Error.ToHttpResult();
     }
 
     private static async Task StreamNotifications(
@@ -108,7 +121,6 @@ public static class NotificationEndpoints
                 }
                 catch (OperationCanceledException) when (heartbeatCts.IsCancellationRequested && !linkedCts.Token.IsCancellationRequested)
                 {
-                    // Send keep-alive comment
                     await context.Response.WriteAsync(": ping\n\n", linkedCts.Token);
                     await context.Response.Body.FlushAsync(linkedCts.Token);
                 }
@@ -126,69 +138,55 @@ public static class NotificationEndpoints
 
     private static async Task<IResult> SubscribeToPush(
         [FromBody] PushSubscribeRequest request,
-        [FromServices] ICurrentUser currentUser,
-        [FromServices] IPushSubscriptionRepository repository,
-        [FromServices] INotificationsUnitOfWork unitOfWork,
+        [FromServices] ISender sender,
         CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(request.Endpoint) ||
-            string.IsNullOrWhiteSpace(request.P256dh) ||
-            string.IsNullOrWhiteSpace(request.Auth))
-        {
-            return Results.BadRequest(new { error = "Invalid subscription keys" });
-        }
+        var command = new SubscribeToPushCommand(
+            Endpoint: request.Endpoint,
+            P256dh: request.P256dh,
+            Auth: request.Auth,
+            UserAgent: request.UserAgent);
 
-        var subscription = PushSubscription.Create(
-            userId: currentUser.GetUserId(),
-            endpoint: request.Endpoint,
-            p256DhKey: request.P256dh,
-            authKey: request.Auth,
-            userAgent: request.UserAgent);
+        var result = await sender.Send(command, ct);
 
-        await repository.AddOrUpdateAsync(subscription, ct);
-        await unitOfWork.SaveChangesAsync(ct);
-
-        return Results.Ok(new { success = true });
+        return result.IsSuccess
+            ? Results.Ok(new { success = true })
+            : result.Error.ToHttpResult();
     }
 
     private static async Task<IResult> UnsubscribeFromPush(
         [FromBody] PushUnsubscribeRequest request,
-        [FromServices] IPushSubscriptionRepository repository,
+        [FromServices] ISender sender,
         CancellationToken ct)
     {
-        if (!string.IsNullOrWhiteSpace(request.Endpoint))
-        {
-            await repository.RemoveByEndpointAsync(request.Endpoint, ct);
-        }
+        var command = new UnsubscribeFromPushCommand(request.Endpoint);
+        var result = await sender.Send(command, ct);
 
-        return Results.NoContent();
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
     }
 
     private static async Task<IResult> MarkAsRead(
         Guid id,
-        [FromServices] ICurrentUser currentUser,
-        [FromServices] INotificationRepository repository,
-        [FromServices] INotificationsUnitOfWork unitOfWork,
+        [FromServices] ISender sender,
         CancellationToken ct)
     {
-        var notification = await repository.GetByIdAsync(id, ct);
-        if (notification is null || notification.UserId != currentUser.GetUserId())
-        {
-            return Results.NotFound();
-        }
+        var result = await sender.Send(new MarkAsReadCommand(id), ct);
 
-        notification.MarkAsRead();
-        await unitOfWork.SaveChangesAsync(ct);
-
-        return Results.NoContent();
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
     }
 
     private static async Task<IResult> MarkAllAsRead(
-        [FromServices] ICurrentUser currentUser,
-        [FromServices] INotificationRepository repository,
+        [FromServices] ISender sender,
         CancellationToken ct)
     {
-        await repository.MarkAllAsReadAsync(currentUser.GetUserId(), ct);
-        return Results.NoContent();
+        var result = await sender.Send(new MarkAllAsReadCommand(), ct);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error.ToHttpResult();
     }
 }

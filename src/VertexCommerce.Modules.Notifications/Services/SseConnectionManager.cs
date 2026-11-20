@@ -1,20 +1,16 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Channels;
 using Microsoft.Extensions.Logging;
 using VertexCommerce.Modules.Notifications.Services.Models;
 
 namespace VertexCommerce.Modules.Notifications.Services;
 
-public sealed class SseConnectionManager : ISseConnectionManager
+public sealed class SseConnectionManager(ILogger<SseConnectionManager> logger) : ISseConnectionManager
 {
     private readonly ConcurrentDictionary<Guid, List<Channel<NotificationMessage>>> _clients = new();
-    private readonly object _lock = new();
-    private readonly ILogger<SseConnectionManager> _logger;
-
-    public SseConnectionManager(ILogger<SseConnectionManager> logger)
-    {
-        _logger = logger;
-    }
+    private readonly Lock _lock = new();
 
     public Channel<NotificationMessage> RegisterClient(Guid userId)
     {
@@ -30,7 +26,7 @@ public sealed class SseConnectionManager : ISseConnectionManager
             list.Add(channel);
         }
 
-        _logger.LogInformation("SSE client registered for user {UserId}. Active client channels: {Count}",
+        logger.LogInformation("SSE client registered for user {UserId}. Active client channels: {Count}",
             userId, ActiveConnectionsCount);
 
         return channel;
@@ -52,10 +48,11 @@ public sealed class SseConnectionManager : ISseConnectionManager
 
         channel.Writer.TryComplete();
 
-        _logger.LogInformation("SSE client unregistered for user {UserId}. Active client channels: {Count}",
+        logger.LogInformation("SSE client unregistered for user {UserId}. Active client channels: {Count}",
             userId, ActiveConnectionsCount);
     }
 
+    [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "SSE channel writing errors should not abort broadcasts to remaining connections")]
     public async Task BroadcastToUserAsync(Guid userId, NotificationMessage message, CancellationToken ct = default)
     {
         List<Channel<NotificationMessage>> channels;
@@ -70,7 +67,7 @@ public sealed class SseConnectionManager : ISseConnectionManager
             channels = list.ToList();
         }
 
-        _logger.LogInformation("Broadcasting SSE notification {Id} to {Count} connection(s) for user {UserId}",
+        logger.LogInformation("Broadcasting SSE notification {Id} to {Count} connection(s) for user {UserId}",
             message.Id, channels.Count, userId);
 
         foreach (var channel in channels)
@@ -81,7 +78,7 @@ public sealed class SseConnectionManager : ISseConnectionManager
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Failed to write SSE notification to channel for user {UserId}", userId);
+                logger.LogWarning(ex, "Failed to write SSE notification to channel for user {UserId}", userId);
             }
         }
     }

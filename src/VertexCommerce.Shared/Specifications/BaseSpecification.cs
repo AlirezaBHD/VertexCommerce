@@ -23,8 +23,8 @@ public abstract class BaseSpecification<T> : ISpecification<T> where T : class
 
     protected void Where(Expression<Func<T, bool>> criteria)
     {
-        Criteria = Criteria is null 
-            ? criteria 
+        Criteria = Criteria is null
+            ? criteria
             : CombineExpressions(Criteria, criteria);
     }
 
@@ -77,7 +77,7 @@ public abstract class BaseSpecification<T> : ISpecification<T> where T : class
         return Expression.Lambda<Func<T, bool>>(combined, parameter);
     }
 
-    private sealed class ReplaceParameterVisitor(ParameterExpression oldParameter, ParameterExpression newParameter) 
+    private sealed class ReplaceParameterVisitor(ParameterExpression oldParameter, ParameterExpression newParameter)
         : ExpressionVisitor
     {
         protected override Expression VisitParameter(ParameterExpression node)

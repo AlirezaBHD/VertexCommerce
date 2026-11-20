@@ -19,7 +19,7 @@ internal sealed class ReorderCategoriesCommandHandler(
 
         if (missingCategory is not null)
             return Result.Failure(Error.NotFound("Category", missingCategory.CategoryId));
-        
+
         foreach (var item in command.Items)
         {
             categoryDict[item.CategoryId].SetSortOrder(item.SortOrder);

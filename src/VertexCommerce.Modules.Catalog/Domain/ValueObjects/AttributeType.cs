@@ -18,7 +18,7 @@ public readonly record struct AttributeType
         if (string.IsNullOrWhiteSpace(value)) return default;
         return new(StringFieldGuard.Apply(value, Schema, nameof(AttributeType)));
     }
-    
+
     public static AttributeType Create(string? value) =>
         new(StringFieldGuard.Apply(value, Schema, nameof(AttributeType)));
 }

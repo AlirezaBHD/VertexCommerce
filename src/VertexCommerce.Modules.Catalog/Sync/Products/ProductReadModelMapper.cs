@@ -108,9 +108,10 @@ internal static class ProductReadModelMapper
         return options
             .OrderBy(x => x.Key)
             .ToDictionary(
-                x => x.Key, 
+                x => x.Key,
                 x => x.Value.Order().ToList()
-            );    }
+            );
+    }
 
     private static string BuildSearchText(
         Product product,

@@ -16,7 +16,7 @@ public static class OutboxServiceExtensions
         var signal = new OutboxSignal();
 
         services.AddSingleton(signal);
-        services.AddSingleton<OutboxInterceptor>(sp => new OutboxInterceptor(signal));
+        services.AddSingleton(new OutboxInterceptor(signal));
         services.AddSingleton(options);
         services.AddHostedService<OutboxProcessor<TDbContext>>();
 

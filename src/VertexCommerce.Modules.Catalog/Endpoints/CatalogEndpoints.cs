@@ -30,10 +30,10 @@ public static class CatalogEndpoints
         var adminGroup = app.MapGroup("/api/catalog")
             .WithTags("Catalog")
             .RequireAuthorization(AppRoles.Admin);
-        
+
         var publicGroup = app.MapGroup("/api/catalog")
             .WithTags("Catalog");
-            
+
         // Products
         adminGroup.MapPost("/products", CreateProduct);
         adminGroup.MapPut("/products/{id:guid}", UpdateProduct);
@@ -60,19 +60,19 @@ public static class CatalogEndpoints
 
         return app;
     }
-    
+
     private static async Task<IResult> GetAttributes(
         [FromServices] ISender sender,
         CancellationToken ct)
     {
         var query = new GetCatalogAttributesQuery();
         var result = await sender.Send(query, ct);
-        
+
         return result.IsSuccess
             ? Results.Ok(result.Value)
             : result.Error.ToHttpResult();
     }
-    
+
     #region Products
 
     private static async Task<IResult> CreateProduct(
@@ -86,7 +86,7 @@ public static class CatalogEndpoints
             ? Results.Created($"/api/catalog/products/{result.Value}", new { Id = result.Value })
             : result.Error.ToHttpResult();
     }
-    
+
     private static async Task<IResult> UpdateProduct(
         Guid id,
         [FromBody] UpdateProductRequest request,
@@ -116,13 +116,13 @@ public static class CatalogEndpoints
     {
         var query = new GetProductByIdQuery(id);
         var result = await sender.Send(query, ct);
-        
+
         return result.IsSuccess
             ? Results.Ok(result.Value)
             : result.Error.ToHttpResult();
     }
-    
-    
+
+
     private static async Task<IResult> DeleteProduct(
         Guid id,
         [FromServices] ISender sender,
@@ -206,7 +206,7 @@ public static class CatalogEndpoints
     {
         var query = new GetProductLookupQuery(q, limit);
         var result = await sender.Send(query, ct);
-        
+
         return result.IsSuccess
             ? Results.Ok(result.Value)
             : result.Error.ToHttpResult();
@@ -253,7 +253,7 @@ public static class CatalogEndpoints
             ? Results.Created($"/api/catalog/categories/{result.Value}", new { Id = result.Value })
             : result.Error.ToHttpResult();
     }
-    
+
     private static async Task<IResult> GetCategoryById(
         Guid id,
         [FromServices] ISender sender,
@@ -261,7 +261,7 @@ public static class CatalogEndpoints
     {
         var query = new GetCategoryByIdQuery(id);
         var result = await sender.Send(query, ct);
-        
+
         return result.IsSuccess
             ? Results.Ok(result.Value)
             : result.Error.ToHttpResult();
@@ -327,7 +327,7 @@ public static class CatalogEndpoints
     {
         var query = new GetCategoryLookupQuery(q, limit);
         var result = await sender.Send(query, ct);
-        
+
         return result.IsSuccess
             ? Results.Ok(result.Value)
             : result.Error.ToHttpResult();

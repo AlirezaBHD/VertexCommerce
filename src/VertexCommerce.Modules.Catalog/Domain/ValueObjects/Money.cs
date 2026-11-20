@@ -15,7 +15,7 @@ public readonly record struct Money
     {
         if (amount < 0)
             throw new VertexCommerce.Shared.Exceptions.DomainValidationException("Catalog.Money", "Amount cannot be negative.");
-            
+
         return new Money(amount, currency);
     }
 }

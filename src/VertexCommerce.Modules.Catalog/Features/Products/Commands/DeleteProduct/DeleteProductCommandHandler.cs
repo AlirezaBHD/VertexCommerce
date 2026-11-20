@@ -16,9 +16,9 @@ internal sealed class DeleteProductCommandHandler(
         var product = await productRepository.GetByIdAsync(command.Id, ct);
         if (product is null)
             return Result.Failure(Error.NotFound("Product", command.Id));
-        
+
         product.Delete();
-        
+
         productRepository.Delete(product);
         await unitOfWork.SaveChangesAsync(ct);
 

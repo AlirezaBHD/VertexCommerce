@@ -4,6 +4,6 @@ using MediatR;
 namespace VertexCommerce.Shared.CQRS;
 
 
-[SuppressMessage("Design", "CA1040:Avoid empty interfaces", 
+[SuppressMessage("Design", "CA1040:Avoid empty interfaces",
     Justification = "Marker interfaces are required for CQRS type constraints and MediatR pipeline behaviors.")]
 public interface IQuery<TResponse> : IRequest<Result<TResponse>>;

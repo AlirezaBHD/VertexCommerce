@@ -29,7 +29,7 @@ public class IdentityModule : IModule
     public void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {
         services.AddMemoryCache();
-        
+
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUser, CurrentUser>();
 
@@ -122,7 +122,7 @@ public class IdentityModule : IModule
 
     public async Task InitializeAsync(IServiceProvider serviceProvider, CancellationToken ct = default)
     {
-        await using var scope =serviceProvider.CreateAsyncScope();
+        await using var scope = serviceProvider.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<IdentityModule>>();
 

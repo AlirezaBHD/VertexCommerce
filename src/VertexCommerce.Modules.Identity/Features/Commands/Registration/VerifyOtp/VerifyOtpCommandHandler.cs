@@ -14,7 +14,7 @@ internal sealed class VerifyOtpCommandHandler(
     {
         var registrationToken = command.RegistrationToken;
         var otp = command.Otp;
-        
+
         if (!cache.TryGetValue($"reg:{registrationToken}", out PendingRegistrationCache? pending) || pending is null)
         {
             return Task.FromResult(Result.Failure<RegistrationTokenResponse>(IdentityErrors.TokenExpired));
@@ -38,7 +38,7 @@ internal sealed class VerifyOtpCommandHandler(
 
         pending.IsPhoneVerified = true;
         cache.Set($"reg:{registrationToken}", pending, TimeSpan.FromMinutes(30));
-        
+
         return Task.FromResult(Result.Success(new RegistrationTokenResponse(
             RegistrationToken: registrationToken,
             ExpiresAt: DateTime.UtcNow.AddMinutes(30),

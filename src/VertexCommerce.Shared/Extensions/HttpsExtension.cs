@@ -13,7 +13,7 @@ public static class HttpsExtension
         _ when errorCode.Contains("Error.NullValue", StringComparison.Ordinal) => StatusCodes.Status400BadRequest,
         _ => StatusCodes.Status500InternalServerError
     };
-    
+
     public static IResult ToHttpResult(this Error error)
     {
         return Results.Problem(

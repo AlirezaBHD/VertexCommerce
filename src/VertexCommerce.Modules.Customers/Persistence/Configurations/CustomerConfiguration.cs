@@ -19,7 +19,7 @@ internal sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
             .Property(p => p.Value)
             .HasColumnName("PhoneNumber")
             .HasSchema(PhoneNumber.Schema));
-        
+
 
         builder.ComplexProperty(c => c.FirstName, firstName => firstName
             .Property(p => p.Value)

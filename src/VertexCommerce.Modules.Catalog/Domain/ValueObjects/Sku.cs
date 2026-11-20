@@ -23,7 +23,7 @@ public readonly partial record struct Sku
         if (normalizedValue.Length < 3)
             throw new DomainValidationException("Catalog.Sku", "SKU must be at least 3 characters.");
 
-        if (!SkuRegex().IsMatch(normalizedValue))
+        if (!SkuRegex.IsMatch(normalizedValue))
             throw new DomainValidationException("Catalog.Sku", "SKU can only contain letters, numbers, and hyphens.");
 
         return new Sku(normalizedValue);
@@ -36,6 +36,6 @@ public readonly partial record struct Sku
         return new Sku($"{prefix}-{timestamp}-{random}");
     }
 
-    [GeneratedRegex(@"^[A-Z0-9\-]+$")]
-    private static partial Regex SkuRegex();
+    [GeneratedRegex(@"^[A-Z0-9\-]+$", RegexOptions.None, matchTimeoutMilliseconds: 100)]
+    private static partial Regex SkuRegex { get; }
 }

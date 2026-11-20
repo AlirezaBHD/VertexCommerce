@@ -40,7 +40,7 @@ public static class PaymentSettingsEndpoints
             .WithName("GetPaymentSettingsWithId")
             .Produces<PaymentSettingsResponse>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound);
-        
+
         adminGroup.MapPost("/", Create)
             .WithName("CreatePaymentSettings")
             .Produces<PaymentSettingsResponse>(StatusCodes.Status201Created)
@@ -61,7 +61,7 @@ public static class PaymentSettingsEndpoints
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status404NotFound);
     }
-    
+
     private static async Task<IResult> GetById(Guid id, ISender sender, CancellationToken ct)
     {
         var result = await sender.Send(new GetPaymentSettingByIdQuery(id), ct);

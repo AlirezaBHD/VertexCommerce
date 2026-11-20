@@ -4,17 +4,14 @@ using VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories.Documents;
 
 namespace VertexCommerce.Modules.Catalog.Persistence.Mongo.Categories;
 
-internal sealed class CategoryReadModelRepository(
-    IMongoDatabase database,
-    CategoryIndexManager indexManager)
+internal sealed class CategoryReadModelRepository(IMongoDatabase database)
     : ICategoryReadModelRepository
 {
     private readonly IMongoCollection<CategoryReadModel> _collection = database.GetCollection<CategoryReadModel>("categories");
-    private readonly CategoryIndexManager _indexManager = indexManager;
 
     public IExecutable<CategoryReadModel> GetById(Guid id, CancellationToken ct = default)
     {
-        return  _collection
+        return _collection
             .Find(c => c.Id == id)
             .AsExecutable();
     }
@@ -32,7 +29,7 @@ internal sealed class CategoryReadModelRepository(
         var filter = CategoryQueryFilterBuilder.BuildListFilter(isActive);
         var sort = CategoryQueryFilterBuilder.BuildDefaultSort();
 
-        return  _collection
+        return _collection
             .Find(filter)
             .Sort(sort).AsExecutable();
     }

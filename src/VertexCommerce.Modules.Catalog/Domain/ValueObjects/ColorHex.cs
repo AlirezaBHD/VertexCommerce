@@ -2,9 +2,10 @@ using System.Text.RegularExpressions;
 
 namespace VertexCommerce.Modules.Catalog.Domain.ValueObjects;
 
-public readonly record struct ColorHex
+public readonly partial record struct ColorHex
 {
-    private static readonly Regex Pattern = new("^#[0-9A-Fa-f]{6}$", RegexOptions.Compiled);
+    [GeneratedRegex("^#[0-9A-Fa-f]{6}$", RegexOptions.None, matchTimeoutMilliseconds: 100)]
+    private static partial Regex Pattern { get; }
 
     public string Value { get; }
 

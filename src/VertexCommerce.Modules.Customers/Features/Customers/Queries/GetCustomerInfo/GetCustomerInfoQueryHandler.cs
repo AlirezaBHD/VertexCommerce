@@ -12,7 +12,7 @@ internal sealed class GetCustomerInfoQueryHandler(CustomersDbContext context)
     public async Task<Result<CustomerInfoDto?>> Handle(GetCustomerInfoQuery request, CancellationToken ct)
     {
         var spec = new GetCustomerInfoSpec(request.CustomerId);
-        
+
         var customerInfo = await SpecificationEvaluator
             .ApplySpecification(context.Customers.AsNoTracking(), spec)
             .FirstOrDefaultAsync(ct);

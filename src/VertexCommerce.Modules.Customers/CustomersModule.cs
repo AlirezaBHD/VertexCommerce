@@ -35,7 +35,7 @@ public class CustomersModule : IModule
 
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<ICustomerAddressRepository, CustomerAddressRepository>();
-        
+
         services.AddScoped<ICustomerUnitOfWork>(sp =>
             sp.GetRequiredService<CustomersDbContext>());
 
@@ -43,7 +43,7 @@ public class CustomersModule : IModule
             cfg.RegisterServicesFromAssembly(typeof(CustomersModule).Assembly));
 
         services.AddValidatorsFromAssembly(typeof(CustomersModule).Assembly);
-        
+
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<ICustomerResolver, CustomerResolver>();
         services.Decorate<ICustomerResolver, CachedCustomerResolver>();
@@ -56,7 +56,7 @@ public class CustomersModule : IModule
 
     public void ConfigureGraphQl(IRequestExecutorBuilder builder)
     {
-        
+
     }
 
     public async Task InitializeAsync(IServiceProvider serviceProvider, CancellationToken ct = default)

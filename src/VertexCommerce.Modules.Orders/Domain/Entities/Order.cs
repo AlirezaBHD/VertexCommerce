@@ -119,7 +119,7 @@ public sealed class Order : AggregateRoot<Guid>
         Money unitPrice,
         int quantity)
     {
-        
+
 
         var item = OrderItem.Create(
             orderId: Id,
@@ -199,10 +199,10 @@ public sealed class Order : AggregateRoot<Guid>
     {
         if (Status != OrderStatus.AwaitingPayment && Status != OrderStatus.Pending)
             return Result.Failure<string>(Error.Validation($"Cannot submit payment for order with status {Status}"));
-            
+
         if (ExpiresAt.HasValue && DateTime.UtcNow > ExpiresAt.Value)
             return Result.Failure<string>(Error.Validation("Payment time expired"));
-            
+
         var oldStatus = Status;
         ReceiptImagePath = receiptImagePath;
         TransactionReference = GenerateTransactionReference();
@@ -219,7 +219,7 @@ public sealed class Order : AggregateRoot<Guid>
 
         return Result.Success(TransactionReference);
     }
-    
+
     public Result InitiatePayment()
     {
         if (Status != OrderStatus.Pending)
@@ -236,7 +236,7 @@ public sealed class Order : AggregateRoot<Guid>
 
         return Result.Success();
     }
-    
+
     public Result Ship(TrackingNumber trackingNumber)
     {
         if (Status != OrderStatus.Processing)
@@ -398,7 +398,7 @@ public sealed class Order : AggregateRoot<Guid>
     {
         return $"ORD-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..8].ToUpper()}";
     }
-    
+
     private static string GenerateTransactionReference()
     {
         return $"ORD-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..8].ToUpper()}";

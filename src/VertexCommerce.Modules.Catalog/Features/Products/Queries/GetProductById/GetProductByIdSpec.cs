@@ -10,7 +10,7 @@ public sealed class GetProductByIdSpec : BaseSpecification<Product, ProductRespo
     public GetProductByIdSpec(Guid productId)
     {
         Where(p => p.Id == productId);
-        
+
         Include(p => p.Category!);
         Include(p => p.Media);
         Include(p => p.Variants);

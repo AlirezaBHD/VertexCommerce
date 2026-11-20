@@ -1,19 +1,10 @@
-// VertexCommerce.Shared/Persistence/Outbox/OutboxInterceptor.cs
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Newtonsoft.Json;
 using VertexCommerce.Shared.Domain;
 
 namespace VertexCommerce.Shared.Persistence.Outbox;
 
 public sealed class OutboxInterceptor(OutboxSignal signal) : SaveChangesInterceptor
 {
-    private static readonly JsonSerializerSettings SerializerSettings = new()
-    {
-        TypeNameHandling = TypeNameHandling.All,
-        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-    };
-
     public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
         InterceptionResult<int> result,
@@ -39,14 +30,14 @@ public sealed class OutboxInterceptor(OutboxSignal signal) : SaveChangesIntercep
         if (domainEvents.Count == 0)
             return await base.SavingChangesAsync(eventData, result, cancellationToken);
 
-        var outboxMessages = domainEvents.Select(e => new OutboxMessage
+        var outboxMessages = domainEvents.ConvertAll(e => new OutboxMessage
         {
             Id = Guid.NewGuid(),
-            Type = e.GetType().Name,
-            Content = JsonConvert.SerializeObject(e, SerializerSettings),
+            Type = e.GetType().FullName ?? e.GetType().Name,
+            Content = OutboxSerializer.Serialize(e),
             OccurredOn = e.OccurredOn,
             RetryCount = 0
-        }).ToList();
+        });
 
         await dbContext.Set<OutboxMessage>().AddRangeAsync(outboxMessages, cancellationToken);
 
@@ -58,7 +49,6 @@ public sealed class OutboxInterceptor(OutboxSignal signal) : SaveChangesIntercep
         int result,
         CancellationToken cancellationToken = default)
     {
-        // Signal فقط بعد از commit موفق
         signal.Trigger();
 
         return await base.SavedChangesAsync(eventData, result, cancellationToken);

@@ -21,9 +21,9 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.ComplexProperty(c => c.Name, name => name.Property(x => x.Value).HasColumnName("name").HasSchema(CategoryName.Schema).IsRequired());
 
         builder.ComplexProperty(c => c.Description, desc => desc.Property(x => x.Value).HasColumnName("description").HasSchema(CategoryDescription.Schema));
-        
+
         builder.Property(c => c.IconPath).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : ImagePath.CreateOrNull(v)).HasColumnName("icon_path").HasSchema(ImagePath.Schema);
-        
+
         builder.ComplexProperty(c => c.CoverImagePath, p => p.Property(x => x.Value).HasColumnName("cover_image_path").HasSchema(ImagePath.Schema).IsRequired());
 
         builder.Property(c => c.ImageAltText).HasConversion(x => x.HasValue ? x.Value.Value : null, v => string.IsNullOrEmpty(v) ? null : AltText.CreateOrNull(v)).HasColumnName("image_alt_text").HasSchema(AltText.Schema);
@@ -42,7 +42,7 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
 
         builder.Property(c => c.ParentId)
             .HasColumnName("parent_id");
-        
+
         builder.Property(c => c.SortOrder)
             .HasColumnName("sort_order")
             .IsRequired();
@@ -81,7 +81,7 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
                 .HasMaxLength(500);
 
         });
-        
+
         builder.HasQueryFilter(c => !c.IsDeleted);
         builder.Ignore(c => c.DomainEvents);
         builder.HasIndex(c => c.ParentId);

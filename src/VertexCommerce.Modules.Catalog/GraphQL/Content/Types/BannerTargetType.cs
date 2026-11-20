@@ -12,7 +12,7 @@ public sealed class BannerTargetType : ObjectType<BannerTarget>
     {
         descriptor.Name("BannerTarget");
 
-        descriptor.Field(t => t.Type).Type<NonNullType<BannerTargetTypeEnum>>();
+        descriptor.Field(t => t.Type).Type<NonNullType<BannerTargetEnumType>>();
         descriptor.Field(t => t.ProductId).Type<UuidType>();
         descriptor.Field(t => t.ProductTitleSnapshot).Type<StringType>();
         descriptor.Field(t => t.ProductSlugSnapshot).Type<StringType>();

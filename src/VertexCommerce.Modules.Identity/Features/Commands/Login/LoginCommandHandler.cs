@@ -34,7 +34,7 @@ internal sealed class LoginCommandHandler(
 
         user.AddRefreshToken(refreshToken, refreshTokenExpiry);
         user.RecordLogin();
-        
+
         await unitOfWork.SaveChangesAsync(ct);
 
         return Result.Success(new AuthResponse(

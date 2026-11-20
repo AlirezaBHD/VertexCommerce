@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 
 namespace VertexCommerce.Shared.Specifications;
 
-public abstract class BaseSpecification<T, TResult> : BaseSpecification<T>, ISpecification<T, TResult> 
+public abstract class BaseSpecification<T, TResult> : BaseSpecification<T>, ISpecification<T, TResult>
     where T : class
 {
     public Expression<Func<T, TResult>>? Selector { get; private set; }

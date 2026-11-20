@@ -24,9 +24,9 @@ internal sealed class DeleteCategoryCommandHandler(
         var hasChildren = await categoryRepository.HasChildrenAsync(command.Id, ct);
         if (hasChildren)
             return Result.Failure(Error.Validation("Cannot delete category with subcategories"));
-        
+
         category.Delete();
-        
+
         await unitOfWork.SaveChangesAsync(ct);
 
         return Result.Success();

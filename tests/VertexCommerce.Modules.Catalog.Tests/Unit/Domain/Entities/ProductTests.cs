@@ -1,3 +1,4 @@
+using VertexCommerce.Modules.Catalog.Domain.Medias;
 using VertexCommerce.Modules.Catalog.Domain.Products;
 using VertexCommerce.Modules.Catalog.Domain.Products.Events;
 using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
@@ -33,7 +34,7 @@ public class ProductTests
         product.Id.Should().NotBeEmpty();
         product.Name.Value.Should().Be("Test Product");
         product.Description.Should().NotBeNull();
-        product.Description!.Value.Value.Should().Be("Test Description");
+        product.Description.Value.Value.Should().Be("Test Description");
         product.CategoryId.Should().Be(categoryId);
         product.IsActive.Should().BeTrue();
         product.Variants.Should().BeEmpty();

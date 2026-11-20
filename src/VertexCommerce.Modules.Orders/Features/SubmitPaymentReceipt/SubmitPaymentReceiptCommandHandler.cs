@@ -43,7 +43,7 @@ public sealed class SubmitPaymentReceiptCommandHandler(
         var receiptImagePath = await mediaService.SaveFileAsync(fileStream: command.ReceiptFile,
             fileName: Guid.NewGuid().ToString(),
             folder: "receipts", ct);
-        
+
         var paymentProcess = order.SubmitPaymentReceipt(receiptImagePath: receiptImagePath);
 
         if (paymentProcess.IsFailure)

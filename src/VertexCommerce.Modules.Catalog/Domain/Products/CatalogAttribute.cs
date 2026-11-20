@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using VertexCommerce.Modules.Catalog.Domain.ValueObjects;
 using VertexCommerce.Shared.Domain;
 
 namespace VertexCommerce.Modules.Catalog.Domain.Products;
 
+[SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix", Justification = "In e-commerce catalog domain, 'Attribute' is standard ubiquitous language representing product characteristics, not System.Attribute")]
 public sealed class CatalogAttribute : Entity<Guid>
 {
     public AttributeCode Code { get; private set; }

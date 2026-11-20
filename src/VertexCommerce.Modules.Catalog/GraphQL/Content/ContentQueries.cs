@@ -7,22 +7,22 @@ namespace VertexCommerce.Modules.Catalog.GraphQL.Content;
 [ExtendObjectType("Query")]
 public sealed class ContentQueries
 {
-    public async Task<IReadOnlyList<HeroContentDocument>> GetHeroItems(
+    public static async Task<IReadOnlyList<HeroContentDocument>> GetHeroItems(
         [Service] IContentRepository repository,
         CancellationToken ct)
         => await repository.GetAllHeroAsync(ct);
 
-    public async Task<IReadOnlyList<BannerDocument>> GetBannerItems(
+    public static async Task<IReadOnlyList<BannerDocument>> GetBannerItems(
         [Service] IContentRepository repository,
         CancellationToken ct)
         => await repository.GetAllBannersAsync(ct);
 
-    public async Task<AboutDocument?> GetAboutContent(
+    public static async Task<AboutDocument?> GetAboutContent(
         [Service] IContentRepository repository,
         CancellationToken ct)
         => await repository.GetAboutAsync(ct);
 
-    public async Task<ContactDocument?> GetContactContent(
+    public static async Task<ContactDocument?> GetContactContent(
         [Service] IContentRepository repository,
         CancellationToken ct)
         => await repository.GetContactAsync(ct);

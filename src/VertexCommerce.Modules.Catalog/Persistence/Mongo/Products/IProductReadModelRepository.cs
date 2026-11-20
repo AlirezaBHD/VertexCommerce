@@ -12,7 +12,7 @@ public interface IProductReadModelRepository
         decimal? minPrice = null,
         decimal? maxPrice = null,
         bool? isActive = null);
-    
+
     Task<ProductVariantInfo?> GetProductVariantInfoAsync(Guid productId, Guid variantId, CancellationToken ct = default);
     Task UpsertAsync(ProductReadModel model, CancellationToken ct = default);
     Task UpsertManyAsync(IEnumerable<ProductReadModel> models, CancellationToken ct = default);

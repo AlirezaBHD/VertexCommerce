@@ -5,6 +5,7 @@ using VertexCommerce.Modules.Identity.Domain.ValueObjects;
 using VertexCommerce.Shared.Persistence;
 
 namespace VertexCommerce.Modules.Identity.Persistence.Configurations;
+
 internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
@@ -34,7 +35,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .WithOne()
             .HasForeignKey(rt => rt.UserId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         builder.Metadata
             .FindNavigation(nameof(User.RefreshTokens))!
             .SetPropertyAccessMode(PropertyAccessMode.Field);

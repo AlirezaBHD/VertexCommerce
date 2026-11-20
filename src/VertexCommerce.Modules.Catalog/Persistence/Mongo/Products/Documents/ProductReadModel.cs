@@ -7,14 +7,14 @@ public sealed class ProductReadModel
 {
     [BsonId]
     public Guid Id { get; set; }
-    
+
     public string Name { get; set; } = default!;
     public string? Description { get; set; }
-    
+
     // ═══ Pricing (Aggregated from variants) ═══
     public decimal MinPrice { get; set; }
     public decimal MaxPrice { get; set; }
-    
+
     // ═══ Stock ═══
     public int TotalStock { get; set; }
     public bool IsActive { get; set; }
@@ -31,7 +31,7 @@ public sealed class ProductReadModel
     // e.g. {"Color": ["Red","Blue"], "Size": ["S","M","L"]}
     [IsProjected(true)]
     public Dictionary<string, List<string>> AvailableOptions { get; set; } = new();
-    
+
     // ═══ Media ═══
     public List<ProductMediaReadModel> Media { get; set; } = [];
 
@@ -42,7 +42,7 @@ public sealed class ProductReadModel
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public DateTime SyncedAt { get; set; }
-    
+
     // ═══ Metadata ═══
     public string Slug { get; set; } = string.Empty;
     public string MetaTitle { get; set; } = string.Empty;

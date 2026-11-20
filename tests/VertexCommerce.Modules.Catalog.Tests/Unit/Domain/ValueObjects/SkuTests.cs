@@ -25,7 +25,7 @@ public class SkuTests
     public void Create_WithEmptySku_ShouldThrowException(string? value)
     {
         // Act
-        var act = () => Sku.Create(value!);
+        var act = () => Sku.Create(value);
 
         // Assert
         act.Should().Throw<DomainValidationException>()

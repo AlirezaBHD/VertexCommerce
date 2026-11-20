@@ -6,7 +6,7 @@ using VertexCommerce.Shared.Contracts.Identity;
 
 namespace VertexCommerce.Modules.Catalog.GraphQL.Content.Types;
 
-public sealed class BannerTargetTypeEnum : EnumType<TargetType>
+public sealed class BannerTargetEnumType : EnumType<TargetType>
 {
     protected override void Configure(IEnumTypeDescriptor<TargetType> descriptor)
     {

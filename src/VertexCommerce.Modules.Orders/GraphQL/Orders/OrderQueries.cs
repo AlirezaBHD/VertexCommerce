@@ -7,7 +7,8 @@ using VertexCommerce.Modules.Orders.Domain.Repositories;
 namespace VertexCommerce.Modules.Orders.GraphQL.Orders;
 
 [ExtendObjectType("Query")]
-public static class OrderQueries{
+public static class OrderQueries
+{
     public static async Task<OrderType?> GetOrderById(
         [Service] IOrderRepository orderRepository,
         Guid id,

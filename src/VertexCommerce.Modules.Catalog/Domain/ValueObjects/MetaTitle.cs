@@ -18,7 +18,7 @@ public readonly record struct MetaTitle
         if (string.IsNullOrWhiteSpace(value)) return default;
         return new(StringFieldGuard.Apply(value, Schema, nameof(MetaTitle)));
     }
-    
+
     public static MetaTitle Create(string? value) =>
         new(StringFieldGuard.Apply(value, Schema, nameof(MetaTitle)));
 }

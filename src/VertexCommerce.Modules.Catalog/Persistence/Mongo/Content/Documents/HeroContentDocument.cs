@@ -28,10 +28,10 @@ public sealed class HeroContentDocument
 
     [BsonElement("videoMediaFileId")]
     public Guid? VideoMediaFileId { get; set; }
-    
+
     [BsonElement("videoPath")]
     public string? VideoPath { get; set; }
-    
+
     [BsonElement("isActive")]
     public bool IsActive { get; set; }
 

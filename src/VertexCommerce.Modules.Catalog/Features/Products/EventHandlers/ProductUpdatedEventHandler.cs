@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using VertexCommerce.Modules.Catalog.Domain.Products.Events;
@@ -11,6 +12,7 @@ internal sealed class ProductUpdatedEventHandler(
     ILogger<ProductUpdatedEventHandler> logger)
     : INotificationHandler<ProductUpdatedEvent>
 {
+    [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Background read-model synchronization error boundary to prevent failing primary database transactions")]
     public async Task Handle(
         ProductUpdatedEvent notification,
         CancellationToken cancellationToken)

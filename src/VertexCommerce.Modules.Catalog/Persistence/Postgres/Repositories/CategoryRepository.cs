@@ -54,7 +54,7 @@ public sealed class CategoryRepository(CatalogDbContext context) : ICategoryRepo
         return await context.Categories.AnyAsync(c => c.Id == id, ct);
     }
 
-    public async Task<bool> NameExistsAsync(string name, Guid? excludeId = null, CancellationToken ct = default)
+    public async Task<bool> NameExistsAsync(string name, Guid? excludeId, CancellationToken ct = default)
     {
         var query = context.Categories.Where(c => c.Name.Value == name && !c.IsDeleted);
 

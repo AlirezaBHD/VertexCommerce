@@ -69,7 +69,7 @@ public static class OrderEndpoints
             ? Results.NoContent()
             : result.Error.ToHttpResult();
     }
-    
+
     private static async Task<IResult> GetAllOrders(
         [FromQuery] int page,
         [FromQuery] int pageSize,
@@ -82,7 +82,7 @@ public static class OrderEndpoints
             Page = page,
             PageSize = pageSize
         };
-        
+
         var result = await sender.Send(query, ct);
 
         return result.IsSuccess
@@ -96,7 +96,7 @@ public static class OrderEndpoints
         CancellationToken ct)
     {
         var result = await sender.Send(request.ToCommand(), ct);
-    
+
         return result.IsSuccess
             ? Results.Created($"/api/orders/{result.Value.OrderId}", result.Value)
             : result.Error.ToHttpResult();
@@ -172,7 +172,7 @@ public static class OrderEndpoints
         return result.IsSuccess
             ? Results.NoContent()
             : result.Error.ToHttpResult();
-    } 
+    }
     private static async Task<IResult> GetOrderById(
         Guid id,
         [FromServices] ISender sender,

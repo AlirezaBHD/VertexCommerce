@@ -1,45 +1,20 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using VertexCommerce.Modules.Notifications.Domain.Entities;
-using VertexCommerce.Modules.Notifications.Domain.Repositories;
-using VertexCommerce.Modules.Notifications.Persistence;
-using VertexCommerce.Modules.Notifications.Services;
-using VertexCommerce.Modules.Notifications.Services.Models;
+using VertexCommerce.Modules.Notifications.Services.Dispatching;
 using VertexCommerce.Shared.Contracts.Customers;
-using VertexCommerce.Shared.Contracts.Identity;
 using VertexCommerce.Shared.IntegrationEvents;
 
 namespace VertexCommerce.Modules.Notifications.EventHandlers;
 
-public sealed class OrderCreatedNotificationHandler : INotificationHandler<OrderCreatedIntegrationEvent>
+public sealed class OrderCreatedNotificationHandler(
+    INotificationDispatcher dispatcher,
+    ICustomerService customerService,
+    ILogger<OrderCreatedNotificationHandler> logger)
+    : INotificationHandler<OrderCreatedIntegrationEvent>
 {
-    private readonly INotificationRepository _notificationRepository;
-    private readonly INotificationsUnitOfWork _unitOfWork;
-    private readonly ISseConnectionManager _sseManager;
-    private readonly IWebPushService _webPushService;
-    private readonly ICustomerService _customerService;
-    private readonly IIdentityService _identityService;
-    private readonly ILogger<OrderCreatedNotificationHandler> _logger;
-
-    public OrderCreatedNotificationHandler(
-        INotificationRepository notificationRepository,
-        INotificationsUnitOfWork unitOfWork,
-        ISseConnectionManager sseManager,
-        IWebPushService webPushService,
-        ICustomerService customerService,
-        IIdentityService identityService,
-        ILogger<OrderCreatedNotificationHandler> logger)
-    {
-        _notificationRepository = notificationRepository;
-        _unitOfWork = unitOfWork;
-        _sseManager = sseManager;
-        _webPushService = webPushService;
-        _customerService = customerService;
-        _identityService = identityService;
-        _logger = logger;
-    }
-
+    [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Integration event handler should not throw and abort event pipeline")]
     public async Task Handle(OrderCreatedIntegrationEvent notification, CancellationToken cancellationToken)
     {
         try
@@ -47,11 +22,11 @@ public sealed class OrderCreatedNotificationHandler : INotificationHandler<Order
             CustomerInfoDto? customer = null;
             try
             {
-                customer = await _customerService.GetCustomerInfo(notification.CustomerId, cancellationToken);
+                customer = await customerService.GetCustomerInfo(notification.CustomerId, cancellationToken);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Could not fetch customer info for CustomerId {CustomerId}", notification.CustomerId);
+                logger.LogWarning(ex, "Could not fetch customer info for CustomerId {CustomerId}", notification.CustomerId);
             }
 
             var customerUserId = customer?.UserId ?? notification.CustomerId;
@@ -59,113 +34,49 @@ public sealed class OrderCreatedNotificationHandler : INotificationHandler<Order
                 ? $"{customer.FirstName} {customer.LastName}".Trim()
                 : customer?.PhoneNumber ?? "مشتری";
 
-            var title = "سفارش شما ثبت شد";
-            var message = $"سفارش جدید شما با شماره {notification.OrderNumber} با موفقیت ثبت شد.";
             var payloadJson = JsonSerializer.Serialize(notification);
 
             // 1. Notify Customer
-            try
+            const string title = "سفارش شما ثبت شد";
+            var message = $"سفارش جدید شما با شماره {notification.OrderNumber} با موفقیت ثبت شد.";
+            var pushData = new
             {
-                var entity = Notification.Create(
-                    userId: customerUserId,
-                    title: title,
-                    message: message,
-                    type: "OrderCreated",
-                    payloadJson: payloadJson);
+                orderId = notification.OrderId,
+                orderNumber = notification.OrderNumber
+            };
 
-                await _notificationRepository.AddAsync(entity, cancellationToken);
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-                var sseMessage = new NotificationMessage(
-                    Id: entity.Id,
-                    UserId: entity.UserId,
-                    Title: entity.Title,
-                    Message: entity.Message,
-                    Type: entity.Type,
-                    PayloadJson: entity.PayloadJson,
-                    IsRead: entity.IsRead,
-                    CreatedAt: entity.CreatedAt);
-
-                await _sseManager.BroadcastToUserAsync(entity.UserId, sseMessage, cancellationToken);
-
-                await _webPushService.SendPushToUserAsync(
-                    userId: entity.UserId,
-                    title: title,
-                    body: message,
-                    url: "/account",
-                    data: new
-                    {
-                        orderId = notification.OrderId,
-                        orderNumber = notification.OrderNumber
-                    },
-                    ct: cancellationToken);
-
-                _logger.LogInformation("OrderCreated notification dispatched for Customer {UserId} on Order {OrderNumber}",
-                    customerUserId, notification.OrderNumber);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to notify customer for OrderCreated {OrderNumber}", notification.OrderNumber);
-            }
+            await dispatcher.DispatchToUserAsync(
+                userId: customerUserId,
+                title: title,
+                message: message,
+                type: "OrderCreated",
+                payloadJson: payloadJson,
+                pushUrl: "/account",
+                pushData: pushData,
+                ct: cancellationToken);
 
             // 2. Notify Admins
-            try
+            const string adminTitle = "سفارش جدید ثبت شد";
+            var adminMessage = $"کاربر {customerName} سفارش جدید با شماره {notification.OrderNumber} به مبلغ {notification.TotalAmount:N0} {notification.Currency} ثبت کرد.";
+            var adminPushData = new
             {
-                var adminTitle = "سفارش جدید ثبت شد";
-                var adminMessage = $"کاربر {customerName} سفارش جدید با شماره {notification.OrderNumber} به مبلغ {notification.TotalAmount:N0} {notification.Currency} ثبت کرد.";
+                orderId = notification.OrderId,
+                orderNumber = notification.OrderNumber,
+                isAdmin = true
+            };
 
-                var adminIds = await _identityService.GetAdminUserIdsAsync(cancellationToken);
-                _logger.LogInformation("Found {Count} admin user(s) to notify for Order {OrderNumber}", adminIds.Count, notification.OrderNumber);
-
-                foreach (var adminId in adminIds)
-                {
-                    var adminNotification = Notification.Create(
-                        userId: adminId,
-                        title: adminTitle,
-                        message: adminMessage,
-                        type: "AdminOrderCreated",
-                        payloadJson: payloadJson);
-
-                    await _notificationRepository.AddAsync(adminNotification, cancellationToken);
-                    await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-                    var adminSseMsg = new NotificationMessage(
-                        Id: adminNotification.Id,
-                        UserId: adminNotification.UserId,
-                        Title: adminNotification.Title,
-                        Message: adminNotification.Message,
-                        Type: adminNotification.Type,
-                        PayloadJson: adminNotification.PayloadJson,
-                        IsRead: adminNotification.IsRead,
-                        CreatedAt: adminNotification.CreatedAt);
-
-                    await _sseManager.BroadcastToUserAsync(adminId, adminSseMsg, cancellationToken);
-
-                    await _webPushService.SendPushToUserAsync(
-                        userId: adminId,
-                        title: adminTitle,
-                        body: adminMessage,
-                        url: "/orders",
-                        data: new
-                        {
-                            orderId = notification.OrderId,
-                            orderNumber = notification.OrderNumber,
-                            isAdmin = true
-                        },
-                        ct: cancellationToken);
-                }
-
-                _logger.LogInformation("OrderCreated notification dispatched to {Count} admin(s) for Order {OrderNumber}",
-                    adminIds.Count, notification.OrderNumber);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to send admin notification for OrderCreated {OrderNumber}", notification.OrderNumber);
-            }
+            await dispatcher.DispatchToAdminsAsync(
+                title: adminTitle,
+                message: adminMessage,
+                type: "AdminOrderCreated",
+                payloadJson: payloadJson,
+                pushUrl: "/orders",
+                pushData: adminPushData,
+                ct: cancellationToken);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error handling OrderCreatedIntegrationEvent for Order {OrderId}", notification.OrderId);
+            logger.LogError(ex, "Error handling OrderCreatedIntegrationEvent for Order {OrderId}", notification.OrderId);
         }
     }
 }

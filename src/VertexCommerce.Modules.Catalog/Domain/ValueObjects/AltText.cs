@@ -18,7 +18,7 @@ public readonly record struct AltText
         if (string.IsNullOrWhiteSpace(value)) return default;
         return new(StringFieldGuard.Apply(value, Schema, nameof(AltText)));
     }
-    
+
     public static AltText Create(string? value) =>
         new(StringFieldGuard.Apply(value, Schema, nameof(AltText)));
 }

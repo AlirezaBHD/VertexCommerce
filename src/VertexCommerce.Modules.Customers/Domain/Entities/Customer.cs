@@ -19,7 +19,7 @@ public sealed class Customer : AggregateRoot<Guid>
     public Guid? DefaultShippingAddressId { get; private set; }
     public Guid? DefaultBillingAddressId { get; private set; }
 
-    public bool CanAddAddress => 
+    public bool CanAddAddress =>
         !_addresses.Where(a => !a.IsDeleted)
             .Skip(MaxAddresses - 1)
             .Any();
@@ -63,11 +63,11 @@ public sealed class Customer : AggregateRoot<Guid>
         }
 
         _addresses.Add(address);
-        
+
         var activeAddresses = _addresses.Where(a => !a.IsDeleted);
         var hasExactlyOneActiveAddress =
             activeAddresses.Take(2).Count() == 1;
-        
+
         // First address becomes default
         if (DefaultShippingAddressId is null || hasExactlyOneActiveAddress)
         {

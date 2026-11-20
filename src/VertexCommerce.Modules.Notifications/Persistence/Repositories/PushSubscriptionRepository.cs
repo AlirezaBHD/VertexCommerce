@@ -34,9 +34,9 @@ internal sealed class PushSubscriptionRepository(NotificationsDbContext context)
             .ToListAsync(ct);
     }
 
-    public async Task RemoveAsync(PushSubscription subscription, CancellationToken ct = default)
+    public Task RemoveAsync(PushSubscription subscription, CancellationToken ct = default)
     {
         context.PushSubscriptions.Remove(subscription);
-        await Task.CompletedTask;
+        return Task.CompletedTask;
     }
 }

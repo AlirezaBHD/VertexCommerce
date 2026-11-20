@@ -4,7 +4,7 @@ using VertexCommerce.Shared.Contracts.Customers;
 
 namespace VertexCommerce.Modules.Customers.Services;
 
-internal sealed class CustomerService(ISender sender) 
+internal sealed class CustomerService(ISender sender)
     : ICustomerService
 {
     public async Task<CustomerInfoDto?> GetCustomerInfo(Guid customerId,

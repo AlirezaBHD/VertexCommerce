@@ -46,6 +46,7 @@ dotnet_diagnostic.RCS1181.severity = none
 dotnet_diagnostic.RCS1001.severity = none
 dotnet_diagnostic.MA0076.severity = none
 dotnet_diagnostic.MA0182.severity = none
+dotnet_diagnostic.MA0219.severity = none
 
 # MA0048 (file name must match type name) is kept on purpose: it finds misnamed files
 

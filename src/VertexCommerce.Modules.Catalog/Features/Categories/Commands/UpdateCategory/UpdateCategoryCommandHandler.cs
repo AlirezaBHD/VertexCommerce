@@ -58,7 +58,7 @@ internal sealed class UpdateCategoryCommandHandler(
             includeInMenu: command.IncludeInMenu,
             sortOrder: category.SortOrder
         );
-        
+
         await unitOfWork.SaveChangesAsync(ct);
 
         return Result.Success();

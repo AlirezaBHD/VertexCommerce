@@ -50,7 +50,7 @@ internal sealed class ProductReadModelRepository(IMongoDatabase database) : IPro
             return new ReplaceOneModel<ProductReadModel>(
                     Builders<ProductReadModel>.Filter.Eq(p => p.Id, model.Id),
                     model)
-                { IsUpsert = true };
+            { IsUpsert = true };
         }).ToList();
 
         if (writes.Count > 0)

@@ -9,6 +9,11 @@ public static class ClaimsPrincipalExtensions
     private const string SubjectClaim = "sub";
     private const string EmailClaim = "email";
 
+    /// <summary>
+    /// Gets the user identifier from the claims principal.
+    /// </summary>
+    /// <param name="user">The claims principal representing the authenticated user.</param>
+    /// <returns>The unique user identifier.</returns>
     /// <exception cref="UnauthorizedException">No valid user id claim is present.</exception>
     public static Guid GetUserId(this ClaimsPrincipal user)
     {
@@ -20,6 +25,11 @@ public static class ClaimsPrincipalExtensions
             : throw new UnauthorizedException("User id claim is missing or invalid.");
     }
 
+    /// <summary>
+    /// Gets the email address from the claims principal.
+    /// </summary>
+    /// <param name="user">The claims principal representing the authenticated user.</param>
+    /// <returns>The user's email address.</returns>
     /// <exception cref="UnauthorizedException">No email claim is present.</exception>
     public static string GetEmail(this ClaimsPrincipal user)
     {

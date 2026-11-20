@@ -57,26 +57,26 @@ internal sealed class UpdateProductCommandHandler(
                 var attributes = variantDto.Attributes
                     .ConvertAll(a => ProductAttribute.Create(AttributeCode.Create(a.AttributeCode), OptionCode.Create(a.OptionCode)))
 ;
-            
+
                 if (variantDto.Id.HasValue)
                 {
                     // // Update existing variant
                     var existingVariant = product.Variants.FirstOrDefault(v => v.Id == variantDto.Id.Value);
                     if (existingVariant is not null)
                     {
-                        var sku = !string.IsNullOrEmpty(variantDto.Sku) 
-                            ? Sku.Create(variantDto.Sku) 
+                        var sku = !string.IsNullOrEmpty(variantDto.Sku)
+                            ? Sku.Create(variantDto.Sku)
                             : existingVariant.Sku;
-                        
+
                         var price = Money.Create(variantDto.Price, Currency.Create(variantDto.Currency ?? "USD"));
-                        
+
                         existingVariant.Update(
                             sku: sku,
                             stockQuantity: variantDto.StockQuantity,
                             order: variantDto.SortOrder,
                             price: price,
                             attributes: attributes);
-                         productRepository.UpdateVariant(existingVariant);
+                        productRepository.UpdateVariant(existingVariant);
 
                     }
                 }
@@ -86,9 +86,9 @@ internal sealed class UpdateProductCommandHandler(
                     var sku = !string.IsNullOrEmpty(variantDto.Sku)
                                                 ? Sku.Create(variantDto.Sku)
                         : Sku.Generate();
-            
+
                     var price = Money.Create(variantDto.Price, Currency.Create(variantDto.Currency ?? "USD"));
-            
+
                     var newVariant = ProductVariant.Create(
                         productId: product.Id,
                         sku: sku,
@@ -96,7 +96,7 @@ internal sealed class UpdateProductCommandHandler(
                         order: variantDto.SortOrder,
                         price: price,
                         attributes: attributes);
-            
+
                     product.AddVariant(newVariant);
                     await productRepository.AddVariantAsync(newVariant, ct);
                 }

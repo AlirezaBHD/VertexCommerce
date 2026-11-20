@@ -64,6 +64,12 @@ public static class StringFieldGuard
         return normalized;
     }
 
+    /// <summary>
+    /// Determines whether the specified string value matches the given regular expression pattern.
+    /// </summary>
+    /// <param name="pattern">The regular expression pattern to match.</param>
+    /// <param name="value">The string value to evaluate.</param>
+    /// <returns><see langword="true"/> if the value matches the pattern; otherwise, <see langword="false"/>.</returns>
     /// <remarks>A match that exceeds <see cref="MatchTimeout"/> is treated as invalid input, not a server error.</remarks>
     private static bool IsMatch(string pattern, string value)
     {

@@ -35,12 +35,12 @@ public sealed class Category : AggregateRoot<Guid>
         {
             throw new InvalidOperationException("نمی‌توان دسته‌بندی که زیرمجموعه دارد را حذف کرد.");
         }
-        
+
         SoftDelete();
-        
+
         AddDomainEvent(new CategoryDeletedEvent(Id));
     }
-    
+
     public static Category Create(
         CategoryName name,
         CategoryDescription description,
@@ -73,15 +73,15 @@ public sealed class Category : AggregateRoot<Guid>
             ImageAltText = imageAltText,
             ShowOnHome = showOnHome,
             IncludeInMenu = includeInMenu
-            
+
         };
-        
+
         category.AddDomainEvent(new CategoryCreatedEvent(
             category.Id,
             category.Name.Value,
             category.ParentId
         ));
-        
+
         return category;
     }
 
@@ -114,7 +114,7 @@ public sealed class Category : AggregateRoot<Guid>
         ImageAltText = imageAltText;
         ShowOnHome = showOnHome;
         IncludeInMenu = includeInMenu;
-        
+
         AddDomainEvent(new CategoryCreatedEvent(Id, Name.Value, ParentId));
     }
 

@@ -18,7 +18,7 @@ public readonly record struct ProductDescription
         if (string.IsNullOrWhiteSpace(value)) return default;
         return new(StringFieldGuard.Apply(value, Schema, nameof(ProductDescription)));
     }
-    
+
     public static ProductDescription Create(string? value) =>
         new(StringFieldGuard.Apply(value, Schema, nameof(ProductDescription)));
 }

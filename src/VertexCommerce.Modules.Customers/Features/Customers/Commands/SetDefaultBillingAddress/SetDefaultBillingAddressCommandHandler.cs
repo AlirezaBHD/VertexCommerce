@@ -31,9 +31,9 @@ internal sealed class SetDefaultBillingAddressCommandHandler(
         {
             return Result.Failure(CustomerErrors.AddressNotFound(command.AddressId));
         }
-        
+
         customer.SetDefaultBillingAddress(address.Id);
-        
+
         await unitOfWork.SaveChangesAsync(ct);
 
         return Result.Success();

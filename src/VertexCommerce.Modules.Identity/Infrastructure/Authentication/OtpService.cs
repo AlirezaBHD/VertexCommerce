@@ -10,9 +10,9 @@ internal sealed class OtpService(ILogger<OtpService> logger) : IOtpService
     public string GenerateOtp(string phoneNumber, CancellationToken ct)
     {
         var otp = GenerateRandomOtp();
-        
+
         logger.LogInformation("OTP generated for phone number: {PhoneNumber}", phoneNumber);
-        
+
         return otp;
     }
 

@@ -9,22 +9,22 @@ namespace VertexCommerce.Modules.Customers.Features.CustomerAddresses.Queries.Ge
 internal sealed class GetAddressByIdQueryHandler(
     ICustomerAddressRepository addressRepository,
     ICurrentUser currentUser,
-    ICustomerResolver  customerResolver)
+    ICustomerResolver customerResolver)
     : IQueryHandler<GetAddressByIdQuery, AddressResponse>
 {
     public async Task<Result<AddressResponse>> Handle(GetAddressByIdQuery query, CancellationToken ct)
     {
         var userId = currentUser.GetUserId();
-        
+
         var customerId = await customerResolver.GetCustomerIdByUserIdAsync(userId, ct);
 
         if (customerId == Guid.Empty)
         {
             return Result.Failure<AddressResponse>(CustomerErrors.NotFound(userId));
         }
-        
-        var spec = new GetAddressByIdSpec(addressId: query.AddressId,  customerId: customerId);
-        
+
+        var spec = new GetAddressByIdSpec(addressId: query.AddressId, customerId: customerId);
+
         var address = await addressRepository.GetAsync(spec, ct);
 
         if (address is null)
@@ -32,7 +32,7 @@ internal sealed class GetAddressByIdQueryHandler(
             return Result.Failure<AddressResponse>(CustomerErrors.AddressNotFound(query.AddressId));
 
         }
-        
+
         return Result.Success(address);
     }
 }

@@ -48,7 +48,7 @@ public class CategoryTests
         category.SortOrder.Should().Be(3);
         category.CoverImagePath.Value.Should().Be("/images/cover.jpg");
         category.IconPath.Should().NotBeNull();
-        category.IconPath!.Value.Value.Should().Be("/images/icon.png");
+        category.IconPath.Value.Value.Should().Be("/images/icon.png");
 
         category.DomainEvents.Should().ContainSingle();
         var createdEvent = category.DomainEvents.First().Should().BeOfType<CategoryCreatedEvent>().Subject;

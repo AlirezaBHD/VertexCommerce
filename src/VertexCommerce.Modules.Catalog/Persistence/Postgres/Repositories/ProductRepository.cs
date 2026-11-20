@@ -42,14 +42,14 @@ public sealed class ProductRepository(CatalogDbContext context) : IProductReposi
 
     public async Task AddVariantAsync(ProductVariant variant, CancellationToken ct = default)
     {
-       await context.Set<ProductVariant>().AddAsync(variant, ct);
+        await context.Set<ProductVariant>().AddAsync(variant, ct);
     }
 
     public void Delete(Product product)
     {
         context.Products.Remove(product);
     }
-    
+
     public async Task<bool> HasProductsInCategoryAsync(Guid categoryId, CancellationToken ct = default)
     {
         return await context.Products.AnyAsync(p => p.CategoryId == categoryId, ct);

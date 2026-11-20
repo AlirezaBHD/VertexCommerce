@@ -34,7 +34,7 @@ internal sealed class CategoryPathBuilder
                 Name = category.Name.Value,
                 Slug = category.Slug
             });
-            
+
             currentId = category.ParentId;
         }
 

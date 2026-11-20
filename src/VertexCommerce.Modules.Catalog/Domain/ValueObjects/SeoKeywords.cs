@@ -18,7 +18,7 @@ public readonly record struct SeoKeywords
         if (string.IsNullOrWhiteSpace(value)) return default;
         return new(StringFieldGuard.Apply(value, Schema, nameof(SeoKeywords)));
     }
-    
+
     public static SeoKeywords Create(string? value) =>
         new(StringFieldGuard.Apply(value, Schema, nameof(SeoKeywords)));
 }

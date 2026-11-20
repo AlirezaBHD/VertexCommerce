@@ -13,10 +13,10 @@ public sealed class Product : AggregateRoot<Guid>
     public Guid CategoryId { get; private set; }
     public Category? Category { get; }
     public SeoMetadata Seo { get; private set; }
-    
+
     private readonly List<ProductVariant> _variants = [];
     public IReadOnlyCollection<ProductVariant> Variants => _variants;
-    
+
     private readonly List<ProductMedia> _media = [];
     public IReadOnlyCollection<ProductMedia> Media => _media;
 
@@ -75,7 +75,7 @@ public sealed class Product : AggregateRoot<Guid>
     {
         AddDomainEvent(new ProductDeletedEvent(Id));
     }
-    
+
     public void Activate()
     {
         IsActive = true;
@@ -95,13 +95,13 @@ public sealed class Product : AggregateRoot<Guid>
     }
 
     #endregion Core Operations
-    
+
     #region Variant Management
 
     public void AddVariant(ProductVariant variant)
     {
         if (variant.ProductId != Id)
-            throw new ArgumentException("Variant does not belong to this product.");
+            throw new ArgumentException("Variant does not belong to this product.", nameof(variant));
 
         _variants.Add(variant);
         SetUpdatedAt();
@@ -131,13 +131,13 @@ public sealed class Product : AggregateRoot<Guid>
         _media.AddRange(mediaList);
         SetUpdatedAt();
     }
-    
+
     public void ReplaceMedia(List<ProductMedia> newMedias)
     {
         _media.RemoveAll(m => !newMedias.Exists(newM => newM.Path == m.Path));
         var toAdd = newMedias.Where(newM => !_media.Exists(m => m.Path == newM.Path));
         _media.AddRange(toAdd);
-    
+
         var sorted = _media.OrderBy(m => m.SortOrder).ToList();
         _media.Clear();
         _media.AddRange(sorted);

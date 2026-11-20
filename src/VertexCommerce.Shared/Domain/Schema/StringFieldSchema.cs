@@ -28,7 +28,7 @@ public sealed record StringFieldSchema
     public int MinLength { get; init; }
 
     /// <summary>
-    /// Whether the value may be empty or whitespace-only. When <c>false</c> (the default) both the
+    /// Whether the value may be empty or whitespace-only. When <see langword="false"/> (the default) both the
     /// domain guard and the validator reject blank input. Independent of nullability, which is
     /// driven exclusively by C# nullable reference types.
     /// </summary>
@@ -41,7 +41,7 @@ public sealed record StringFieldSchema
     public bool IsUnicode { get; init; }
 
     /// <summary>
-    /// Whether the column is fixed length (<c>char</c> rather than <c>varchar</c>).
+    /// Whether the column is fixed length (<see langword="char"/> rather than <c>varchar</c>).
     /// Storage-only; the domain guard ignores it.
     /// </summary>
     public bool IsFixedLength { get; init; }

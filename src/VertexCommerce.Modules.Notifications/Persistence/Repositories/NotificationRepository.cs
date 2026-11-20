@@ -11,6 +11,11 @@ internal sealed class NotificationRepository(NotificationsDbContext context) : I
         await context.Notifications.AddAsync(notification, ct);
     }
 
+    public async Task AddRangeAsync(IEnumerable<Notification> notifications, CancellationToken ct = default)
+    {
+        await context.Notifications.AddRangeAsync(notifications, ct);
+    }
+
     public async Task<Notification?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         return await context.Notifications.FirstOrDefaultAsync(n => n.Id == id, ct);

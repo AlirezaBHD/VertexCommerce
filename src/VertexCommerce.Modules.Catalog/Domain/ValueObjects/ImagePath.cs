@@ -18,7 +18,7 @@ public readonly record struct ImagePath
         if (string.IsNullOrWhiteSpace(value)) return default;
         return new(StringFieldGuard.Apply(value, Schema, nameof(ImagePath)));
     }
-    
+
     public static ImagePath Create(string? value) =>
         new(StringFieldGuard.Apply(value, Schema, nameof(ImagePath)));
 }

@@ -12,7 +12,7 @@ public class OrderExpirationBackgroundService(
     IServiceProvider serviceProvider,
     ILogger<OrderExpirationBackgroundService> logger) : BackgroundService
 {
-    [SuppressMessage("Design", "CA1031: Modify 'ExecuteAsync' to catch a more specific allowed exception type, or rethrow the exception", 
+    [SuppressMessage("Design", "CA1031: Modify 'ExecuteAsync' to catch a more specific allowed exception type, or rethrow the exception",
         Justification = "At the BackgroundService level, catching all errors is essential to keep the loop alive.")]
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -52,13 +52,13 @@ public class OrderExpirationBackgroundService(
         foreach (var order in pendingOrders)
         {
             logger.LogInformation("Expiring order {OrderId} ({OrderNumber})", order.Id, order.OrderNumber);
-            
+
             var expireResult = order.Expire();
             if (expireResult.IsSuccess)
             {
                 var stockRequests = order.Items.Select(i => new StockDeductionRequest(i.VariantId, i.Quantity));
                 var releaseResult = await stockService.ReleaseStocksAsync(stockRequests, ct);
-                
+
                 if (releaseResult.IsFailure)
                 {
                     logger.LogWarning("Failed to release stock for expired order {OrderId}: {Error}", order.Id, releaseResult.Error);

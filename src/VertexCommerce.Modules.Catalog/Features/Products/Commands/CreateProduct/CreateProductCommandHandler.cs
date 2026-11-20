@@ -39,7 +39,7 @@ internal sealed class CreateProductCommandHandler(
         if (command.Media is not null)
         {
             var mediaList = command.Media
-                .ConvertAll(m => 
+                .ConvertAll(m =>
                     ProductMedia.Create(ImagePath.Create(m.Path), MediaType.Image,
                         m.SortOrder, AltText.CreateOrNull(m.AltText), m.AssociatedAttributeCode != null ? AttributeCode.Create(m.AssociatedAttributeCode) : null, m.AssociatedOptionCode != null ? OptionCode.Create(m.AssociatedOptionCode) : null))
 ;
@@ -53,9 +53,9 @@ internal sealed class CreateProductCommandHandler(
             foreach (var v in command.Variants)
             {
                 var attributes = v.Attributes
-                    .ConvertAll(a => 
+                    .ConvertAll(a =>
                         ProductAttribute.Create(AttributeCode.Create(a.AttributeCode),
-                        OptionCode.Create(a.OptionCode))) ;
+                        OptionCode.Create(a.OptionCode)));
 
                 var price = Money.Create(v.Price, Currency.Create(v.Currency ?? "USD"));
                 var sku = Sku.Generate();

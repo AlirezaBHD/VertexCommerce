@@ -3,6 +3,7 @@ namespace VertexCommerce.Shared.Domain;
 /// <summary>
 /// Base type for entities: objects with a stable identity that is preserved across state changes.
 /// </summary>
+/// <typeparam name="TId">The type of the entity's identifier.</typeparam>
 /// <remarks>
 /// Two entities are equal when they are of the same concrete type and share the same non-default id.
 /// An entity whose id has not been assigned yet (transient) is only equal to itself.

@@ -39,7 +39,8 @@ public sealed class ProductVariant : Entity<Guid>
             StockQuantity = stockQuantity,
             ReservedQuantity = 0,
             IsActive = true,
-            SortOrder = order};
+            SortOrder = order
+        };
 
         variant._attributes.AddRange(attributes);
         return variant;
@@ -54,14 +55,14 @@ public sealed class ProductVariant : Entity<Guid>
     {
         if (Sku.Value != sku.Value) Sku = sku;
         if (Price.Amount != price.Amount || Price.Currency != price.Currency) Price = price;
-    
+
         StockQuantity = stockQuantity;
         SortOrder = order;
 
-        _attributes.RemoveAll(o => !_attributes.Exists(newO => newO.AttributeCode == o.AttributeCode && newO.OptionCode == o.OptionCode));
-        var newOptions = _attributes.Where(newO => !_attributes.Exists(o => o.AttributeCode == newO.AttributeCode && o.OptionCode == newO.OptionCode));
+        _attributes.RemoveAll(o => !attributes.Exists(newO => newO.AttributeCode == o.AttributeCode && newO.OptionCode == o.OptionCode));
+        var newOptions = attributes.Where(newO => !_attributes.Exists(o => o.AttributeCode == newO.AttributeCode && o.OptionCode == newO.OptionCode));
         _attributes.AddRange(newOptions);
-    
+
         SetUpdatedAt();
     }
 
@@ -87,10 +88,10 @@ public sealed class ProductVariant : Entity<Guid>
     public void ReleaseReservedStock(int quantity)
     {
         if (quantity <= 0) return;
-        
+
         ReservedQuantity -= quantity;
         if (ReservedQuantity < 0) ReservedQuantity = 0;
-        
+
         SetUpdatedAt();
     }
 

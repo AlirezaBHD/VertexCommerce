@@ -38,9 +38,9 @@ public sealed class User : AggregateRoot<Guid>
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };
-        
-        user.AddDomainEvent(new UserCreatedEvent(user.Id,  phoneNumber.Value, firstName.Value, lastName.Value));
-        
+
+        user.AddDomainEvent(new UserCreatedEvent(user.Id, phoneNumber.Value, firstName.Value, lastName.Value));
+
         return user;
     }
 

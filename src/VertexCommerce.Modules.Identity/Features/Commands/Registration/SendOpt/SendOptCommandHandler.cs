@@ -10,7 +10,7 @@ namespace VertexCommerce.Modules.Identity.Features.Commands.Registration.SendOpt
 
 internal sealed class SendOptCommandHandler(
     IMemoryCache cache,
-    IOtpService  otpService,
+    IOtpService otpService,
     IUserRepository userRepository
     )
     : ICommandHandler<SendOptCommand, RegistrationTokenResponse>
@@ -26,7 +26,7 @@ internal sealed class SendOptCommandHandler(
 
         var otp = otpService.GenerateOtp(phoneNumber, ct);
         await otpService.SendOtpAsync(phoneNumber, otp, ct);
-        
+
         var registrationToken = Guid.NewGuid().ToString("N");
 
         var pending = new PendingRegistrationCache
@@ -44,8 +44,8 @@ internal sealed class SendOptCommandHandler(
 
         return Result.Success(new RegistrationTokenResponse(
             RegistrationToken: registrationToken,
-            ExpiresAt : DateTime.UtcNow.AddMinutes(30),
-            NextStep : "verify_otp"
+            ExpiresAt: DateTime.UtcNow.AddMinutes(30),
+            NextStep: "verify_otp"
         ));
     }
 }

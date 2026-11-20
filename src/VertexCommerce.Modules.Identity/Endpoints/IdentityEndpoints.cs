@@ -27,13 +27,13 @@ public static class IdentityEndpoints
             .Produces<AuthResponse>(StatusCodes.Status201Created)
             .ProducesValidationProblem()
             .Produces(StatusCodes.Status409Conflict);
-        
+
         group.MapPost("/register/verify-opt", VerifyOpt)
             .WithName("VerifyOpt")
             .Produces<AuthResponse>(StatusCodes.Status201Created)
             .ProducesValidationProblem()
             .Produces(StatusCodes.Status409Conflict);
-        
+
         group.MapPost("/register/complete", CompleteRegistration)
             .WithName("CompleteRegistration")
             .Produces<AuthResponse>(StatusCodes.Status201Created)

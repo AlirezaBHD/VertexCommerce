@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using HotChocolate;
 using HotChocolate.CostAnalysis.Types;
 using VertexCommerce.Modules.Catalog.GraphQL.HomePage;
@@ -21,7 +22,7 @@ public sealed class CatalogQueries
     {
         return repository.GetBySlug(slug);
     }
-    
+
     [UseOffsetPaging(IncludeTotalCount = true, MaxPageSize = 50)]
     [UseProjection]
     [UseFiltering]
@@ -65,6 +66,7 @@ public sealed class CatalogQueries
 
     [GraphQLType(typeof(HomePageType))]
     [Description("Gets all aggregated data required for the home page layout")]
+    [SuppressMessage("Design", "CA1024:Use properties where appropriate", Justification = "HotChocolate GraphQL query resolver convention")]
     public HomePageData GetHomePage()
     {
         return new HomePageData();

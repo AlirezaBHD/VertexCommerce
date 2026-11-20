@@ -5,7 +5,7 @@ using VertexCommerce.Modules.Identity.Domain.Errors;
 
 namespace VertexCommerce.Modules.Identity.Features.Queries.GetProfile;
 
-internal sealed class GetProfileQueryHandler(IUserRepository userRepository, ICurrentUser  currentUser)
+internal sealed class GetProfileQueryHandler(IUserRepository userRepository, ICurrentUser currentUser)
     : IQueryHandler<GetProfileQuery, ProfileResponse>
 {
     public async Task<Result<ProfileResponse>> Handle(GetProfileQuery query, CancellationToken ct)

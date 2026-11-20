@@ -10,8 +10,8 @@ public class UserCreatedEvent : IDomainEvent
     public string FirstName { get; }
     public string LastName { get; }
     public DateTime OccurredOn { get; }
-    
-    
+
+
     public UserCreatedEvent(Guid userId, string phoneNumber, string firstName, string lastName)
     {
         EventId = Guid.NewGuid();

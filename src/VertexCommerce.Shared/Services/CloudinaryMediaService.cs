@@ -13,13 +13,16 @@ public class CloudinaryMediaService : IMediaService
 
     public CloudinaryMediaService(IOptions<CloudinaryOptions> options)
     {
+        ArgumentNullException.ThrowIfNull(options);
+
         var settings = options.Value;
         if (string.IsNullOrWhiteSpace(settings.CloudName) ||
             string.IsNullOrWhiteSpace(settings.ApiKey) ||
             string.IsNullOrWhiteSpace(settings.ApiSecret))
         {
             throw new ArgumentException(
-                "Cloudinary CloudName/ApiKey/ApiSecret must be configured when Media:Provider is set to Cloudinary.");
+                "Cloudinary CloudName/ApiKey/ApiSecret must be configured when Media:Provider is set to Cloudinary.",
+                nameof(options));
         }
 
         var account = new Account(settings.CloudName, settings.ApiKey, settings.ApiSecret);
@@ -94,19 +97,34 @@ public class CloudinaryMediaService : IMediaService
 
     public async Task<Stream> GetFileAsync(string filePath, CancellationToken cancellationToken = default)
     {
-        var response = await HttpClient.GetAsync(filePath, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        var uri = new Uri(filePath, UriKind.RelativeOrAbsolute);
+        var response = await HttpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadAsStreamAsync(cancellationToken);
     }
 
     public bool FileExists(string filePath)
     {
+        if (!Uri.TryCreate(filePath, UriKind.Absolute, out var uri))
+        {
+            return false;
+        }
+
         try
         {
-            using var response = HttpClient.Send(new HttpRequestMessage(System.Net.Http.HttpMethod.Head, filePath));
+            using var request = new HttpRequestMessage(System.Net.Http.HttpMethod.Head, uri);
+            using var response = HttpClient.Send(request);
             return response.IsSuccessStatusCode;
         }
-        catch
+        catch (HttpRequestException)
+        {
+            return false;
+        }
+        catch (TimeoutException)
+        {
+            return false;
+        }
+        catch (OperationCanceledException)
         {
             return false;
         }
@@ -142,7 +160,7 @@ public class CloudinaryMediaService : IMediaService
 
         var lastSegmentWithoutExtension = Path.GetFileNameWithoutExtension(afterUpload[^1]);
         var publicIdParts = afterUpload.Take(afterUpload.Length - 1).Append(lastSegmentWithoutExtension);
-        var publicId = string.Join("/", publicIdParts);
+        var publicId = string.Join('/', publicIdParts);
 
         return (publicId, resourceType);
     }

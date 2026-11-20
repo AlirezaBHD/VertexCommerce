@@ -13,10 +13,10 @@ public sealed class ProductVariantConfiguration : IEntityTypeConfiguration<Produ
         builder.ToTable("product_variants", "catalog");
         builder.HasKey(v => v.Id);
 
-        
+
         builder.ComplexProperty(v => v.Sku, skuBuilder => skuBuilder.Property(s => s.Value).HasColumnName("sku").HasSchema(Sku.Schema).IsRequired());
 
-        builder.ComplexProperty(v => v.Price, priceBuilder => 
+        builder.ComplexProperty(v => v.Price, priceBuilder =>
         {
             priceBuilder.Property(p => p.Amount).HasColumnName("price_amount").IsRequired();
             priceBuilder.Property(p => p.Currency).HasConversion(c => c.Value, v => Currency.Create(v)).HasColumnName("price_currency").HasSchema(Currency.Schema).IsRequired();

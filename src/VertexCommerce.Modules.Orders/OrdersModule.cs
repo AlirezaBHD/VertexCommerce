@@ -57,7 +57,7 @@ public class OrdersModule : IModule
     public async Task InitializeAsync(IServiceProvider serviceProvider, CancellationToken ct = default)
     {
         await using var scope = serviceProvider.CreateAsyncScope();
-        var db = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
+        // var db = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<OrdersModule>>();
 
         try

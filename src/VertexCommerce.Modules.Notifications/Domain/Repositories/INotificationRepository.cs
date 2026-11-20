@@ -5,6 +5,7 @@ namespace VertexCommerce.Modules.Notifications.Domain.Repositories;
 public interface INotificationRepository
 {
     Task AddAsync(Notification notification, CancellationToken ct = default);
+    Task AddRangeAsync(IEnumerable<Notification> notifications, CancellationToken ct = default);
     Task<Notification?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<IReadOnlyList<Notification>> GetUserNotificationsAsync(Guid userId, int page, int pageSize, CancellationToken ct = default);
     Task<int> GetUnreadCountAsync(Guid userId, CancellationToken ct = default);

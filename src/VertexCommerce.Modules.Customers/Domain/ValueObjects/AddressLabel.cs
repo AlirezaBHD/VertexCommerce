@@ -12,7 +12,7 @@ public readonly record struct AddressLabel
     {
         Value = value;
     }
-    
+
     public static AddressLabel? CreateOrNull(string? value) =>
         string.IsNullOrWhiteSpace(value)
             ? null

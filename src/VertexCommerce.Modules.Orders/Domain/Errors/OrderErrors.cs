@@ -31,6 +31,6 @@ public static class OrderErrors
     public static readonly Error PaymentExpired =
         Error.Validation("Payment time expired");
 
-    public static Error InsufficientStock(string name, string sku, int requested, int available) => 
+    public static Error InsufficientStock(string name, string sku, int requested, int available) =>
         Error.Validation($"Insufficient stock for '{name}' ({sku}). Requested: {requested}, Available: {available}.");
 }

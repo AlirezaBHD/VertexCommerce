@@ -36,19 +36,19 @@ public sealed class DomainEventInterceptor : SaveChangesInterceptor
         DbContext context,
         CancellationToken cancellationToken)
     {
-        var aggregateRoots = context.ChangeTracker
-            .Entries<AggregateRoot<Guid>>()
+        var entities = context.ChangeTracker
+            .Entries<IHasDomainEvents>()
             .Where(e => e.Entity.DomainEvents.Count != 0)
             .Select(e => e.Entity)
             .ToList();
 
-        if (aggregateRoots.Count == 0) return;
+        if (entities.Count == 0) return;
 
-        var domainEvents = aggregateRoots
+        var domainEvents = entities
             .SelectMany(e => e.DomainEvents)
             .ToList();
 
-        aggregateRoots.ForEach(e => e.ClearDomainEvents());
+        entities.ForEach(e => e.ClearDomainEvents());
 
         _logger.LogInformation(
             "Dispatching {Count} domain event(s)...", domainEvents.Count);
