@@ -22,6 +22,7 @@
     <Project Path="tests/VertexCommerce.Integration.Tests/VertexCommerce.Integration.Tests.csproj" />
     <Project Path="tests/VertexCommerce.Modules.Catalog.Tests/VertexCommerce.Modules.Catalog.Tests.csproj" />
     <Project Path="tests/VertexCommerce.Modules.Customers.Tests/VertexCommerce.Modules.Customers.Tests.csproj" />
+    <Project Path="tests/VertexCommerce.Modules.Notifications.Tests/VertexCommerce.Modules.Notifications.Tests.csproj" />
     <Project Path="tests/VertexCommerce.Modules.Orders.Tests/VertexCommerce.Modules.Orders.Tests.csproj" />
   </Folder>
 </Solution>

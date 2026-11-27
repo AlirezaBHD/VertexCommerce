@@ -1,134 +1,85 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using VertexCommerce.Modules.Notifications.Domain.Entities;
-using VertexCommerce.Modules.Notifications.Domain.Repositories;
-using VertexCommerce.Modules.Notifications.Persistence;
 using VertexCommerce.Modules.Notifications.Services.Models;
 using VertexCommerce.Shared.Contracts.Identity;
 
 namespace VertexCommerce.Modules.Notifications.Services.Dispatching;
 
 internal sealed class NotificationDispatcher(
-    INotificationRepository notificationRepository,
-    INotificationsUnitOfWork unitOfWork,
-    ISseConnectionManager sseManager,
-    IWebPushService webPushService,
+    IOrderNotificationInbox inbox,
+    ISseConnectionManager connections,
     IIdentityService identityService,
     ILogger<NotificationDispatcher> logger)
     : INotificationDispatcher
 {
-    [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Notification dispatch failure must not fail the primary business operation")]
-    public async Task DispatchToUserAsync(
-        Guid userId,
-        string title,
-        string message,
-        string type,
-        string? payloadJson = null,
-        string? pushUrl = null,
-        object? pushData = null,
-        CancellationToken ct = default)
+    public async Task DispatchOrderEventAsync(
+        Guid eventId, Guid customerUserId, NotificationDraft customerDraft, NotificationDraft? adminDraft, CancellationToken ct)
     {
-        try
+        var notifications = new List<InboxNotification> { CreateNotification(customerUserId, customerDraft) };
+
+        if (adminDraft is not null)
         {
-            var notification = Notification.Create(
-                userId: userId,
-                title: title,
-                message: message,
-                type: type,
-                payloadJson: payloadJson);
-
-            await notificationRepository.AddAsync(notification, ct);
-            await unitOfWork.SaveChangesAsync(ct);
-
-            var sseMessage = new NotificationMessage(
-                Id: notification.Id,
-                UserId: notification.UserId,
-                Title: notification.Title,
-                Message: notification.Message,
-                Type: notification.Type,
-                PayloadJson: notification.PayloadJson,
-                IsRead: notification.IsRead,
-                CreatedAt: notification.CreatedAt);
-
-            await sseManager.BroadcastToUserAsync(userId, sseMessage, ct);
-
-            await webPushService.SendPushToUserAsync(
-                userId: userId,
-                title: title,
-                body: message,
-                url: pushUrl,
-                data: pushData,
-                ct: ct);
-
-            logger.LogInformation("Notification {Id} ({Type}) dispatched to user {UserId}",
-                notification.Id, type, userId);
+            var adminIds = await identityService.GetAdminUserIdsAsync(ct);
+            foreach (var adminId in adminIds.Distinct())
+            {
+                notifications.Add(CreateNotification(adminId, adminDraft));
+            }
         }
-        catch (Exception ex)
+
+        if (!await inbox.TryStoreAsync(eventId, notifications, ct))
         {
-            logger.LogError(ex, "Failed to dispatch notification ({Type}) to user {UserId}", type, userId);
+            logger.LogDebug("Order event {EventId} already has stored notifications", eventId);
+            return;
+        }
+
+        foreach (var delivery in notifications)
+        {
+            await BroadcastAsync(eventId, delivery.Notification, ct);
         }
     }
 
-    [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Admin notification dispatch failure must not fail the primary business operation")]
-    public async Task DispatchToAdminsAsync(
-        string title,
-        string message,
-        string type,
-        string? payloadJson = null,
-        string? pushUrl = null,
-        object? pushData = null,
-        CancellationToken ct = default)
+    private static InboxNotification CreateNotification(Guid userId, NotificationDraft draft)
     {
+        var notification = Notification.Create(userId, draft.Title, draft.Message, draft.Type, draft.PayloadJson);
+        var payload = JsonSerializer.Serialize(new
+        {
+            userId,
+            title = draft.Title,
+            body = draft.Message,
+            icon = "/logo.ico",
+            badge = "/logo.ico",
+            url = draft.PushUrl ?? "/account",
+            data = draft.PushData
+        });
+        return new InboxNotification(notification, payload);
+    }
+
+    [SuppressMessage("Design", "CA1031:Do not catch general exception types",
+        Justification = "Live delivery failures are isolated to the recipient after the inbox is committed.")]
+    private async Task BroadcastAsync(Guid eventId, Notification notification, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+
         try
         {
-            var adminIds = await identityService.GetAdminUserIdsAsync(ct);
-            if (adminIds.Count == 0)
-            {
-                return;
-            }
+            var streamMessage = new NotificationMessage(
+                notification.Id,
+                notification.UserId,
+                notification.Title,
+                notification.Message,
+                notification.Type,
+                notification.PayloadJson,
+                notification.IsRead,
+                notification.CreatedAt);
 
-            logger.LogInformation("Dispatching admin notification ({Type}) to {Count} admin(s)", type, adminIds.Count);
-
-            var notifications = new List<Notification>(adminIds.Count);
-            foreach (var adminId in adminIds)
-            {
-                notifications.Add(Notification.Create(
-                    userId: adminId,
-                    title: title,
-                    message: message,
-                    type: type,
-                    payloadJson: payloadJson));
-            }
-
-            await notificationRepository.AddRangeAsync(notifications, ct);
-            await unitOfWork.SaveChangesAsync(ct);
-
-            foreach (var notification in notifications)
-            {
-                var sseMessage = new NotificationMessage(
-                    Id: notification.Id,
-                    UserId: notification.UserId,
-                    Title: notification.Title,
-                    Message: notification.Message,
-                    Type: notification.Type,
-                    PayloadJson: notification.PayloadJson,
-                    IsRead: notification.IsRead,
-                    CreatedAt: notification.CreatedAt);
-
-                await sseManager.BroadcastToUserAsync(notification.UserId, sseMessage, ct);
-
-                await webPushService.SendPushToUserAsync(
-                    userId: notification.UserId,
-                    title: title,
-                    body: message,
-                    url: pushUrl,
-                    data: pushData,
-                    ct: ct);
-            }
+            await connections.BroadcastToUserAsync(notification.UserId, streamMessage, ct);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (!ct.IsCancellationRequested)
         {
-            logger.LogError(ex, "Failed to dispatch admin notification ({Type})", type);
+            logger.LogWarning(ex, "Live delivery failed for notification {NotificationId} from order event {EventId}",
+                notification.Id, eventId);
         }
     }
 }

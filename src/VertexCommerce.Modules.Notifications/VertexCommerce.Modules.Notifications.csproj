@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
+      <InternalsVisibleTo Include="VertexCommerce.Modules.Notifications.Tests" />
       <ProjectReference Include="..\VertexCommerce.Shared\VertexCommerce.Shared.csproj" />
     </ItemGroup>
 

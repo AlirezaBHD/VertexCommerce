@@ -4,8 +4,9 @@ namespace VertexCommerce.Modules.Notifications.Domain.Repositories;
 
 public interface IPushSubscriptionRepository
 {
-    Task AddOrUpdateAsync(PushSubscription subscription, CancellationToken ct = default);
-    Task RemoveByEndpointAsync(string endpoint, CancellationToken ct = default);
+    Task<bool> TryUpsertOwnedAsync(PushSubscription subscription, CancellationToken ct = default);
+    Task RemoveOwnedByEndpointAsync(Guid userId, string endpoint, CancellationToken ct = default);
+    Task<PushSubscription?> GetByIdAsync(Guid subscriptionId, CancellationToken ct = default);
     Task<IReadOnlyList<PushSubscription>> GetByUserIdAsync(Guid userId, CancellationToken ct = default);
-    Task RemoveAsync(PushSubscription subscription, CancellationToken ct = default);
+    Task RemoveIfUnchangedAsync(PushSubscription snapshot, CancellationToken ct = default);
 }

@@ -29,7 +29,7 @@ public sealed class NotificationConfiguration : IEntityTypeConfiguration<Notific
             .IsRequired();
 
         builder.Property(n => n.PayloadJson)
-            .HasMaxLength(2000);
+            .HasColumnType("text");
 
         builder.Property(n => n.IsRead)
             .IsRequired()

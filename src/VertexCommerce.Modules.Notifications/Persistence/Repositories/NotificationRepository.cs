@@ -6,16 +6,6 @@ namespace VertexCommerce.Modules.Notifications.Persistence.Repositories;
 
 internal sealed class NotificationRepository(NotificationsDbContext context) : INotificationRepository
 {
-    public async Task AddAsync(Notification notification, CancellationToken ct = default)
-    {
-        await context.Notifications.AddAsync(notification, ct);
-    }
-
-    public async Task AddRangeAsync(IEnumerable<Notification> notifications, CancellationToken ct = default)
-    {
-        await context.Notifications.AddRangeAsync(notifications, ct);
-    }
-
     public async Task<Notification?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         return await context.Notifications.FirstOrDefaultAsync(n => n.Id == id, ct);
@@ -41,25 +31,6 @@ internal sealed class NotificationRepository(NotificationsDbContext context) : I
         return await context.Notifications
             .AsNoTracking()
             .CountAsync(n => n.UserId == userId && !n.IsRead, ct);
-    }
-
-    public async Task<bool> ExistsForEventAsync(
-        Guid userId,
-        string type,
-        string orderNumber,
-        string newStatus,
-        CancellationToken ct = default)
-    {
-        var searchPattern = $"\"OrderNumber\":\"{orderNumber}\"";
-        var statusPattern = $"\"NewStatus\":\"{newStatus}\"";
-
-        return await context.Notifications
-            .AsNoTracking()
-            .AnyAsync(n => n.UserId == userId &&
-                           n.Type == type &&
-                           n.PayloadJson != null &&
-                           n.PayloadJson.Contains(searchPattern) &&
-                           n.PayloadJson.Contains(statusPattern), ct);
     }
 
     public async Task MarkAllAsReadAsync(Guid userId, CancellationToken ct = default)

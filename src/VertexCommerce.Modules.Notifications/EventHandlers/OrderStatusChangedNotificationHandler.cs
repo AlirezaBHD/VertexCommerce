@@ -2,17 +2,14 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using VertexCommerce.Modules.Notifications.Domain.Repositories;
 using VertexCommerce.Modules.Notifications.Services.Dispatching;
-using VertexCommerce.Shared.Contracts.Customers;
 using VertexCommerce.Shared.IntegrationEvents;
 
 namespace VertexCommerce.Modules.Notifications.EventHandlers;
 
-public sealed class OrderStatusChangedNotificationHandler(
-    INotificationRepository notificationRepository,
+internal sealed class OrderStatusChangedNotificationHandler(
     INotificationDispatcher dispatcher,
-    ICustomerService customerService,
+    OrderNotificationRecipientResolver recipientResolver,
     ILogger<OrderStatusChangedNotificationHandler> logger)
     : INotificationHandler<OrderStatusChangedIntegrationEvent>
 {
@@ -21,127 +18,80 @@ public sealed class OrderStatusChangedNotificationHandler(
     {
         try
         {
-            CustomerInfoDto? customer = null;
-            try
-            {
-                customer = await customerService.GetCustomerInfo(notification.CustomerId, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning(ex, "Could not fetch customer info for CustomerId {CustomerId}", notification.CustomerId);
-            }
-
-            var customerUserId = customer?.UserId ?? notification.CustomerId;
-            var customerName = customer is not null && (!string.IsNullOrWhiteSpace(customer.FirstName) || !string.IsNullOrWhiteSpace(customer.LastName))
-                ? $"{customer.FirstName} {customer.LastName}".Trim()
-                : customer?.PhoneNumber ?? "مشتری";
-
-            // 1. Idempotency Check for customer
-            var exists = await notificationRepository.ExistsForEventAsync(
-                customerUserId,
-                "OrderStatusChanged",
-                notification.OrderNumber,
-                notification.NewStatus,
-                cancellationToken);
-
-            if (exists)
-            {
-                logger.LogInformation("Notification already created for Order {OrderNumber} status {Status}. Skipping duplicate.",
-                    notification.OrderNumber, notification.NewStatus);
-                return;
-            }
-
-            // 2. Format Persian messages for customer
+            var recipient = await recipientResolver.ResolveAsync(notification.CustomerId, cancellationToken);
             var (title, message) = FormatStatusMessage(notification);
             var payloadJson = JsonSerializer.Serialize(notification);
+            var customerDraft = new NotificationDraft(
+                Title: title,
+                Message: message,
+                Type: OrderNotificationTypes.OrderStatusChanged,
+                PayloadJson: payloadJson,
+                PushUrl: "/account",
+                PushData: new { orderId = notification.OrderId, orderNumber = notification.OrderNumber, status = notification.NewStatus });
 
-            // 3. Dispatch to Customer
-            var customerPushData = new
-            {
-                orderId = notification.OrderId,
-                orderNumber = notification.OrderNumber,
-                status = notification.NewStatus
-            };
-
-            await dispatcher.DispatchToUserAsync(
-                userId: customerUserId,
-                title: title,
-                message: message,
-                type: "OrderStatusChanged",
-                payloadJson: payloadJson,
-                pushUrl: "/account",
-                pushData: customerPushData,
-                ct: cancellationToken);
-
-            // 4. If payment receipt was submitted (PaymentUnderReview), also notify Admins!
+            NotificationDraft? adminDraft = null;
             if (notification.NewStatus == "PaymentUnderReview")
             {
-                const string adminTitle = "رسید پرداخت جدید دریافت شد";
-                var adminMessage = $"کاربر {customerName} فیش واریزی برای سفارش {notification.OrderNumber} را ارسال کرد و در انتظار بررسی است.";
-                var adminPushData = new
-                {
-                    orderId = notification.OrderId,
-                    orderNumber = notification.OrderNumber,
-                    isAdmin = true
-                };
-
-                await dispatcher.DispatchToAdminsAsync(
-                    title: adminTitle,
-                    message: adminMessage,
-                    type: "AdminPaymentReceiptSubmitted",
-                    payloadJson: payloadJson,
-                    pushUrl: "/orders",
-                    pushData: adminPushData,
-                    ct: cancellationToken);
+                adminDraft = new NotificationDraft(
+                    Title: "رسید پرداخت جدید دریافت شد",
+                    Message: $"کاربر {recipient.DisplayName} فیش واریزی برای سفارش {notification.OrderNumber} را ارسال کرد و در انتظار بررسی است.",
+                    Type: OrderNotificationTypes.AdminPaymentReceiptSubmitted,
+                    PayloadJson: payloadJson,
+                    PushUrl: "/orders",
+                    PushData: new { orderId = notification.OrderId, orderNumber = notification.OrderNumber, isAdmin = true });
             }
+
+            await dispatcher.DispatchOrderEventAsync(
+                notification.EventId, recipient.UserId, customerDraft, adminDraft, cancellationToken);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error handling OrderStatusChangedIntegrationEvent for Order {OrderId}", notification.OrderId);
+            logger.LogError(ex, "Failed to process order status event {EventId} for order {OrderId}",
+                notification.EventId, notification.OrderId);
         }
     }
 
-    private static (string Title, string Message) FormatStatusMessage(OrderStatusChangedIntegrationEvent ev)
+    private static (string Title, string Message) FormatStatusMessage(OrderStatusChangedIntegrationEvent order)
     {
-        return ev.NewStatus switch
+        return order.NewStatus switch
         {
             "PaymentPending" => (
                 "در انتظار پرداخت",
-                $"سفارش شماره {ev.OrderNumber} در انتظار ثبت فیش واریزی یا پرداخت است."
+                $"سفارش شماره {order.OrderNumber} در انتظار ثبت فیش واریزی یا پرداخت است."
             ),
             "PaymentUnderReview" => (
                 "رسید پرداخت در حال بررسی",
-                $"فیش واریزی سفارش شماره {ev.OrderNumber} با موفقیت ثبت شد و در حال بررسی توسط پشتیبانی است."
+                $"فیش واریزی سفارش شماره {order.OrderNumber} با موفقیت ثبت شد و در حال بررسی توسط پشتیبانی است."
             ),
             "Processing" => (
                 "پرداخت تایید شد",
-                $"پرداخت سفارش شماره {ev.OrderNumber} تایید شد و سفارش وارد مرحله پردازش و آماده‌سازی شد."
+                $"پرداخت سفارش شماره {order.OrderNumber} تایید شد و سفارش وارد مرحله پردازش و آماده‌سازی شد."
             ),
             "Shipped" => (
                 "سفارش ارسال شد",
-                string.IsNullOrWhiteSpace(ev.TrackingNumber)
-                    ? $"سفارش شماره {ev.OrderNumber} تحویل پست/پیک شد."
-                    : $"سفارش شماره {ev.OrderNumber} تحویل پست شد. کد پیگیری مرسوله: {ev.TrackingNumber}"
+                string.IsNullOrWhiteSpace(order.TrackingNumber)
+                    ? $"سفارش شماره {order.OrderNumber} تحویل پست/پیک شد."
+                    : $"سفارش شماره {order.OrderNumber} تحویل پست شد. کد پیگیری مرسوله: {order.TrackingNumber}"
             ),
             "Delivered" => (
                 "سفارش تحویل داده شد",
-                $"سفارش شماره {ev.OrderNumber} با موفقیت تحویل داده شد. از خرید شما سپاسگزاریم."
+                $"سفارش شماره {order.OrderNumber} با موفقیت تحویل داده شد. از خرید شما سپاسگزاریم."
             ),
             "Cancelled" => (
                 "سفارش لغو شد",
-                string.IsNullOrWhiteSpace(ev.CancellationReason)
-                    ? $"سفارش شماره {ev.OrderNumber} لغو شد."
-                    : $"سفارش شماره {ev.OrderNumber} لغو شد. علت: {ev.CancellationReason}"
+                string.IsNullOrWhiteSpace(order.CancellationReason)
+                    ? $"سفارش شماره {order.OrderNumber} لغو شد."
+                    : $"سفارش شماره {order.OrderNumber} لغو شد. علت: {order.CancellationReason}"
             ),
             "PaymentRejected" => (
                 "رسید پرداخت رد شد",
-                string.IsNullOrWhiteSpace(ev.CancellationReason)
-                    ? $"فیش واریزی سفارش شماره {ev.OrderNumber} مورد تایید قرار نگرفت. لطفاً با پشتیبانی تماس بگیرید."
-                    : $"فیش واریزی سفارش شماره {ev.OrderNumber} رد شد. علت: {ev.CancellationReason}"
+                string.IsNullOrWhiteSpace(order.CancellationReason)
+                    ? $"فیش واریزی سفارش شماره {order.OrderNumber} مورد تایید قرار نگرفت. لطفاً با پشتیبانی تماس بگیرید."
+                    : $"فیش واریزی سفارش شماره {order.OrderNumber} رد شد. علت: {order.CancellationReason}"
             ),
             _ => (
                 "بروزرسانی وضعیت سفارش",
-                $"وضعیت سفارش شماره {ev.OrderNumber} به '{ev.NewStatus}' تغییر یافت."
+                $"وضعیت سفارش شماره {order.OrderNumber} به '{order.NewStatus}' تغییر یافت."
             )
         };
     }

@@ -3,14 +3,13 @@ using System.Text.Json;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using VertexCommerce.Modules.Notifications.Services.Dispatching;
-using VertexCommerce.Shared.Contracts.Customers;
 using VertexCommerce.Shared.IntegrationEvents;
 
 namespace VertexCommerce.Modules.Notifications.EventHandlers;
 
-public sealed class OrderCreatedNotificationHandler(
+internal sealed class OrderCreatedNotificationHandler(
     INotificationDispatcher dispatcher,
-    ICustomerService customerService,
+    OrderNotificationRecipientResolver recipientResolver,
     ILogger<OrderCreatedNotificationHandler> logger)
     : INotificationHandler<OrderCreatedIntegrationEvent>
 {
@@ -19,64 +18,32 @@ public sealed class OrderCreatedNotificationHandler(
     {
         try
         {
-            CustomerInfoDto? customer = null;
-            try
-            {
-                customer = await customerService.GetCustomerInfo(notification.CustomerId, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning(ex, "Could not fetch customer info for CustomerId {CustomerId}", notification.CustomerId);
-            }
-
-            var customerUserId = customer?.UserId ?? notification.CustomerId;
-            var customerName = customer is not null && (!string.IsNullOrWhiteSpace(customer.FirstName) || !string.IsNullOrWhiteSpace(customer.LastName))
-                ? $"{customer.FirstName} {customer.LastName}".Trim()
-                : customer?.PhoneNumber ?? "مشتری";
-
+            var recipient = await recipientResolver.ResolveAsync(notification.CustomerId, cancellationToken);
             var payloadJson = JsonSerializer.Serialize(notification);
 
-            // 1. Notify Customer
-            const string title = "سفارش شما ثبت شد";
-            var message = $"سفارش جدید شما با شماره {notification.OrderNumber} با موفقیت ثبت شد.";
-            var pushData = new
-            {
-                orderId = notification.OrderId,
-                orderNumber = notification.OrderNumber
-            };
+            var customerDraft = new NotificationDraft(
+                Title: "سفارش شما ثبت شد",
+                Message: $"سفارش جدید شما با شماره {notification.OrderNumber} با موفقیت ثبت شد.",
+                Type: OrderNotificationTypes.OrderCreated,
+                PayloadJson: payloadJson,
+                PushUrl: "/account",
+                PushData: new { orderId = notification.OrderId, orderNumber = notification.OrderNumber });
 
-            await dispatcher.DispatchToUserAsync(
-                userId: customerUserId,
-                title: title,
-                message: message,
-                type: "OrderCreated",
-                payloadJson: payloadJson,
-                pushUrl: "/account",
-                pushData: pushData,
-                ct: cancellationToken);
+            var adminDraft = new NotificationDraft(
+                Title: "سفارش جدید ثبت شد",
+                Message: $"کاربر {recipient.DisplayName} سفارش جدید با شماره {notification.OrderNumber} به مبلغ {notification.TotalAmount:N0} {notification.Currency} ثبت کرد.",
+                Type: OrderNotificationTypes.AdminOrderCreated,
+                PayloadJson: payloadJson,
+                PushUrl: "/orders",
+                PushData: new { orderId = notification.OrderId, orderNumber = notification.OrderNumber, isAdmin = true });
 
-            // 2. Notify Admins
-            const string adminTitle = "سفارش جدید ثبت شد";
-            var adminMessage = $"کاربر {customerName} سفارش جدید با شماره {notification.OrderNumber} به مبلغ {notification.TotalAmount:N0} {notification.Currency} ثبت کرد.";
-            var adminPushData = new
-            {
-                orderId = notification.OrderId,
-                orderNumber = notification.OrderNumber,
-                isAdmin = true
-            };
-
-            await dispatcher.DispatchToAdminsAsync(
-                title: adminTitle,
-                message: adminMessage,
-                type: "AdminOrderCreated",
-                payloadJson: payloadJson,
-                pushUrl: "/orders",
-                pushData: adminPushData,
-                ct: cancellationToken);
+            await dispatcher.DispatchOrderEventAsync(
+                notification.EventId, recipient.UserId, customerDraft, adminDraft, cancellationToken);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error handling OrderCreatedIntegrationEvent for Order {OrderId}", notification.OrderId);
+            logger.LogError(ex, "Failed to process order creation event {EventId} for order {OrderId}",
+                notification.EventId, notification.OrderId);
         }
     }
 }

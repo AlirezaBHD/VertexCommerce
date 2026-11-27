@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Channels;
@@ -9,7 +8,7 @@ namespace VertexCommerce.Modules.Notifications.Services;
 
 public sealed class SseConnectionManager(ILogger<SseConnectionManager> logger) : ISseConnectionManager
 {
-    private readonly ConcurrentDictionary<Guid, List<Channel<NotificationMessage>>> _clients = new();
+    private readonly Dictionary<Guid, List<Channel<NotificationMessage>>> _connectionsByUser = [];
     private readonly Lock _lock = new();
 
     public Channel<NotificationMessage> RegisterClient(Guid userId)
@@ -22,8 +21,13 @@ public sealed class SseConnectionManager(ILogger<SseConnectionManager> logger) :
 
         lock (_lock)
         {
-            var list = _clients.GetOrAdd(userId, _ => []);
-            list.Add(channel);
+            if (!_connectionsByUser.TryGetValue(userId, out var connections))
+            {
+                connections = [];
+                _connectionsByUser.Add(userId, connections);
+            }
+
+            connections.Add(channel);
         }
 
         logger.LogInformation("SSE client registered for user {UserId}. Active client channels: {Count}",
@@ -36,12 +40,12 @@ public sealed class SseConnectionManager(ILogger<SseConnectionManager> logger) :
     {
         lock (_lock)
         {
-            if (_clients.TryGetValue(userId, out var list))
+            if (_connectionsByUser.TryGetValue(userId, out var connections))
             {
-                list.Remove(channel);
-                if (list.Count == 0)
+                connections.Remove(channel);
+                if (connections.Count == 0)
                 {
-                    _clients.TryRemove(userId, out _);
+                    _connectionsByUser.Remove(userId);
                 }
             }
         }
@@ -59,12 +63,12 @@ public sealed class SseConnectionManager(ILogger<SseConnectionManager> logger) :
 
         lock (_lock)
         {
-            if (!_clients.TryGetValue(userId, out var list) || list.Count == 0)
+            if (!_connectionsByUser.TryGetValue(userId, out var connections) || connections.Count == 0)
             {
                 return;
             }
 
-            channels = list.ToList();
+            channels = [.. connections];
         }
 
         logger.LogInformation("Broadcasting SSE notification {Id} to {Count} connection(s) for user {UserId}",
@@ -89,7 +93,7 @@ public sealed class SseConnectionManager(ILogger<SseConnectionManager> logger) :
         {
             lock (_lock)
             {
-                return _clients.Values.Sum(list => list.Count);
+                return _connectionsByUser.Values.Sum(connections => connections.Count);
             }
         }
     }

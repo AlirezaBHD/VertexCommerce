@@ -17,19 +17,19 @@ public sealed class PushSubscriptionConfiguration : IEntityTypeConfiguration<Pus
             .IsRequired();
 
         builder.Property(s => s.Endpoint)
-            .HasMaxLength(2048)
+            .HasMaxLength(PushSubscriptionLimits.Endpoint)
             .IsRequired();
 
         builder.Property(s => s.P256dhKey)
-            .HasMaxLength(256)
+            .HasMaxLength(PushSubscriptionLimits.P256dhKey)
             .IsRequired();
 
         builder.Property(s => s.AuthKey)
-            .HasMaxLength(128)
+            .HasMaxLength(PushSubscriptionLimits.AuthKey)
             .IsRequired();
 
         builder.Property(s => s.UserAgent)
-            .HasMaxLength(512);
+            .HasMaxLength(PushSubscriptionLimits.UserAgent);
 
         builder.Property(s => s.CreatedAt)
             .IsRequired();

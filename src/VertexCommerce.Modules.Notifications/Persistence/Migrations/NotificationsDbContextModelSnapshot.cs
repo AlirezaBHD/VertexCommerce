@@ -45,8 +45,7 @@ namespace VertexCommerce.Modules.Notifications.Persistence.Migrations
                         .HasColumnType("character varying(1000)");
 
                     b.Property<string>("PayloadJson")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("ReadAt")
                         .HasColumnType("timestamp with time zone");
@@ -120,6 +119,79 @@ namespace VertexCommerce.Modules.Notifications.Persistence.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("PushSubscriptions", "notifications");
+                });
+
+            modelBuilder.Entity("VertexCommerce.Modules.Notifications.Persistence.ProcessedOrderEvent", b =>
+                {
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ProcessedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("EventId");
+
+                    b.ToTable("ProcessedOrderEvents", "notifications");
+                });
+
+            modelBuilder.Entity("VertexCommerce.Modules.Notifications.Persistence.PushDelivery", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("LastHttpStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("LeaseExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("LeaseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("NextAttemptAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("NotificationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Outcome")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("SubscriptionId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NextAttemptAt", "Id")
+                        .HasFilter("\"CompletedAt\" IS NULL");
+
+                    b.HasIndex("NotificationId", "SubscriptionId")
+                        .IsUnique();
+
+                    b.ToTable("PushDeliveries", "notifications");
+                });
+
+            modelBuilder.Entity("VertexCommerce.Modules.Notifications.Persistence.PushDelivery", b =>
+                {
+                    b.HasOne("VertexCommerce.Modules.Notifications.Domain.Entities.Notification", null)
+                        .WithMany()
+                        .HasForeignKey("NotificationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
